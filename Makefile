@@ -1,4 +1,4 @@
-PROJECT_NAME := darts
+PROJECT_NAME := dartsout
 
 SRC_DIR := src
 INC_DIR := include
