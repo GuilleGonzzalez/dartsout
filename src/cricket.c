@@ -3,7 +3,6 @@
 #include <string.h>
 
 #include "cricket.h"
-#include "mealy.h"
 
 /* Global variables ***********************************************************/
 
@@ -17,7 +16,6 @@ static cricket_player_t* get_max_score(cricket_t* self);
 static bool sector_enabled(cricket_t* self, int sector_number);
 const char* mult_to_str(int mult);
 
-/* Transition Table ***********************************************************/
 /* Callbacks ******************************************************************/
 /* Function definitions *******************************************************/
 
@@ -84,11 +82,9 @@ void cricket_new_game(cricket_t* self, cricket_player_t* players, int n_players,
 	self->darts = 0;
 	self->players = players;
 	for (int i = 0; i < n_players; i++) {
-		self->players[i].pos = i;
 		self->players[i].game_score = 0;
+		self->players[i].round_score = 0;
 		memset(self->players[i].shots, 0, N_SECTORS * sizeof(int));
-		printf("%s will play in pos %d\n", self->players[i].name,
-				self->players[i].pos);
 	}
 	for (int i = 0; i < N_SECTORS; i++) {
 		self->sectors[i].shots = 0;
@@ -122,24 +118,26 @@ void cricket_next_player(cricket_t* self)
 		self->current_player = 0;
 	}
 	self->darts = 0;
+	self->players[self->current_player].round_score = 0;
 }
 
 void cricket_new_dart(cricket_t* self, dart_shot_t* val)
 {
 	if (val->number < 0 || val->number > 20 ||
 			val->multiplier < 0 || val->multiplier > 3) {
-		// Impossible
+		printf("If you can read this, there is a bug");
+		return;
 	}
 
 	cricket_player_t* player = &self->players[self->current_player];
-	if (!self->sectors[val->number].enabled) {
-		return;
-	}
 	
 	printf("%s hit %s %d \n", player->name, mult_to_str(val->multiplier),
 			val->number);
 
 	for (int i = 0; i < val->multiplier; i++) {
+		if (!self->sectors[val->number].enabled) {
+			return;
+		}
 		if (player->shots[val->number] < 3) {
 			player->shots[val->number]++;
 			if (player->shots[val->number] == 3) {
@@ -149,6 +147,7 @@ void cricket_new_dart(cricket_t* self, dart_shot_t* val)
 			}
 		} else {
 			player->game_score += sector_values[val->number];
+			player->round_score += sector_values[val->number];
 		}
 	}
 

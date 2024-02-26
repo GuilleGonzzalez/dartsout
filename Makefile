@@ -15,7 +15,9 @@ CFLAGS+=-Werror
 CFLAGS+=-Wextra
 CFLAGS+=-pedantic
 
-LIBS=
+LIBS=-lmongoose
+LIBS+=-lsqlite3
+LIBS+=-lwebsockets
 
 OUTPUT_FILE=$(PROJECT_NAME)
 

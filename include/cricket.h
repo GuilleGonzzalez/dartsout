@@ -20,8 +20,8 @@ typedef struct dart_shot_t {
 
 typedef struct cricket_player_t {
 	const char* name;     // Player name
-	int pos;              // Position number
 	int game_score;       // Number of "points" in the game
+	int round_score;      // Number of "points" in the round
 	int shots[N_SECTORS]; // Number of darts in each sector
 } cricket_player_t;
 
