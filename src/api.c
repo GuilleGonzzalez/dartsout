@@ -4,6 +4,7 @@
 
 #include "cricket.h"
 #include "json_helper.h"
+#include "game.h"
 
 /* Global variables ***********************************************************/
 
@@ -31,8 +32,12 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			mg_http_reply(c, 200, "", json);
 		} else if (mg_http_match_uri(hm, "/new-dart")) {
 			int board_id, num, mult;
-			json_helper_new_dart(hm->body.ptr, &board_id, &num, &mult);
-			// cricket_new_dart((int)num, (int)mult);
+			json_helper_new_dart(hm->body.ptr, &board_id, &num, &mult); //TODO: zone instead mult
+			game_event_t event;
+			event.type = GAME_EVENT_NEW_DART;
+			event.dart.num = num;
+			event.dart.zone = mult;
+			game_new_event(&event);
 			printf("New dart: board_id=%d, num=%d, mult=%d\n", board_id, num, mult);
 			if (0) {
 				char* json = json_helper_simple_str("result", "Invalid state");
@@ -53,7 +58,7 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 /* Public functions ***********************************************************/
 
 void api_init() {
-	mg_log_set(MG_LL_DEBUG);
+	// mg_log_set(MG_LL_DEBUG);
 	mg_mgr_init(&mgr);
 	mg_http_listen(&mgr, "http://localhost:8000", my_handler, NULL);
 	printf("API started!\n");
