@@ -93,15 +93,18 @@ void cricket_new_game(cricket_t* self, cricket_player_t* players, int n_players,
 			self->sectors[i].enabled = 1;
 		}
 	}
+	self->status = CRICKET_STATUS_PLAYING;
 }
 
 cricket_player_t* cricket_finish_game(cricket_t* self)
 {
 	cricket_player_t* best_player = get_max_score(self);
 	if (self->round > self->max_rounds) {
+		self->status = CRICKET_STATUS_IDLE;
 		return best_player;
 	}
 	if (player_all_closed(best_player)) {
+		self->status = CRICKET_STATUS_IDLE;
 		return best_player;
 	}
 	return NULL;
@@ -150,5 +153,9 @@ void cricket_new_dart(cricket_t* self, dart_shot_t* val)
 			player->round_score += sector_values[val->number];
 		}
 	}
+}
 
+cricket_status_t cricket_get_status(cricket_t* self)
+{
+	return self->status;
 }

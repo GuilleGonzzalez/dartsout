@@ -45,6 +45,7 @@ int main()
 	printf("Start!\n");
 
 	websocket_init();
+	api_init();
 
 	// db_init();
 	// db_players_new(2, "Alex"); //TODO: pasarle un tipo player_t
@@ -87,7 +88,7 @@ int main()
 
 	for (;;) {
 		while (!kbhit()) {
-			usleep(100000);
+			usleep(1000);
 			api_fire();
 		}
 		char ch = getchar();

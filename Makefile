@@ -18,6 +18,7 @@ CFLAGS+=-pedantic
 LIBS=-lmongoose
 LIBS+=-lsqlite3
 LIBS+=-lwebsockets
+LIBS+=-lcjson
 
 OUTPUT_FILE=$(PROJECT_NAME)
 
