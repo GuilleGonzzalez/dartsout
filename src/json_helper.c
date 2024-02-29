@@ -79,7 +79,7 @@ char* json_helper_simple_str(const char* str_id, const char* str)
 }
 
 int json_helper_new_dart(const char* json_str, int* board_id, int* num,
-		int* mult)
+		int* zone)
 {
 	cJSON* json = cJSON_Parse(json_str);
 	if (json == NULL) {
@@ -94,7 +94,7 @@ int json_helper_new_dart(const char* json_str, int* board_id, int* num,
 	if (err != 0) {
 		return 1;
 	}
-	err = json_get_int((int*)(mult), json, "mult");
+	err = json_get_int((int*)(zone), json, "zone");
 	if (err != 0) {
 		return 1;
 	}

@@ -4,6 +4,7 @@
 
 #include "game.h"
 #include "cricket.h"
+#include "api.h"
 
 /* Global variables ***********************************************************/
 
@@ -52,6 +53,9 @@ void game_init()
 
 void game_new_event(game_event_t* l_event)
 {
+	if (new_event_flag) {
+		printf("ERROR: Previous event not processed!\n");
+	}
 	memcpy(&event, l_event, sizeof(event));
 	new_event_flag = true;
 }
@@ -63,38 +67,24 @@ void game_fire()
 	}
 	new_event_flag = false;
 
+	dart_shot_t val;
+
 	switch(event.type) {
 	case GAME_EVENT_NEW_DART:
-	{
-		dart_shot_t val;
 		val.number = event.dart.num;
 		if (event.dart.zone == ZONE_TRIPLE) {
-			val.multiplier = 3;
+			val.zone = 3;
 		} else if (event.dart.zone == ZONE_DOUBLE) {
-			val.multiplier = 2;
+			val.zone = 2;
 		} else {
-			val.multiplier = 1;
+			val.zone = 1;
 		}
 		cricket_new_dart(&cricket, &val);
-		cricket.darts++;
-		cricket_player_t* winner_player = cricket_finish_game(&cricket);
-		if (winner_player != NULL) {
-			cricket_finish_game(&cricket);
-			printf("Winner is %s with %d points\n", winner_player->name,
-					winner_player->game_score);
-			return;
-		}
-		cricket_player_t* player = &cricket.players[cricket.current_player];
-		printf("[Cricket] Round: %d/%d, player: %s, score: %d, round score: %d, darts: %d\n\n",
-				cricket.round, cricket.max_rounds, player->name,
-				player->game_score, player->round_score, cricket.darts);
-		if (cricket.darts == MAX_DARTS) {
-			cricket_next_player(&cricket);
-			printf("[Cricket] %s's turn\n",
-					cricket.players[cricket.current_player].name);
-		}
+		char buff[200];
+		cricket_status(&cricket, buff);
+		api_ws_write(buff);
+		cricket_process(&cricket);
 		break;
-	}
 	default:
 		break;
 	}

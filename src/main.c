@@ -1,11 +1,6 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <termios.h>
 #include <unistd.h>
-#include <fcntl.h>
 #include "main.h"
-#include "cricket.h"
 #include "api.h"
 #include "db.h"
 #include "game.h"
@@ -16,7 +11,7 @@
 
 int main()
 {
-	printf("Start!\n");
+	printf("Starting Dartsout!\n");
 
 	// websockets_init();
 	api_init();
@@ -29,7 +24,7 @@ int main()
 	// db_cricket_get();
 
 	for (;;) {
-		usleep(1000);
+		// In for loop, only api_fire
 		api_fire();
 		game_fire();
 	}

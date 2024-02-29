@@ -14,7 +14,8 @@ static const int sector_values[N_SECTORS] = {25, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
 static bool player_all_closed(cricket_player_t* player);
 static cricket_player_t* get_max_score(cricket_t* self);
 static bool sector_enabled(cricket_t* self, int sector_number);
-const char* mult_to_str(int mult);
+static const char* zone_to_str(int zone);
+static bool valid_shot(dart_shot_t* ds);
 
 /* Callbacks ******************************************************************/
 /* Function definitions *******************************************************/
@@ -53,20 +54,22 @@ static bool sector_enabled(cricket_t* self, int sector_number)
 	return false;
 }
 
-const char* mult_to_str(int mult)
+static const char* zone_to_str(int zone)
 {
-	const char* str_mult;
-	if (mult == 1) {
-		str_mult = "single";
-	} else if (mult == 2) {
-		str_mult = "double";
-	} else if (mult == 3) {
-		str_mult = "triple";
+	const char* str_zone;
+	if (zone == 0) {
+		str_zone = "triple";
+	} else if (zone == 1) {
+		str_zone = "double";
 	} else {
-		str_mult = "";
+		str_zone = "single";
 	}
+	return str_zone;
+}
 
-	return str_mult;
+static bool valid_shot(dart_shot_t* ds)
+{
+	return ds->number > 0 && ds->number <= 20 && ds->zone > 0 && ds->zone <= 4;
 }
 
 /* Public functions ***********************************************************/
@@ -93,18 +96,15 @@ void cricket_new_game(cricket_t* self, cricket_player_t* players, int n_players,
 			self->sectors[i].enabled = 1;
 		}
 	}
-	self->status = CRICKET_STATUS_PLAYING;
 }
 
 cricket_player_t* cricket_finish_game(cricket_t* self)
 {
 	cricket_player_t* best_player = get_max_score(self);
 	if (self->round > self->max_rounds) {
-		self->status = CRICKET_STATUS_IDLE;
 		return best_player;
 	}
 	if (player_all_closed(best_player)) {
-		self->status = CRICKET_STATUS_IDLE;
 		return best_player;
 	}
 	return NULL;
@@ -126,18 +126,17 @@ void cricket_next_player(cricket_t* self)
 
 void cricket_new_dart(cricket_t* self, dart_shot_t* val)
 {
-	if (val->number < 0 || val->number > 20 ||
-			val->multiplier < 0 || val->multiplier > 3) {
-		printf("If you can read this, there is a bug");
+	if (!valid_shot(val)) {
+		printf("ERROR: Invalid shot!\n");
 		return;
 	}
+	self->darts++;
 
 	cricket_player_t* player = &self->players[self->current_player];
-	
-	printf("%s hit %s %d \n", player->name, mult_to_str(val->multiplier),
+	printf("%s hit %s %d \n", player->name, zone_to_str(val->zone),
 			val->number);
 
-	for (int i = 0; i < val->multiplier; i++) {
+	for (int i = 0; i < val->zone; i++) {
 		if (!self->sectors[val->number].enabled) {
 			return;
 		}
@@ -155,7 +154,26 @@ void cricket_new_dart(cricket_t* self, dart_shot_t* val)
 	}
 }
 
-cricket_status_t cricket_get_status(cricket_t* self)
+void cricket_status(cricket_t* self, char* buff)
 {
-	return self->status;
+	cricket_player_t* player = &self->players[self->current_player];
+	sprintf(buff, "[Cricket] Round: %d/%d, player: %s, score: %d, "
+			"round score: %d, darts: %d\n\n",
+			self->round, self->max_rounds, player->name,
+			player->game_score, player->round_score, self->darts);
+}
+
+void cricket_process(cricket_t* self)
+{
+	cricket_player_t* winner_player = cricket_finish_game(self);
+	if (winner_player != NULL) {
+		printf("Winner is %s with %d points\n", winner_player->name,
+				winner_player->game_score);
+		return;
+	}
+	if (self->darts == MAX_DARTS) {
+		cricket_next_player(self);
+		printf("[Cricket] %s's turn\n",
+				self->players[self->current_player].name);
+	}
 }

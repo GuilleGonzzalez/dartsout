@@ -2,6 +2,13 @@
 #define __GAME_H
 
 typedef enum {
+	GAME_CRICKET,
+	GAME_X00,
+	GAME_X01,
+	GAME_15,
+} game_games_t;
+
+typedef enum {
 	GAME_EVENT_NEW_DART,
 	GAME_EVENT_NEW_GAME, //TODO
 } game_event_type_t;

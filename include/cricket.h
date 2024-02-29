@@ -8,10 +8,6 @@
 #define N_SCORABLE_SHOTS 7
 #define N_SECTORS 21
 
-typedef enum {
-	CRICKET_STATUS_IDLE,
-	CRICKET_STATUS_PLAYING,
-} cricket_status_t;
 typedef struct sectors_t {
 	int shots;
 	bool enabled;
@@ -19,7 +15,7 @@ typedef struct sectors_t {
 
 typedef struct dart_shot_t {
 	int number;
-	int multiplier;
+	int zone;
 } dart_shot_t;
 
 typedef struct cricket_player_t {
@@ -38,7 +34,6 @@ typedef struct cricket_t {
 	int max_score;      // Max score
 	int current_player; // Player which is playing
 	int darts;          // Number of darts thrown in this round
-	cricket_status_t status;
 } cricket_t;
 
 void cricket_new_game(cricket_t* self, cricket_player_t* players, int n_players,
@@ -46,5 +41,7 @@ void cricket_new_game(cricket_t* self, cricket_player_t* players, int n_players,
 cricket_player_t* cricket_finish_game(cricket_t* self);
 void cricket_next_player(cricket_t* self);
 void cricket_new_dart(cricket_t* self, dart_shot_t* val);
+void cricket_status(cricket_t* self, char* buff);
+void cricket_process(cricket_t* self);
 
 #endif // __CRICKET_H
