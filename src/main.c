@@ -26,7 +26,6 @@ int main()
 	for (;;) {
 		// In for loop, only api_fire
 		api_fire();
-		game_fire();
 	}
 
 	return 0;

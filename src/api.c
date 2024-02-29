@@ -24,6 +24,8 @@ static void del_connection(struct mg_connection* c);
 
 /* Callbacks ******************************************************************/
 
+//TODO check errors of json functions
+
 static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 		void* fn_data) {
 	if (ev == MG_EV_HTTP_MSG) {
@@ -49,17 +51,36 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			event.type = GAME_EVENT_NEW_DART;
 			event.dart.num = num;
 			event.dart.zone = zone;
-			game_new_event(&event);
+			char* ret_str = game_new_event(&event);
+			char* json = json_helper_simple_str("result", ret_str);
+			mg_http_reply(c, 200, "", json);
 			printf("New dart: board_id=%d, num=%d, zone=%d\n", board_id, num,
 					zone);
-			char* json = json_helper_simple_str("result", "OK");
+		} else if (mg_http_match_uri(hm, "/new-player")) {
+			char player_name[20];
+			json_helper_new_player(hm->body.ptr, player_name,
+					sizeof(player_name));
+			game_event_t event;
+			event.type = GAME_EVENT_NEW_PLAYER;
+			event.player_name = player_name; //TODO: player.name; player.id
+			char* ret_str = game_new_event(&event);
+			char* json = json_helper_simple_str("result", ret_str);
 			mg_http_reply(c, 200, "", json);
+			printf("New player: %s\n", player_name);
 		} else if (mg_http_match_uri(hm, "/new-game")) {
-			// GAME
-			// PLAYERS[]
+			int game_id;
+			json_helper_new_game(hm->body.ptr, &game_id);
+			game_event_t event;
+			event.type = GAME_EVENT_NEW_GAME;
+			event.game_id = game_id; //TODO: player.name; player.id
+			char* ret_str = game_new_event(&event);
+			char* json = json_helper_simple_str("result", ret_str);
+			mg_http_reply(c, 200, "", json);
+			printf("New game: ID=%d\n", game_id);
 		} else {
-			char* json = json_helper_simple_str("error", "Not found");
-			mg_http_reply(c, 404, "", json);
+			static const char *s_web_root = ".";
+			struct mg_http_serve_opts opts = {.root_dir = s_web_root};
+			mg_http_serve_dir(c, ev_data, &opts);
 		}
 	} else if (ev == MG_EV_WS_MSG) {
 		// Got websocket frame. Received data is wm->data. Echo it back!
