@@ -58,7 +58,7 @@ static int json_get_int(int* num, cJSON* json, char* id)
 
 /* Public functions ***********************************************************/
 
-char* json_helper_simple_int(const char* str_id, int num)
+const char* json_helper_simple_int(const char* str_id, int num)
 {
 	char* out;
 	cJSON* json = cJSON_CreateObject();
@@ -68,11 +68,40 @@ char* json_helper_simple_int(const char* str_id, int num)
 	return out;
 }
 
-char* json_helper_simple_str(const char* str_id, const char* str)
+const char* json_helper_simple_str(const char* str_id, const char* str)
 {
 	char* out;
 	cJSON* json = cJSON_CreateObject();
 	cJSON_AddStringToObject(json, str_id, str);
+	out = cJSON_Print(json);
+	cJSON_Delete(json);
+	return out;
+}
+
+const char* json_helper_cricket_status(cricket_t* cricket)
+{
+	const char* out;
+	cJSON* json = cJSON_CreateObject();
+	cJSON_AddNumberToObject(json, "n_players", cricket->n_players);
+	cJSON_AddNumberToObject(json, "round", cricket->round);
+	cJSON_AddNumberToObject(json, "max_rounds", cricket->max_rounds);
+	cJSON_AddNumberToObject(json, "mac_score", cricket->max_score);
+	cJSON_AddNumberToObject(json, "current_player", cricket->current_player);
+	cJSON_AddNumberToObject(json, "darts", cricket->darts);
+	cJSON* players = cJSON_AddArrayToObject(json, "players");
+	for (int i = 0; i < cricket->n_players; i++) {
+		cricket_player_t p = cricket->players[i];
+		cJSON* player = cJSON_CreateObject();
+		cJSON_AddStringToObject(player, "name", p.name);
+		cJSON_AddNumberToObject(player, "game_score", p.game_score);
+		cJSON_AddNumberToObject(player, "round_score", p.round_score);
+		cJSON* shots = cJSON_CreateArray();
+		for (int j = 0; j < N_SECTORS; j++) {
+			cJSON_AddItemToArray(shots, cJSON_CreateNumber(p.shots[j]));
+		}
+		cJSON_AddItemToObject(player, "shots", shots);
+		cJSON_AddItemToArray(players, player);
+	}
 	out = cJSON_Print(json);
 	cJSON_Delete(json);
 	return out;

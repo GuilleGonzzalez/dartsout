@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "cricket.h"
+#include "json_helper.h"
 
 /* Global variables ***********************************************************/
 
@@ -69,7 +70,8 @@ static const char* zone_to_str(int zone)
 
 static bool valid_shot(dart_shot_t* ds)
 {
-	return ds->number > 0 && ds->number <= 20 && ds->zone > 0 && ds->zone <= 4;
+	// NOTE: 0 is bull
+	return ds->number >= 0 && ds->number <= 20 && ds->zone > 0 && ds->zone <= 4;
 }
 
 /* Public functions ***********************************************************/
@@ -154,13 +156,9 @@ void cricket_new_dart(cricket_t* self, dart_shot_t* val)
 	}
 }
 
-void cricket_status(cricket_t* self, char* buff)
+const char* cricket_status(cricket_t* self)
 {
-	cricket_player_t* player = &self->players[self->current_player];
-	sprintf(buff, "[Cricket] Round: %d/%d, player: %s, score: %d, "
-			"round score: %d, darts: %d\n\n",
-			self->round, self->max_rounds, player->name,
-			player->game_score, player->round_score, self->darts);
+	return json_helper_cricket_status(self);
 }
 
 void cricket_process(cricket_t* self)

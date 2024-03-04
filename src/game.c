@@ -19,23 +19,6 @@ static int n_players = 0;
 
 void game_init()
 {
-	// int i = 0;
-	// for (i = 0; i < MAX_PLAYERS; i++) {
-	// 	char* name = malloc(100);
-	// 	printf("Player %d name (enter to start): ", i+1);
-	// 	fgets(name, sizeof(name), stdin);
-	// 	name[strcspn(name, "\n")] = '\0';
-	// 	if (strlen(name) == 0) {
-	// 		free(name);
-	// 		if (i == 0) {
-	// 			printf("Minimum players: 1\n");
-	// 			i--;
-	// 			continue;
-	// 		}
-	// 		break;
-	// 	}
-	// 	players[i].name = name;
-	// }
 }
 
 char* game_new_event(game_event_t* event)
@@ -79,14 +62,14 @@ char* game_new_event(game_event_t* event)
 			val.zone = 1;
 		}
 		cricket_new_dart(&cricket, &val);
-		char buff[200];
-		cricket_status(&cricket, buff);
-		api_ws_write(buff);
+		const char* json = cricket_status(&cricket);
+		api_ws_write(json);
+		free((char*)json);
 		cricket_process(&cricket);
 		break;
 	default:
 		break;
 	}
 
-	return "OK";
+	return "Success";
 }

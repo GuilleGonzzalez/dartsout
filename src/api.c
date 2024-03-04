@@ -13,6 +13,7 @@
 
 static struct mg_mgr mgr;
 static struct mg_connection* connections[MAX_CONNECTIONS];
+static const char *s_web_root = "www";
 
 /* Function prototypes ********************************************************/
 
@@ -37,13 +38,15 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			new_connection(c);
 		} else if (mg_http_match_uri(hm, "/status")) {
 			int status = 10;
-			char* json = json_helper_simple_int("status", status);
+			const char* json = json_helper_simple_int("status", status);
 			mg_http_reply(c, 200, "", json);
+			free((char*)json);
 		} else if (mg_http_match_uri(hm, "/new-board")) {
 			int next_board_id = 1;
 			printf("New board request: asigning board_id=%d\n", next_board_id);
-			char* json = json_helper_simple_int("board_id", next_board_id);
+			const char* json = json_helper_simple_int("board_id", next_board_id);
 			mg_http_reply(c, 200, "", json);
+			free((char*)json);
 		} else if (mg_http_match_uri(hm, "/new-dart")) {
 			int board_id, num, zone;
 			json_helper_new_dart(hm->body.ptr, &board_id, &num, &zone);
@@ -52,8 +55,9 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			event.dart.num = num;
 			event.dart.zone = zone;
 			char* ret_str = game_new_event(&event);
-			char* json = json_helper_simple_str("result", ret_str);
+			const char* json = json_helper_simple_str("result", ret_str);
 			mg_http_reply(c, 200, "", json);
+			free((char*)json);
 			printf("New dart: board_id=%d, num=%d, zone=%d\n", board_id, num,
 					zone);
 		} else if (mg_http_match_uri(hm, "/new-player")) {
@@ -64,8 +68,9 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			event.type = GAME_EVENT_NEW_PLAYER;
 			event.player_name = player_name; //TODO: player.name; player.id
 			char* ret_str = game_new_event(&event);
-			char* json = json_helper_simple_str("result", ret_str);
+			const char* json = json_helper_simple_str("result", ret_str);
 			mg_http_reply(c, 200, "", json);
+			free((char*)json);
 			printf("New player: %s\n", player_name);
 		} else if (mg_http_match_uri(hm, "/new-game")) {
 			int game_id;
@@ -74,11 +79,12 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			event.type = GAME_EVENT_NEW_GAME;
 			event.game_id = game_id; //TODO: player.name; player.id
 			char* ret_str = game_new_event(&event);
-			char* json = json_helper_simple_str("result", ret_str);
+			const char* json = json_helper_simple_str("result", ret_str);
 			mg_http_reply(c, 200, "", json);
+			free((char*)json);
 			printf("New game: ID=%d\n", game_id);
 		} else {
-			static const char *s_web_root = ".";
+
 			struct mg_http_serve_opts opts = {.root_dir = s_web_root};
 			mg_http_serve_dir(c, ev_data, &opts);
 		}

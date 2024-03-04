@@ -41,7 +41,7 @@ void cricket_new_game(cricket_t* self, cricket_player_t* players, int n_players,
 cricket_player_t* cricket_finish_game(cricket_t* self);
 void cricket_next_player(cricket_t* self);
 void cricket_new_dart(cricket_t* self, dart_shot_t* val);
-void cricket_status(cricket_t* self, char* buff);
+const char* cricket_status(cricket_t* self);
 void cricket_process(cricket_t* self);
 
 #endif // __CRICKET_H
