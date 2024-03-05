@@ -1,6 +1,8 @@
 #ifndef __GAME_H
 #define __GAME_H
 
+#include "dartboard.h"
+
 typedef enum {
 	GAME_CRICKET = 0,
 	GAME_X00 = 1,
@@ -11,25 +13,15 @@ typedef enum {
 typedef enum {
 	GAME_EVENT_NEW_GAME,
 	GAME_EVENT_NEW_PLAYER,
+	GAME_EVENT_NEXT_PLAYER,
 	GAME_EVENT_NEW_DART,
+	GAME_EVENT_FINISH,
 } game_event_type_t;
-
-typedef enum {
-	ZONE_TRIPLE,
-	ZONE_DOUBLE,
-	ZONE_SINGLE_INT,
-	ZONE_SINGLE_EXT,
-} zone_t;
-
-typedef struct dart_t {
-	int num;
-	zone_t zone;
-} dart_t;
 
 typedef struct game_event_t {
 	game_event_type_t type;
 	union {
-		dart_t dart;
+		dartboard_shot_t dart;
 		char* player_name; //TODO: player_t player
 		int game_id; //TODO
 	};

@@ -52,7 +52,7 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			json_helper_new_dart(hm->body.ptr, &board_id, &num, &zone);
 			game_event_t event;
 			event.type = GAME_EVENT_NEW_DART;
-			event.dart.num = num;
+			event.dart.number = num;
 			event.dart.zone = zone;
 			char* ret_str = game_new_event(&event);
 			const char* json = json_helper_simple_str("result", ret_str);
@@ -72,6 +72,14 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			mg_http_reply(c, 200, "", json);
 			free((char*)json);
 			printf("New player: %s\n", player_name);
+		} else if (mg_http_match_uri(hm, "/next-player")) {
+			game_event_t event;
+			event.type = GAME_EVENT_NEXT_PLAYER;
+			char* ret_str = game_new_event(&event);
+			const char* json = json_helper_simple_str("result", ret_str);
+			mg_http_reply(c, 200, "", json);
+			free((char*)json);
+			printf("Next player\n");
 		} else if (mg_http_match_uri(hm, "/new-game")) {
 			int game_id;
 			json_helper_new_game(hm->body.ptr, &game_id);
