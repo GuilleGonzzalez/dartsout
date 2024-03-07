@@ -49,10 +49,56 @@ function showMessage(message) {
       document.getElementById("darts").innerHTML = json["darts"];
       document.getElementById("round").innerHTML = json["round"];
       document.getElementById("max_rounds").innerHTML = json["max_rounds"];
+      let shots = [];
+      for (let i = 0; i < n_players; i++) {
+        shots[i] = json["players"][i]["shots"];
+      }
+      drawShots(shots)
+      highlightRow(curr_player_idx + 1);
       break;
     default:
       alert("Error");
   }
+}
+
+function highlightRow(row) {
+  const table = document.getElementById("cricketTable");
+  const rows = table.querySelectorAll("tbody tr");
+  const sel_row = table.querySelector(`tbody tr:nth-child(${row})`);
+  rows.forEach(function(r) {
+    r.classList.remove("table-active");
+  });
+  sel_row.classList.add("table-active");
+  
+}
+
+function getSymbol(num) {
+  switch(num) {
+  case 1:
+    return "𝈺";
+  case 2:
+    return "⨉";
+  case 3:
+    return "⦻";
+  default:
+    return "";
+  }
+}
+
+function drawShots(shots) {
+  console.log(shots);
+  const table = document.getElementById("cricketTable");
+  const rows = table.getElementsByTagName("tr");
+  for (let i = 0; i < shots.length; i++) {
+    const cells = rows[i+1].getElementsByTagName("td");
+      for (let j = 0; j < cells.length; j++) {
+        // Shots is an array with shots in numbers: bull, 1, 2... 20
+        // Cells is 20, 19, 18, 17, 16, 15, bull
+        cells[j].textContent = getSymbol(shots[i][20-j]);
+      }
+      // Bull
+      cells[cells.length-1].textContent = getSymbol(shots[i][0]);
+  }  
 }
 
 function api_post(url, json) {

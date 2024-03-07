@@ -11,18 +11,20 @@
   <body>
     <h1 class="display-3 fw-bolder text-center">Dartsout</h1>
     <div class="container text-center">
-      <a type="button" class="btn btn-block btn-primary" href="game.html" onclick="new_game()">New cricket game</a>
       <button type="submit" class="btn btn-primary" onclick="new_player()">Add player</button>
+      <a type="button" class="btn btn-block btn-primary" href="game.html" onclick="new_game()">New cricket game</a>
+    </div>
+    <div class="container">
       <p class="fs-2 fw-bolder">Player 1: <span id="player0"></span></p>
       <p class="fs-2 fw-bolder">Player 2: <span id="player1"></span></p>
       <p class="fs-2 fw-bolder">Player 3: <span id="player2"></span></p>
       <p class="fs-2 fw-bolder">Player 4: <span id="player3"></span></p>
-      <br class="mb-4">
-      <input type="text" id="wsMsg" class="form-control" placeholder="Send echo WebSocket mesasge" maxlength="50"/>
-      <br class="mb-4">
-      <button type="button" class="btn btn-primary" onclick="sendWsMsg()">Send echo msg</button>
-      <div id="messages"></div>
     </div>
+    <br class="mb-4">
+    <input type="text" id="wsMsg" class="form-control" placeholder="Send echo WebSocket mesasge" maxlength="50"/>
+    <br class="mb-4">
+    <button type="button" class="btn btn-primary" onclick="sendWsMsg()">Send echo msg</button>
+    <div id="messages"></div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script src="js/dartsout.js"></script>
   </body>
