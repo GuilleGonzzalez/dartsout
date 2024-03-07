@@ -2,15 +2,16 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "api.h"
 #include "game.h"
 #include "cricket.h"
-#include "api.h"
+#include "json_helper.h"
 
 /* Global variables ***********************************************************/
 
+static game_t game;
 static cricket_t cricket;
 static cricket_player_t players[MAX_PLAYERS];
-static int n_players = 0;
 
 /* Function prototypes ********************************************************/
 /* Callbacks ******************************************************************/
@@ -19,6 +20,7 @@ static int n_players = 0;
 
 void game_init()
 {
+	game.running = false;
 }
 
 char* game_new_event(game_event_t* event)
@@ -26,22 +28,28 @@ char* game_new_event(game_event_t* event)
 	dartboard_shot_t val;
 	const char* json;
 
+	// TODO: this is only for cricket!
 	switch(event->type) {
 	case GAME_EVENT_NEW_GAME:
-		if (n_players <= 0) {
+		if (game.n_players <= 0) {
 			return "No players added";
 		}
+		game.running = true;
 		int max_points = 200;
 		int max_rounds = 3;
-		cricket_new_game(&cricket, players, n_players, max_points, max_rounds);
+		cricket_new_game(&cricket, players, game.n_players, max_points,
+				max_rounds);
 		printf("[Cricket] New game: %d players, %d rounds, max %d points\n",
-				n_players, max_rounds, max_points);
+				game.n_players, max_rounds, max_points);
 		json = cricket_status(&cricket);
 		api_ws_write(json);
 		free((char*)json);
 		break;
 	case GAME_EVENT_NEW_PLAYER:
-		if (n_players == MAX_PLAYERS) {
+		if (game.running) {
+			return "A game is running";
+		}
+		if (game.n_players == MAX_PLAYERS) {
 			return "Max players reached";
 		}
 		char* name = malloc(strlen(event->player_name));
@@ -49,8 +57,13 @@ char* game_new_event(game_event_t* event)
 			return "Error adding player";
 		}
 		strcpy(name, event->player_name);
-		players[n_players].name = name;
-		n_players++;
+		game.players[game.n_players].name = name;
+		game.players[game.n_players].userid = "test_user_id";
+		players[game.n_players].name = name;
+		game.n_players++;
+		json = game_status();
+		api_ws_write(json);
+		free((char*)json);
 		break;
 	case GAME_EVENT_NEXT_PLAYER:
 		cricket_next_player(&cricket);
@@ -77,10 +90,16 @@ char* game_new_event(game_event_t* event)
 		break;
 	case GAME_EVENT_FINISH:
 		printf("Game finished!\n");
+		game.running = false;
 		break;
 	default:
 		break;
 	}
 
 	return "Success";
+}
+
+const char* game_status()
+{
+	return json_helper_game_status(&game);
 }

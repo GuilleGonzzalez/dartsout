@@ -82,6 +82,7 @@ const char* json_helper_cricket_status(cricket_t* cricket)
 {
 	const char* out;
 	cJSON* json = cJSON_CreateObject();
+	cJSON_AddNumberToObject(json, "msg_id", 1); //TODO: hardcoded
 	cJSON_AddNumberToObject(json, "n_players", cricket->n_players);
 	cJSON_AddNumberToObject(json, "round", cricket->round);
 	cJSON_AddNumberToObject(json, "max_rounds", cricket->max_rounds);
@@ -100,6 +101,27 @@ const char* json_helper_cricket_status(cricket_t* cricket)
 			cJSON_AddItemToArray(shots, cJSON_CreateNumber(p.shots[j]));
 		}
 		cJSON_AddItemToObject(player, "shots", shots);
+		cJSON_AddItemToArray(players, player);
+	}
+	out = cJSON_Print(json);
+	cJSON_Delete(json);
+	return out;
+}
+
+const char* json_helper_game_status(game_t* game)
+{
+	const char* out;
+	cJSON* json = cJSON_CreateObject();
+	cJSON_AddNumberToObject(json, "msg_id", 0); //TODO: hardcoded
+	cJSON_AddBoolToObject(json, "running", game->running);
+	cJSON_AddNumberToObject(json, "game_id", game->game);
+	cJSON_AddNumberToObject(json, "n_players", game->n_players);
+	cJSON* players = cJSON_AddArrayToObject(json, "players");
+	for (int i = 0; i < game->n_players; i++) {
+		player_t p = game->players[i];
+		cJSON* player = cJSON_CreateObject();
+		cJSON_AddStringToObject(player, "userid", p.userid);
+		cJSON_AddStringToObject(player, "name", p.name);
 		cJSON_AddItemToArray(players, player);
 	}
 	out = cJSON_Print(json);

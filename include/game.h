@@ -2,12 +2,13 @@
 #define __GAME_H
 
 #include "dartboard.h"
+#include "player.h"
 
 typedef enum {
 	GAME_CRICKET = 0,
-	GAME_X00 = 1,
-	GAME_X01 = 2,
-	GAME_15 = 3,
+	GAME_100 = 1,
+	GAME_301 = 2,
+	GAME_ROUND_THE_WORLD = 3,
 } game_games_t;
 
 typedef enum {
@@ -27,7 +28,15 @@ typedef struct game_event_t {
 	};
 } game_event_t;
 
+typedef struct game_t {
+	bool running;
+	game_games_t game;
+	player_t players[MAX_PLAYERS];
+	int n_players;
+} game_t;
+
 void game_init();
 char* game_new_event(game_event_t* event);
+const char* game_status();
 
 #endif // __GAME_H

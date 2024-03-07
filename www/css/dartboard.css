@@ -1,0 +1,175 @@
+:root {
+	--white: white;
+	--black: black;
+	--red: red;
+	--green: green;
+}
+
+.dartboard {
+	--bullseye-radius: 6.35;
+	--bull-radius: 15.9;
+	--triple-outer-radius: 107;
+	--triple-width: 8;
+	--double-outer-radius: 170;
+	--double-width: 8;
+	--wire-width: 1.4;
+
+	--wire-color: var(--silver, silver);
+	--bullseye-color: var(--red, red);
+	--bull-color: var(--green, green);
+
+	> li {
+		&:nth-child(odd) {
+			--single-color: var(--black, black);
+			--triple-color: var(--red, red);
+		}
+		&:nth-child(even) {
+			--single-color: var(--white, white);
+			--triple-color: var(--green, green);
+		}
+		--double-color: var(--triple-color);
+	}
+
+	--scale: calc(85% / var(--double-outer-radius));
+	margin: 0;
+	padding: 0;
+	list-style: none;
+	/* Aquí cambio el tamaño (antes era 100vmin) */
+	width: calc(50vmin - 20px);
+	height: calc(50vmin - 20px);
+	display: grid;
+	grid-template-areas: "dartboard";
+	overflow: hidden;
+	background: var(--black, black);
+	color: var(--white, white);
+	clip-path: circle();
+	text-align: center;
+	/* Aqui cambio los numeros (antes era 4vmin/2) */
+	font: 4vmin/1 Futura, sans-serif;
+
+	&::after {
+		content: "";
+		grid-area: dartboard;
+		background: radial-gradient(
+			closest-side,
+			var(--bullseye-color) 0 calc(var(--bullseye-radius) * var(--scale)),
+			var(--wire-color) 0
+				calc((var(--bullseye-radius) + var(--wire-width)) * var(--scale)),
+			var(--bull-color) 0 calc(var(--bull-radius) * var(--scale)),
+			var(--wire-color) 0
+				calc((var(--bull-radius) + var(--wire-width)) * var(--scale)),
+			transparent 0
+		);
+		z-index: 0;
+	}
+
+	> li {
+		grid-area: dartboard;
+		background: radial-gradient(
+			closest-side,
+			var(--single-color) 0
+				calc(
+					(var(--triple-outer-radius) - var(--triple-width) - 2 * var(--wire-width)) *
+						var(--scale)
+				),
+			var(--wire-color) 0
+				calc(
+					(var(--triple-outer-radius) - var(--triple-width) - var(--wire-width)) *
+						var(--scale)
+				),
+			var(--triple-color) 0
+				calc((var(--triple-outer-radius) - var(--wire-width)) * var(--scale)),
+			var(--wire-color) 0 calc(var(--triple-outer-radius) * var(--scale)),
+			var(--single-color) 0
+				calc(
+					(var(--double-outer-radius) - var(--double-width) - 2 * var(--wire-width)) *
+						var(--scale)
+				),
+			var(--wire-color) 0
+				calc(
+					(var(--double-outer-radius) - var(--double-width) - var(--wire-width)) *
+						var(--scale)
+				),
+			var(--double-color) 0
+				calc((var(--double-outer-radius) - var(--wire-width)) * var(--scale)),
+			var(--wire-color) 0 calc(var(--double-outer-radius) * var(--scale)),
+			transparent 0
+		);
+
+		--tan9deg: 0.158384440324536;
+		clip-path: polygon(
+			calc(50% * (1 - var(--tan9deg))) 0,
+			calc(50% * (1 + var(--tan9deg))) 0,
+			50% 50%
+		);
+		
+		&:nth-child(2) {
+			transform: rotate(calc(1 / 20 * 1turn));
+		};
+		&:nth-child(3) {
+			transform: rotate(calc(2 / 20 * 1turn));
+		};
+		&:nth-child(4) {
+			transform: rotate(calc(3 / 20 * 1turn));
+		};
+		&:nth-child(5) {
+			transform: rotate(calc(4 / 20 * 1turn));
+		};
+		&:nth-child(6) {
+			transform: rotate(calc(5 / 20 * 1turn));
+		};
+		&:nth-child(7) {
+			transform: rotate(calc(6 / 20 * 1turn));
+		};
+		&:nth-child(8) {
+			transform: rotate(calc(7 / 20 * 1turn));
+		};
+		&:nth-child(9) {
+			transform: rotate(calc(8 / 20 * 1turn));
+		};
+		&:nth-child(10) {
+			transform: rotate(calc(9 / 20 * 1turn));
+		};
+		&:nth-child(11) {
+			transform: rotate(calc(10 / 20 * 1turn));
+		};
+		&:nth-child(12) {
+			transform: rotate(calc(11 / 20 * 1turn));
+		};
+		&:nth-child(13) {
+			transform: rotate(calc(12 / 20 * 1turn));
+		};
+		&:nth-child(14) {
+			transform: rotate(calc(13 / 20 * 1turn));
+		};
+		&:nth-child(15) {
+			transform: rotate(calc(14 / 20 * 1turn));
+		};
+		&:nth-child(16) {
+			transform: rotate(calc(15 / 20 * 1turn));
+		};
+		&:nth-child(17) {
+			transform: rotate(calc(16 / 20 * 1turn));
+		};
+		&:nth-child(18) {
+			transform: rotate(calc(17 / 20 * 1turn));
+		};
+		&:nth-child(19) {
+			transform: rotate(calc(18 / 20 * 1turn));
+		};
+		&:nth-child(20) {
+			transform: rotate(calc(19 / 20 * 1turn));
+		};
+		/* @for $index from 2 through 20 {
+			&:nth-child($index) {
+				transform: rotate(calc(#{$index - 1}/ 20 * 1turn));
+			}
+		} */
+	}
+}
+
+*,
+::before,
+::after {
+	box-sizing: border-box;
+}
