@@ -86,9 +86,17 @@ const char* json_helper_cricket_status(cricket_t* cricket)
 	cJSON_AddNumberToObject(json, "n_players", cricket->n_players);
 	cJSON_AddNumberToObject(json, "round", cricket->round);
 	cJSON_AddNumberToObject(json, "max_rounds", cricket->max_rounds);
-	cJSON_AddNumberToObject(json, "mac_score", cricket->max_score);
+	cJSON_AddNumberToObject(json, "max_score", cricket->max_score);
 	cJSON_AddNumberToObject(json, "current_player", cricket->current_player);
 	cJSON_AddNumberToObject(json, "darts", cricket->darts);
+	cJSON* dart_scores = cJSON_AddArrayToObject(json, "dart_scores");
+	for (int i = 0; i < MAX_DARTS; i++) {
+		dartboard_shot_t ds = cricket->dart_scores[i];
+		cJSON* dart_score = cJSON_CreateObject();
+		cJSON_AddNumberToObject(dart_score, "num", ds.number);
+		cJSON_AddNumberToObject(dart_score, "zone", ds.zone);
+		cJSON_AddItemToArray(dart_scores, dart_score);
+	}
 	cJSON* players = cJSON_AddArrayToObject(json, "players");
 	for (int i = 0; i < cricket->n_players; i++) {
 		cricket_player_t p = cricket->players[i];

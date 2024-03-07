@@ -99,6 +99,10 @@ void cricket_new_game(cricket_t* self, cricket_player_t* players, int n_players,
 			self->sectors[i].enabled = 1;
 		}
 	}
+	for (int i = 0; i < MAX_DARTS; i++) {
+		self->dart_scores[i].number = -1;
+		self->dart_scores[i].zone = -1;
+	}
 }
 
 cricket_player_t* cricket_check_finish(cricket_t* self)
@@ -138,6 +142,8 @@ void cricket_new_dart(cricket_t* self, dartboard_shot_t* val)
 		printf("No more darts!\n");
 		return;
 	}
+	self->dart_scores[self->darts].number = val->number;
+	self->dart_scores[self->darts].zone = val->zone;
 	self->darts++;
 
 	cricket_player_t* player = &self->players[self->current_player];

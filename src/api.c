@@ -111,7 +111,7 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 
 static void new_connection(struct mg_connection* c)
 {
-	printf("New conection with ID=%ld\n", c->id);
+	// printf("New conection with ID=%ld\n", c->id);
 	for (int i = 0; i < MAX_CONNECTIONS; i++) {
 		if (connections[i] == NULL) {
 			connections[i] = c;
@@ -123,14 +123,14 @@ static void new_connection(struct mg_connection* c)
 
 static void del_connection(struct mg_connection* c)
 {
-	printf("Closing connection %ld...\n", c->id);
+	// printf("Closing connection %ld...\n", c->id);
 	for (int i = 0; i < MAX_CONNECTIONS; i++) {
 		if (connections[i] == c) {
 			connections[i] = NULL;
 			return;
 		}
 	}
-	printf("WARNING: Connection %ld not found\n", c->id);
+	// printf("WARNING: Connection %ld not found\n", c->id);
 }
 
 /* Public functions ***********************************************************/

@@ -31,10 +31,16 @@ char* game_new_event(game_event_t* event)
 	// TODO: this is only for cricket!
 	switch(event->type) {
 	case GAME_EVENT_NEW_GAME:
+		game.running = true;
 		if (game.n_players <= 0) {
+			game.running = false;
+		}
+		json = game_status();
+		api_ws_write(json);
+		free((char*)json);
+		if (!game.running) {
 			return "No players added";
 		}
-		game.running = true;
 		int max_points = 200;
 		int max_rounds = 3;
 		cricket_new_game(&cricket, players, game.n_players, max_points,
