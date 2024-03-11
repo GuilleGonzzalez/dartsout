@@ -103,12 +103,16 @@ void cricket_new_game(cricket_t* self, cricket_player_t* players, int n_players,
 		self->dart_scores[i].number = -1;
 		self->dart_scores[i].zone = -1;
 	}
+	printf("[Cricket] New game: %d players, %d rounds, max %d points\n",
+				self->n_players, self->max_rounds, self->max_score);
 }
 
 cricket_player_t* cricket_check_finish(cricket_t* self)
 {
 	cricket_player_t* best_player = get_max_score(self);
-	if (self->round > self->max_rounds) {
+	if (self->round == self->max_rounds &&
+			self->current_player == self->n_players - 1 &&
+			self->darts == MAX_DARTS) {
 		return best_player;
 	}
 	if (player_all_closed(best_player)) {

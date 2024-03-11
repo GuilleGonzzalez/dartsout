@@ -12,11 +12,12 @@ typedef enum {
 } game_games_t;
 
 typedef enum {
+	GAME_EVENT_STATUS,
 	GAME_EVENT_NEW_GAME,
 	GAME_EVENT_NEW_PLAYER,
 	GAME_EVENT_NEXT_PLAYER,
 	GAME_EVENT_NEW_DART,
-	GAME_EVENT_FINISH,
+	GAME_EVENT_FINISH_GAME,
 } game_event_type_t;
 
 typedef struct game_event_t {
@@ -28,6 +29,11 @@ typedef struct game_event_t {
 	};
 } game_event_t;
 
+typedef struct game_event_rsp_t {
+	int ret_code;
+	char* ret_str;
+} game_event_rsp_t;
+
 typedef struct game_t {
 	bool running;
 	game_games_t game;
@@ -36,7 +42,7 @@ typedef struct game_t {
 } game_t;
 
 void game_init();
-char* game_new_event(game_event_t* event);
+void game_new_event(game_event_t* event, game_event_rsp_t* rsp);
 const char* game_status();
 
 #endif // __GAME_H

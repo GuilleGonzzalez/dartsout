@@ -82,7 +82,7 @@ const char* json_helper_cricket_status(cricket_t* cricket)
 {
 	const char* out;
 	cJSON* json = cJSON_CreateObject();
-	cJSON_AddNumberToObject(json, "msg_id", 1); //TODO: hardcoded
+	cJSON_AddNumberToObject(json, "msg_id", 1); //TODO: hardcoded (crocket msg)
 	cJSON_AddNumberToObject(json, "n_players", cricket->n_players);
 	cJSON_AddNumberToObject(json, "round", cricket->round);
 	cJSON_AddNumberToObject(json, "max_rounds", cricket->max_rounds);
@@ -120,7 +120,7 @@ const char* json_helper_game_status(game_t* game)
 {
 	const char* out;
 	cJSON* json = cJSON_CreateObject();
-	cJSON_AddNumberToObject(json, "msg_id", 0); //TODO: hardcoded
+	cJSON_AddNumberToObject(json, "msg_id", 0); //TODO:  (status msg)
 	cJSON_AddBoolToObject(json, "running", game->running);
 	cJSON_AddNumberToObject(json, "game_id", game->game);
 	cJSON_AddNumberToObject(json, "n_players", game->n_players);

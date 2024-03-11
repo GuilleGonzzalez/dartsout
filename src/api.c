@@ -28,7 +28,10 @@ static void del_connection(struct mg_connection* c);
 //TODO check errors of json functions
 
 static void my_handler(struct mg_connection* c, int ev, void* ev_data,
-		void* fn_data) {
+		void* fn_data)
+{
+	game_event_rsp_t game_rsp;
+
 	if (ev == MG_EV_HTTP_MSG) {
 		struct mg_http_message* hm = (struct mg_http_message*) ev_data;
 		if (mg_http_match_uri(hm, "/websocket")) {
@@ -37,15 +40,18 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			mg_ws_upgrade(c, hm, NULL);
 			new_connection(c);
 		} else if (mg_http_match_uri(hm, "/status")) {
-			int status = 10;
-			const char* json = json_helper_simple_int("status", status);
-			mg_http_reply(c, 200, "", json);
+			game_event_t event;
+			event.type = GAME_EVENT_STATUS;
+			game_new_event(&event, &game_rsp);
+			const char* json = json_helper_simple_str("result",
+					game_rsp.ret_str);
+			mg_http_reply(c, game_rsp.ret_code, "", json);
 			free((char*)json);
 		} else if (mg_http_match_uri(hm, "/new-board")) {
 			int next_board_id = 1;
 			printf("New board request: asigning board_id=%d\n", next_board_id);
 			const char* json = json_helper_simple_int("board_id", next_board_id);
-			mg_http_reply(c, 200, "", json);
+			mg_http_reply(c, game_rsp.ret_code, "", json);
 			free((char*)json);
 		} else if (mg_http_match_uri(hm, "/new-dart")) {
 			int board_id, num, zone;
@@ -54,12 +60,11 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			event.type = GAME_EVENT_NEW_DART;
 			event.dart.number = num;
 			event.dart.zone = zone;
-			char* ret_str = game_new_event(&event);
-			const char* json = json_helper_simple_str("result", ret_str);
-			mg_http_reply(c, 200, "", json);
+			game_new_event(&event, &game_rsp);
+			const char* json = json_helper_simple_str("result",
+					game_rsp.ret_str);
+			mg_http_reply(c, game_rsp.ret_code, "", json);
 			free((char*)json);
-			printf("New dart: board_id=%d, num=%d, zone=%d\n", board_id, num,
-					zone);
 		} else if (mg_http_match_uri(hm, "/new-player")) {
 			char player_name[20];
 			json_helper_new_player(hm->body.ptr, player_name,
@@ -67,32 +72,39 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			game_event_t event;
 			event.type = GAME_EVENT_NEW_PLAYER;
 			event.player_name = player_name; //TODO: player.name; player.id
-			char* ret_str = game_new_event(&event);
-			const char* json = json_helper_simple_str("result", ret_str);
-			mg_http_reply(c, 200, "", json);
+			game_new_event(&event, &game_rsp);
+			const char* json = json_helper_simple_str("result",
+					game_rsp.ret_str);
+			mg_http_reply(c, game_rsp.ret_code, "", json);
 			free((char*)json);
-			printf("New player: %s\n", player_name);
 		} else if (mg_http_match_uri(hm, "/next-player")) {
 			game_event_t event;
 			event.type = GAME_EVENT_NEXT_PLAYER;
-			char* ret_str = game_new_event(&event);
-			const char* json = json_helper_simple_str("result", ret_str);
-			mg_http_reply(c, 200, "", json);
+			game_new_event(&event, &game_rsp);
+			const char* json = json_helper_simple_str("result",
+					game_rsp.ret_str);
+			mg_http_reply(c, game_rsp.ret_code, "", json);
 			free((char*)json);
-			printf("Next player\n");
 		} else if (mg_http_match_uri(hm, "/new-game")) {
 			int game_id;
 			json_helper_new_game(hm->body.ptr, &game_id);
 			game_event_t event;
 			event.type = GAME_EVENT_NEW_GAME;
 			event.game_id = game_id; //TODO: player.name; player.id
-			char* ret_str = game_new_event(&event);
-			const char* json = json_helper_simple_str("result", ret_str);
-			mg_http_reply(c, 200, "", json);
+			game_new_event(&event, &game_rsp);
+			const char* json = json_helper_simple_str("result",
+					game_rsp.ret_str);
+			mg_http_reply(c, game_rsp.ret_code, "", json);
 			free((char*)json);
-			printf("New game: ID=%d\n", game_id);
+		} else if (mg_http_match_uri(hm, "/finish-game")) {
+			game_event_t event;
+			event.type = GAME_EVENT_FINISH_GAME;
+			game_new_event(&event, &game_rsp);
+			const char* json = json_helper_simple_str("result",
+					game_rsp.ret_str);
+			mg_http_reply(c, game_rsp.ret_code, "", json);
+			free((char*)json);
 		} else {
-
 			struct mg_http_serve_opts opts = {.root_dir = s_web_root};
 			mg_http_serve_dir(c, ev_data, &opts);
 		}
