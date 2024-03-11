@@ -37,6 +37,13 @@ function api_post(url, json) {
     api_post("/new-game", json);
   }
   
+  function register_player() {
+    let userid = prompt("New player userid:", "");
+    let name = prompt("New player name:", "");
+    json = JSON.stringify({userid, name});
+    api_post("/register-player", json);
+  }
+  
   function new_player() {
     let player = prompt("Player name:", "Player 1");
     if (player == null || player == "") {

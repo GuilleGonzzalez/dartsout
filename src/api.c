@@ -31,6 +31,7 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 		void* fn_data)
 {
 	game_event_rsp_t game_rsp;
+	dartboard_event_rsp_t dartboard_rsp;
 
 	if (ev == MG_EV_HTTP_MSG) {
 		struct mg_http_message* hm = (struct mg_http_message*) ev_data;
@@ -103,6 +104,20 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			const char* json = json_helper_simple_str("result",
 					game_rsp.ret_str);
 			mg_http_reply(c, game_rsp.ret_code, "", json);
+			free((char*)json);
+		} else if (mg_http_match_uri(hm, "/register-player")) {
+			char userid[50];
+			char name[50];
+			json_helper_register_player(hm->body.ptr, userid, sizeof(userid),
+					name, sizeof(name));
+			dartboard_event_t event;
+			event.type = DARTBOARD_EVENT_REGISTER_PLAYER;
+			event.player->userid = userid;
+			event.player->name = name;
+			dartboard_new_event(&event, &dartboard_rsp);
+			const char* json = json_helper_simple_str("result",
+					dartboard_rsp.ret_str);
+			mg_http_reply(c, dartboard_rsp.ret_code, "", json);
 			free((char*)json);
 		} else {
 			struct mg_http_serve_opts opts = {.root_dir = s_web_root};

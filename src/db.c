@@ -9,15 +9,15 @@ static db_t cricket_db;
 
 /* Function prototypes ********************************************************/
 
-static int sql_cb(void* NotUsed, int argc, char** argv, char** azColName);
+static int sql_cb(void* not_used, int argc, char** argv, char** az_col_name);
 
 /* Callbacks ******************************************************************/
 
-static int sql_cb(void* NotUsed, int argc, char** argv, char** azColName)
+static int sql_cb(void* not_used, int argc, char** argv, char** az_col_name)
 {
-	(void)NotUsed;
+	(void)not_used;
 	for (int i = 0; i < argc; i++){
-		printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+		printf("%s = %s\n", az_col_name[i], argv[i] ? argv[i] : "NULL");
 	}
 	printf("\n");
 	return 0;
@@ -30,15 +30,17 @@ void db_init()
 {
 	char* query;
 
+	//TODO: si no existe el fichero, crear bases de datos
+
 	players_db.name = "players.db";
 	query = "CREATE TABLE PLAYERS("
-	"UID INT PRIMARY KEY NOT NULL,"
+	"UISERD CHAR(50) PRIMARY KEY NOT NULL,"
 	"NAME CHAR(50) NOT NULL);";
 	db_exec(&players_db, query);
 
 	cricket_db.name = "cricket.db";
 	query = "CREATE TABLE CRICKET("
-	"UID INT PRIMARY KEY NOT NULL,"
+	"USERID CHAR(50) INT PRIMARY KEY NOT NULL,"
 	"MPR REAL NOT NULL);";
 	db_exec(&cricket_db, query);
 }
@@ -53,11 +55,11 @@ void db_exec(db_t* db, char* query)
 	} else {
 		printf("Opened database successfully\n");
 	}
-	char* zErrMsg = 0;
-	rc = sqlite3_exec(db->db, query, sql_cb, 0, &zErrMsg);
+	char* err_msg = 0;
+	rc = sqlite3_exec(db->db, query, sql_cb, 0, &err_msg);
 	if (rc != SQLITE_OK) {
-		printf("SQL error: %s\n", zErrMsg);
-		sqlite3_free(zErrMsg);
+		printf("SQL error: %s\n", err_msg);
+		sqlite3_free(err_msg);
 	} else {
 		printf("Query performed: %s\n", query);
 	}
@@ -70,25 +72,39 @@ void db_exec(db_t* db, char* query)
 	}
 }
 
-void db_players_new(int player_uid, const char* name)
+int db_players_new(player_t* new_player)
 {
+	int n_players = 0;
+	player_t players;
+	//TODO: an array of players
+	db_players_get(&players, &n_players);
+	for (int i = 0; i < n_players; i++) {
+		// if (players[i].name == new_player->name) {
+			// return -1;
+		// }
+	}
+
 	char query[100];
-	sprintf(query, "INSERT INTO PLAYERS (UID, NAME) VALUES (%d, '%s');",
-			player_uid, name);
+	sprintf(query, "INSERT INTO PLAYERS (USERID, NAME) VALUES (%s, '%s');",
+			new_player->userid, new_player->name);
 	db_exec(&players_db, query);
+
+	return 0;
 }
 
-void db_players_get()
+void db_players_get(player_t* player, int* n_players)
 {
+	(void)player;
+	(void)n_players;
 	char* query = "SELECT * FROM PLAYERS";
 	db_exec(&players_db, query);
 }
 
-void db_cricket_new(int player_uid, float mpr)
+void db_cricket_new(int userid, float mpr)
 {
 	char query[100];
-	sprintf(query, "INSERT INTO CRICKET (UID, MPR) VALUES (%d, %f);",
-			player_uid, mpr);
+	sprintf(query, "INSERT INTO CRICKET (USERID, MPR) VALUES (%d, %f);",
+			userid, mpr);
 	db_exec(&cricket_db, query);
 }
 

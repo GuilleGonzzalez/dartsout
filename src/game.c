@@ -29,7 +29,7 @@ void game_new_event(game_event_t* event, game_event_rsp_t* rsp)
 	const char* json;
 
 	// TODO: this is only for cricket!
-	switch(event->type) {
+	switch (event->type) {
 	case GAME_EVENT_STATUS:
 		if (!game.running) {
 			rsp->ret_code = 400;

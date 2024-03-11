@@ -144,7 +144,7 @@ int json_helper_new_player(const char* json_str, char* player, int player_len)
 		return 1;
 	}
 	const char* str;
-	int err;
+	int err = 0;
 	str = json_get_string(json, "player");
 	if (str == NULL) {
 		cJSON_Delete(json);
@@ -178,6 +178,31 @@ int json_helper_new_dart(const char* json_str, int* board_id, int* num,
 	err |= json_get_int((int*)(board_id), json, "board_id");
 	err |= json_get_int((int*)(num), json, "num");
 	err |= json_get_int((int*)(zone), json, "zone");
+	cJSON_Delete(json);
+	return err;
+}
+
+int json_helper_register_player(const char* json_str, char* userid,
+		int userid_len, char* name, int name_len)
+{
+	cJSON* json = cJSON_Parse(json_str);
+	if (json == NULL) {
+		return 1;
+	}
+	const char* str;
+	int err = 0;
+	str = json_get_string(json, "userid");
+	if (str == NULL) {
+		cJSON_Delete(json);
+		return 1;
+	}
+	strncpy(userid, str, userid_len);
+	str = json_get_string(json, "name");
+	if (str == NULL) {
+		cJSON_Delete(json);
+		return 1;
+	}
+	strncpy(name, str, name_len);
 	cJSON_Delete(json);
 	return err;
 }
