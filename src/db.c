@@ -1,25 +1,85 @@
 #include "db.h"
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+typedef struct players_data_t {
+	char* userid;
+	char* name;
+} players_data_t;
+
+typedef struct cricket_data_t {
+	char* userid;
+	float mpr;
+} cricket_data_t;
 
 /* Global variables ***********************************************************/
 
-static db_t players_db;
-static db_t cricket_db;
+static db_t dartsout_db;
 
 /* Function prototypes ********************************************************/
 
-static int sql_cb(void* not_used, int argc, char** argv, char** az_col_name);
+static int sql_cb(void* user_data, int argc, char** argv, char** az_col_name);
+static int players_get_cb(void* user_data, int argc, char** argv,
+		char** az_col_name);
+static int cricket_get_cb(void* user_data, int argc, char** argv,
+		char** az_col_name);
 
 /* Callbacks ******************************************************************/
 
-static int sql_cb(void* not_used, int argc, char** argv, char** az_col_name)
+static int sql_cb(void* user_data, int argc, char** argv, char** az_col_name)
 {
-	(void)not_used;
+	(void) user_data;
+	printf("callback\n");
 	for (int i = 0; i < argc; i++){
 		printf("%s = %s\n", az_col_name[i], argv[i] ? argv[i] : "NULL");
 	}
 	printf("\n");
+	return 0;
+}
+
+static int players_get_cb(void* user_data, int argc, char** argv,
+		char** az_col_name)
+{
+	(void) az_col_name;
+	printf("Players get callback\n");
+
+	if (argc != 2) {
+		perror("Invalid length\n");
+	}
+
+	players_data_t* data = user_data;
+	data->userid = malloc(strlen(argv[0]));
+	if (data->userid == NULL) {
+		perror("CRITICAL ERROR");
+	}
+	strcpy(data->userid, argv[0]);
+	data->name = malloc(strlen(argv[1]));
+	if (data->name == NULL) {
+		perror("CRITICAL ERROR");
+	}
+	strcpy(data->name, argv[1]);
+
+	//TODO: free si no uso el jugador
+
+	return 0;
+}
+
+static int cricket_get_cb(void* user_data, int argc, char** argv,
+		char** az_col_name)
+{
+	(void) az_col_name;
+	printf("Cricket get callback\n");
+
+	if (argc != 2) {
+		perror("Invalid length\n");
+	}
+
+	cricket_data_t* data = user_data;
+	data->userid = argv[0];
+	data->mpr = atof(argv[1]);
+	printf("\n");
+
 	return 0;
 }
 
@@ -32,84 +92,114 @@ void db_init()
 
 	//TODO: si no existe el fichero, crear bases de datos
 
-	players_db.name = "players.db";
+	dartsout_db.name = "dartsout.db";
 	query = "CREATE TABLE PLAYERS("
-	"UISERD CHAR(50) PRIMARY KEY NOT NULL,"
+	"USERID CHAR(50) PRIMARY KEY NOT NULL,"
 	"NAME CHAR(50) NOT NULL);";
-	db_exec(&players_db, query);
-
-	cricket_db.name = "cricket.db";
+	db_exec(&dartsout_db, query, sql_cb, NULL);
 	query = "CREATE TABLE CRICKET("
-	"USERID CHAR(50) INT PRIMARY KEY NOT NULL,"
+	"USERID CHAR(50) PRIMARY KEY NOT NULL,"
 	"MPR REAL NOT NULL);";
-	db_exec(&cricket_db, query);
+	db_exec(&dartsout_db, query, sql_cb, NULL);
 }
 
-void db_exec(db_t* db, char* query)
+int db_exec(db_t* db, char* query,
+		int (*callback)(void *, int, char **, char **), void* user_data)
 {
+	int ret = 0;
 	int rc;
 	rc = sqlite3_open(db->name, &db->db);
 	if (rc) {
 		printf("Can't open database: %s\n", sqlite3_errmsg(db->db));
-		return;
-	} else {
-		printf("Opened database successfully\n");
+		return -1;
 	}
 	char* err_msg = 0;
-	rc = sqlite3_exec(db->db, query, sql_cb, 0, &err_msg);
+	rc = sqlite3_exec(db->db, query, callback, user_data, &err_msg);
+
 	if (rc != SQLITE_OK) {
 		printf("SQL error: %s\n", err_msg);
 		sqlite3_free(err_msg);
+		ret = -1;
 	} else {
 		printf("Query performed: %s\n", query);
 	}
 	rc = sqlite3_close(db->db);
 	if (rc) {
 		printf("Can't close database: %s\n", sqlite3_errmsg(db->db));
-		return;
-	} else {
-		printf("Closed database successfully\n");
+		return -1;
 	}
+	return ret;
 }
 
 int db_players_new(player_t* new_player)
 {
-	int n_players = 0;
-	player_t players;
-	//TODO: an array of players
-	db_players_get(&players, &n_players);
-	for (int i = 0; i < n_players; i++) {
-		// if (players[i].name == new_player->name) {
-			// return -1;
-		// }
+	player_t player;
+	db_players_get(&player, new_player->userid);
+	if (player.userid != NULL) {
+		printf("Player exists: %s\n", player.userid);
+		return -1;
 	}
 
-	char query[100];
-	sprintf(query, "INSERT INTO PLAYERS (USERID, NAME) VALUES (%s, '%s');",
+	char* query;
+	// asprintf allocates memory and printf ea
+	int len = asprintf(&query, "INSERT INTO PLAYERS (USERID, NAME) VALUES ('%s', '%s');",
 			new_player->userid, new_player->name);
-	db_exec(&players_db, query);
+	if (len == -1) {
+		perror("CRITICAL ERROR");
+		exit(1);
+	}
+	db_exec(&dartsout_db, query, NULL, NULL);
+	free(query);
 
 	return 0;
 }
 
-void db_players_get(player_t* player, int* n_players)
+void db_players_get(player_t* player, const char* userid)
 {
-	(void)player;
-	(void)n_players;
-	char* query = "SELECT * FROM PLAYERS";
-	db_exec(&players_db, query);
+	char* query;
+	// asprintf allocates memory and printf ea
+	(void) userid;
+	int len = asprintf(&query, "SELECT * FROM PLAYERS WHERE USERID='%s'", userid);
+	if (len == -1) {
+		perror("CRITICAL ERROR");
+		exit(1);
+	}
+	players_data_t data;
+	data.name = NULL;
+	data.userid = NULL;
+	int ret = db_exec(&dartsout_db, query, players_get_cb, &data);
+	if (ret != 0 || data.name == NULL) {
+		player->name = NULL;
+		player->userid = NULL;
+	} else {
+		printf("USERID: %s\n", data.userid);
+		printf("NAME: %s\n", data.name);
+		player->name = data.name;
+		player->userid = data.userid;
+
+	}
 }
 
 void db_cricket_new(int userid, float mpr)
 {
-	char query[100];
-	sprintf(query, "INSERT INTO CRICKET (USERID, MPR) VALUES (%d, %f);",
+	char* query;
+	// asprintf allocates memory and printf ea
+	int len = asprintf(&query, "INSERT INTO CRICKET (USERID, MPR) VALUES (%d, %f);",
 			userid, mpr);
-	db_exec(&cricket_db, query);
+	if (len == -1) {
+		perror("CRITICAL ERROR");
+		exit(1);
+	}
+	db_exec(&dartsout_db, query, NULL, NULL);
+	free(query);
 }
+
 
 void db_cricket_get()
 {
 	char* query = "SELECT * FROM CRICKET";
-	db_exec(&cricket_db, query);
+	cricket_data_t data;
+	db_exec(&dartsout_db, query, cricket_get_cb, &data);
+	printf("USER: %s\n", data.userid);
+	printf("MPR: %f\n", data.mpr);
 }

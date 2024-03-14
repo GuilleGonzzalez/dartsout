@@ -11,9 +11,10 @@ typedef struct db_t {
 } db_t;
 
 void db_init();
-void db_exec(db_t* db, char* query);
+int db_exec(db_t* db, char* query,
+		int (*callback)(void *, int, char **, char **), void* user_data);
 int db_players_new(player_t* new_player);
-void db_players_get(player_t* player, int* n_players);
+void db_players_get(player_t* player, const char* userid);
 void db_cricket_new(int userid, float mpr);
 void db_cricket_get();
 
