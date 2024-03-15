@@ -28,12 +28,14 @@ typedef enum {
 
 typedef enum {
 	DARTBOARD_EVENT_REGISTER_PLAYER,
+	DARTBOARD_EVENT_GET_PLAYER,
 } dartboard_event_type_t;
 
 typedef struct dartboard_event_t {
 	dartboard_event_type_t type;
 	union {
 		player_t* player;
+		char* userid;
 	};
 } dartboard_event_t;
 

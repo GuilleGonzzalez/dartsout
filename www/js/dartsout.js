@@ -2,9 +2,29 @@ let ws_url = "ws://localhost:8000/websocket"
 // let ws_url = "ws://0.0.0.0:8000/websocket"
 let socket = new WebSocket(ws_url);
 
+// const exampleModal = document.getElementById('exampleModal')
+// if (exampleModal) {
+//   exampleModal.addEventListener('show.bs.modal', event => {
+//     // Button that triggered the modal
+//     const button = event.relatedTarget
+//     // Extract info from data-bs-* attributes
+//     const recipient = button.getAttribute('data-bs-whatever')
+//     // If necessary, you could initiate an Ajax request here
+//     // and then do the updating in a callback.
+
+//     // Update the modal's content.
+//     const modalTitle = exampleModal.querySelector('.modal-title')
+//     const modalBodyInput = exampleModal.querySelector('.modal-body input')
+
+//     modalTitle.textContent = `New message to ${recipient}`
+//     modalBodyInput.value = recipient
+//   })
+// }
+
 const MsgId = {
 	GameStatus: 0,
 	Cricket:    1,
+  Player:     2,
 }
 
 function sendWsMsg() {
@@ -68,7 +88,7 @@ function showMessage(message) {
       document.getElementById("round_score").innerHTML = curr_player["round_score"];
       document.getElementById("round").innerHTML = json["round"];
       document.getElementById("max_rounds").innerHTML = json["max_rounds"];
-
+      
       let shots = [];
       const scoresRow = document.getElementById("scores");
       const cardHeaders = scoresRow.getElementsByClassName("card-header");
@@ -83,6 +103,9 @@ function showMessage(message) {
       drawDarts(darts, dart_scores);
       drawShots(shots);
       highlightRow(curr_player_idx + 1);
+      break;
+    case MsgId.Player:
+      addPlayerToTable(json, 1);
       break;
     default:
       alert("Error");
@@ -137,18 +160,20 @@ function drawTable(players) {
   }
 }
 
-function addPlayerTable(name) {
-  const table = document.getElementById("cricketTable");
+function addPlayerToTable(player, idx) {
+  const table = document.getElementById("playersTable");
   const tableBody = table.querySelector("tbody");
   var row = document.createElement("tr");
   var colHeader = document.createElement("th");
   colHeader.setAttribute('scope', 'row');
-  colHeader.innerHTML = name;
+  colHeader.innerHTML = idx;
   row.append(colHeader);
-  for (let i = 0; i < 7; i++) {
-    var col = document.createElement("td");
-    row.append(col);
-  }
+  var userid_cell = document.createElement("td");
+  userid_cell.innerHTML = player["userid"];
+  row.append(userid_cell);
+  var name_cell = document.createElement("td");
+  name_cell.innerHTML = player["name"];
+  row.append(name_cell);
   tableBody.append(row);
 }
 

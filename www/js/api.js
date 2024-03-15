@@ -44,6 +44,12 @@ function api_post(url, json) {
     api_post("/register-player", json);
   }
   
+  function new_reg_player() {
+    let userid = prompt("Player userid:", "");
+    json = JSON.stringify({userid});
+    api_post("/get-player", json);
+  }
+  
   function new_player() {
     let player = prompt("Player name:", "Player 1");
     if (player == null || player == "") {

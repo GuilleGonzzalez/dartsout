@@ -7,7 +7,7 @@
 
 typedef struct db_t {
 	sqlite3* db;
-	const char* name;
+	const char* filename;
 } db_t;
 
 void db_init();

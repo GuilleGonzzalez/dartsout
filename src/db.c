@@ -2,7 +2,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
+
 typedef struct players_data_t {
 	char* userid;
 	char* name;
@@ -16,6 +18,7 @@ typedef struct cricket_data_t {
 /* Global variables ***********************************************************/
 
 static db_t dartsout_db;
+static char* db_filename = "dartsout.db";
 
 /* Function prototypes ********************************************************/
 
@@ -24,6 +27,8 @@ static int players_get_cb(void* user_data, int argc, char** argv,
 		char** az_col_name);
 static int cricket_get_cb(void* user_data, int argc, char** argv,
 		char** az_col_name);
+
+static bool file_exists(const char* filename);
 
 /* Callbacks ******************************************************************/
 
@@ -84,15 +89,30 @@ static int cricket_get_cb(void* user_data, int argc, char** argv,
 }
 
 /* Function definitions *******************************************************/
+
+static bool file_exists(const char* filename)
+{
+	FILE* fp = fopen(filename, "r");
+	bool exists = false;
+	if (fp != NULL) {
+		exists = true;
+		fclose(fp);
+	}
+	return exists;
+}
+
+
 /* Public functions ***********************************************************/
 
 void db_init()
 {
+	dartsout_db.filename = db_filename;
+
+	if (file_exists(dartsout_db.filename)) {
+		return;
+	}
+
 	char* query;
-
-	//TODO: si no existe el fichero, crear bases de datos
-
-	dartsout_db.name = "dartsout.db";
 	query = "CREATE TABLE PLAYERS("
 	"USERID CHAR(50) PRIMARY KEY NOT NULL,"
 	"NAME CHAR(50) NOT NULL);";
@@ -108,7 +128,7 @@ int db_exec(db_t* db, char* query,
 {
 	int ret = 0;
 	int rc;
-	rc = sqlite3_open(db->name, &db->db);
+	rc = sqlite3_open(db->filename, &db->db);
 	if (rc) {
 		printf("Can't open database: %s\n", sqlite3_errmsg(db->db));
 		return -1;
@@ -133,14 +153,8 @@ int db_exec(db_t* db, char* query,
 
 int db_players_new(player_t* new_player)
 {
-	player_t player;
-	db_players_get(&player, new_player->userid);
-	if (player.userid != NULL) {
-		printf("Player exists: %s\n", player.userid);
-		return -1;
-	}
-
 	char* query;
+	int ret = 0;
 	// asprintf allocates memory and printf ea
 	int len = asprintf(&query, "INSERT INTO PLAYERS (USERID, NAME) VALUES ('%s', '%s');",
 			new_player->userid, new_player->name);
@@ -148,10 +162,10 @@ int db_players_new(player_t* new_player)
 		perror("CRITICAL ERROR");
 		exit(1);
 	}
-	db_exec(&dartsout_db, query, NULL, NULL);
+	ret = db_exec(&dartsout_db, query, NULL, NULL);
 	free(query);
 
-	return 0;
+	return ret;
 }
 
 void db_players_get(player_t* player, const char* userid)

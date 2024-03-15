@@ -137,6 +137,18 @@ const char* json_helper_game_status(game_t* game)
 	return out;
 }
 
+const char* json_helper_reg_player(player_t* player)
+{
+	const char* out;
+	cJSON* json = cJSON_CreateObject();
+	cJSON_AddNumberToObject(json, "msg_id", 2); //TODO:  (reg player msg)
+	cJSON_AddStringToObject(json, "userid", player->userid);
+	cJSON_AddStringToObject(json, "name", player->name);
+	out = cJSON_Print(json);
+	cJSON_Delete(json);
+	return out;
+}
+
 int json_helper_new_player(const char* json_str, char* player, int player_len)
 {
 	cJSON* json = cJSON_Parse(json_str);
@@ -203,6 +215,25 @@ int json_helper_register_player(const char* json_str, char* userid,
 		return 1;
 	}
 	strncpy(name, str, name_len);
+	cJSON_Delete(json);
+	return err;
+}
+
+int json_helper_get_player(const char* json_str, char* userid,
+		int userid_len)
+{
+	cJSON* json = cJSON_Parse(json_str);
+	if (json == NULL) {
+		return 1;
+	}
+	const char* str;
+	int err = 0;
+	str = json_get_string(json, "userid");
+	if (str == NULL) {
+		cJSON_Delete(json);
+		return 1;
+	}
+	strncpy(userid, str, userid_len);
 	cJSON_Delete(json);
 	return err;
 }

@@ -119,6 +119,17 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 					dartboard_rsp.ret_str);
 			mg_http_reply(c, dartboard_rsp.ret_code, "", json);
 			free((char*)json);
+		} else if (mg_http_match_uri(hm, "/get-player")) {
+			char userid[50];
+			json_helper_get_player(hm->body.ptr, userid, sizeof(userid));
+			dartboard_event_t event;
+			event.type = DARTBOARD_EVENT_GET_PLAYER;
+			event.userid = userid;
+			dartboard_new_event(&event, &dartboard_rsp);
+			const char* json = json_helper_simple_str("result",
+					dartboard_rsp.ret_str);
+			mg_http_reply(c, dartboard_rsp.ret_code, "", json);
+			free((char*)json);
 		} else {
 			struct mg_http_serve_opts opts = {.root_dir = s_web_root};
 			mg_http_serve_dir(c, ev_data, &opts);
