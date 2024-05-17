@@ -151,7 +151,7 @@ void cricket_new_dart(cricket_t* self, dartboard_shot_t* val)
 	self->darts++;
 
 	cricket_player_t* player = &self->players[self->current_player];
-	printf("%s hit %s %d \n", player->name, zone_to_str(val->zone),
+	printf("%s hit %s %d \n", player->p.name, zone_to_str(val->zone),
 			val->number);
 	int mult = 1;
 	if (val->zone == ZONE_TRIPLE) {
@@ -168,7 +168,7 @@ void cricket_new_dart(cricket_t* self, dartboard_shot_t* val)
 			if (player->shots[val->number] == 3) {
 				self->sectors[val->number].enabled =
 						sector_enabled(self, val->number);
-				printf("%s closed %d\n", player->name, val->number);
+				printf("%s closed %d\n", player->p.name, val->number);
 			}
 		} else {
 			player->game_score += sector_values[val->number];

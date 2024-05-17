@@ -11,7 +11,7 @@
 
 static game_t game;
 static cricket_t cricket;
-static cricket_player_t players[MAX_PLAYERS];
+static cricket_player_t cricket_players[MAX_PLAYERS];
 
 /* Function prototypes ********************************************************/
 /* Callbacks ******************************************************************/
@@ -57,7 +57,7 @@ void game_new_event(game_event_t* event, game_event_rsp_t* rsp)
 		free((char*)json);
 		int max_points = 200;
 		int max_rounds = 3;
-		cricket_new_game(&cricket, players, game.n_players, max_points,
+		cricket_new_game(&cricket, cricket_players, game.n_players, max_points,
 				max_rounds);
 		break;
 	case GAME_EVENT_NEW_PLAYER:
@@ -71,16 +71,20 @@ void game_new_event(game_event_t* event, game_event_rsp_t* rsp)
 			rsp->ret_str = "Max players reached";
 			return;
 		}
-		char* name = malloc(strlen(event->player_name));
-		if (name == NULL) {
+		char* name = malloc(strlen(event->player->userid));
+		char* userid = malloc(strlen(event->player->name));
+		if (name == NULL || userid == NULL) {
 			rsp->ret_code = 400;
 			rsp->ret_str = "Error adding player";
 			return;
 		}
-		strcpy(name, event->player_name);
+		strcpy(name, event->player->name);
 		game.players[game.n_players].name = name;
-		game.players[game.n_players].userid = "test_user_id";
-		players[game.n_players].name = name;
+		strcpy(userid, event->player->userid);
+		game.players[game.n_players].userid = userid;
+	
+		cricket_players[game.n_players].p.name = name;
+		cricket_players[game.n_players].p.userid = userid;
 		game.n_players++;
 		json = game_status();
 		api_ws_write(json);
@@ -114,11 +118,12 @@ void game_new_event(game_event_t* event, game_event_rsp_t* rsp)
 			game.running = false;
 			json = game_status();
 			api_ws_write(json);
-			printf("Winner is %s with %d points\n", winner_player->name,
-					winner_player->game_score);
+			printf("Winner is %s (%s) with %d points\n", winner_player->p.name,
+					winner_player->p.userid, winner_player->game_score);
 		}
 		break;
 	case GAME_EVENT_FINISH_GAME:
+		//TODO: if a player has userid, score must be saved in DB
 		if (!game.running) {
 			rsp->ret_code = 400;
 			rsp->ret_str = "No game running";

@@ -24,7 +24,7 @@ typedef struct game_event_t {
 	game_event_type_t type;
 	union {
 		dartboard_shot_t dart;
-		char* player_name; //TODO: player_t player
+		player_t* player;
 		int game_id; //TODO
 	};
 } game_event_t;

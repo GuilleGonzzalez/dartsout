@@ -149,7 +149,8 @@ const char* json_helper_reg_player(player_t* player)
 	return out;
 }
 
-int json_helper_new_player(const char* json_str, char* player, int player_len)
+int json_helper_new_player(const char* json_str, char* userid, int userid_len,
+		char* name, int name_len)
 {
 	cJSON* json = cJSON_Parse(json_str);
 	if (json == NULL) {
@@ -157,12 +158,18 @@ int json_helper_new_player(const char* json_str, char* player, int player_len)
 	}
 	const char* str;
 	int err = 0;
-	str = json_get_string(json, "player");
+	str = json_get_string(json, "userid");
 	if (str == NULL) {
 		cJSON_Delete(json);
 		return 1;
 	}
-	strncpy(player, str, player_len);
+	strncpy(userid, str, userid_len);
+	str = json_get_string(json, "name");
+	if (str == NULL) {
+		cJSON_Delete(json);
+		return 1;
+	}
+	strncpy(name, str, name_len);
 	cJSON_Delete(json);
 	return err;
 }
