@@ -56,7 +56,7 @@ void game_new_event(game_event_t* event, game_event_rsp_t* rsp)
 		api_ws_write(json);
 		free((char*)json);
 		int max_points = 200;
-		int max_rounds = 3;
+		int max_rounds = 25;
 		cricket_new_game(&cricket, cricket_players, game.n_players, max_points,
 				max_rounds);
 		break;

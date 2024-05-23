@@ -1,5 +1,6 @@
-let ws_url = "ws://localhost:8000/websocket"
-// let ws_url = "ws://0.0.0.0:8000/websocket"
+// let ws_url = "ws://localhost:8000/websocket"
+let ws_url = "ws://0.0.0.0:8000/websocket"
+// let ws_url = "ws://192.168.0.39:8000/websocket"
 let socket = new WebSocket(ws_url);
 
 const MsgId = {
@@ -200,9 +201,47 @@ function getZoneStr(zone_id) {
   }
 }
 
+// function drawNumbers(shots) {
+//   const table = document.getElementById("cricketTable");
+//   const rows = table.getElementsByTagName("tr");
+//   const cells = rows[0].getElementsByTagName("td");
+//     for (let i = 0; i < cells.length; i++) {
+//       cells[j].textContent = getSymbol(numbers[i]);
+//     }
+// }
+
+function checkClosed(shots) {
+  let isOpen = Array(21).fill(0);
+  for (let i = 0; i < shots.length; i++) {
+    console.log(`Shots[${i}]: ${shots[i]}`);
+    for (let j = 0; j < 22; j++) {
+      if (shots[i][j] < 3) {
+        console.log(shots[i][j]);
+        isOpen[j] = 1;
+      } else {
+      }
+    }
+  }
+  console.log(`Numbers open: ${isOpen}`);
+  return isOpen;
+}
+
 function drawShots(shots) {
   const table = document.getElementById("cricketTable");
   const rows = table.getElementsByTagName("tr");
+  // Closed numbers
+  let numbersOpen = checkClosed(shots);
+  const cells = rows[0].getElementsByTagName("th");
+  for (let i = 0; i < cells.length-1; i++) {
+    if (numbersOpen[21-i] == 0) {
+      cells[i].textContent = "";
+    }
+  }
+  // Bull
+  if (numbersOpen[0] == 0) {
+    cells[cells.length-1].textContent = "";
+  }
+  // Draw shots
   for (let i = 0; i < shots.length; i++) {
     const cells = rows[i+1].getElementsByTagName("td");
       for (let j = 0; j < cells.length; j++) {
@@ -211,7 +250,6 @@ function drawShots(shots) {
         cells[j].textContent = getSymbol(shots[i][20-j]);
       }
       // Bull
-      console.log(shots[i][0]);
       cells[cells.length-1].textContent = getSymbol(shots[i][0]);
   }  
 }
