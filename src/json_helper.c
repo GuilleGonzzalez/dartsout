@@ -101,7 +101,7 @@ const char* json_helper_cricket_status(cricket_t* cricket)
 	for (int i = 0; i < cricket->n_players; i++) {
 		cricket_player_t p = cricket->players[i];
 		cJSON* player = cJSON_CreateObject();
-		cJSON_AddStringToObject(player, "name", p.name);
+		cJSON_AddStringToObject(player, "name", p.p.name);
 		cJSON_AddNumberToObject(player, "game_score", p.game_score);
 		cJSON_AddNumberToObject(player, "round_score", p.round_score);
 		cJSON* shots = cJSON_CreateArray();
@@ -182,8 +182,7 @@ const char* json_helper_reg_player(player_t* player)
 	return out;
 }
 
-int json_helper_new_player(const char* json_str, char* userid, int userid_len,
-		char* name, int name_len)
+int json_helper_new_player(const char* json_str, char* name, int name_len)
 {
 	cJSON* json = cJSON_Parse(json_str);
 	if (json == NULL) {
@@ -191,12 +190,6 @@ int json_helper_new_player(const char* json_str, char* userid, int userid_len,
 	}
 	const char* str;
 	int err = 0;
-	str = json_get_string(json, "userid");
-	if (str == NULL) {
-		cJSON_Delete(json);
-		return 1;
-	}
-	strncpy(userid, str, userid_len);
 	str = json_get_string(json, "name");
 	if (str == NULL) {
 		cJSON_Delete(json);

@@ -6,12 +6,8 @@ let socket = new WebSocket(ws_url);
 const MsgId = {
 	GameStatus: 0,
 	Cricket:    1,
-<<<<<<< Updated upstream
-  Player:     2,
-=======
 	X01:        2,
-  // Player:     2,
->>>>>>> Stashed changes
+  // Player:     3,
 }
 
 function sendWsMsg() {
@@ -96,9 +92,8 @@ function showMessage(message) {
       drawShots(shots);
       highlightRow(curr_player_idx + 1);
       break;
-<<<<<<< Updated upstream
-=======
     case MsgId.X01:
+      // TODO: fix this
       let x01_n_players = json["n_players"];
       let x01_darts = json["darts"];
       let x01_dart_scores = json["dart_scores"];
@@ -120,7 +115,6 @@ function showMessage(message) {
       }
       drawDarts(x01_darts, x01_dart_scores);
       break;
->>>>>>> Stashed changes
     case MsgId.Player:
       addPlayerToTable(json, 1);
       break;

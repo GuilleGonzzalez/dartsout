@@ -13,7 +13,7 @@
 
 static struct mg_mgr mgr;
 static struct mg_connection* connections[MAX_CONNECTIONS];
-static const char *s_web_root = "www";
+static const char* web_root = "www";
 
 /* Function prototypes ********************************************************/
 
@@ -68,9 +68,7 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			free((char*)json);
 		} else if (mg_http_match_uri(hm, "/new-player")) {
 			char player_name[50];
-			char player_userid[50];
-			json_helper_new_player(hm->body.ptr, player_userid,
-					sizeof(player_userid), player_name, sizeof(player_name));
+			json_helper_new_player(hm->body.ptr, player_name, sizeof(player_name));
 			game_event_t event;
 			event.type = GAME_EVENT_NEW_PLAYER;
 			event.player->name = player_name;
@@ -132,7 +130,7 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			mg_http_reply(c, dartboard_rsp.ret_code, "", json);
 			free((char*)json);
 		} else {
-			struct mg_http_serve_opts opts = {.root_dir = s_web_root};
+			struct mg_http_serve_opts opts = {.root_dir = web_root};
 			mg_http_serve_dir(c, ev_data, &opts);
 		}
 	} else if (ev == MG_EV_WS_MSG) {
