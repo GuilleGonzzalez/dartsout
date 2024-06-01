@@ -17,6 +17,20 @@ int main()
 	api_init();
 	game_init();
 
+<<<<<<< Updated upstream
+=======
+	// db_init();
+	// db_cricket_new(1, 3.24);
+	// db_cricket_get();
+	// player_t p;
+	// db_players_get(&p, "guille");
+	// player_t p_new;
+	// p_new.userid = "guille";
+	// p_new.name = "Guille";
+	// db_players_new(&p_new);
+	// db_players_get(&p, "guille");
+
+>>>>>>> Stashed changes
 	for (;;) {
 		// In for loop, only api_fire
 		api_fire();

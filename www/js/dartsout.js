@@ -6,7 +6,12 @@ let socket = new WebSocket(ws_url);
 const MsgId = {
 	GameStatus: 0,
 	Cricket:    1,
+<<<<<<< Updated upstream
   Player:     2,
+=======
+	X01:        2,
+  // Player:     2,
+>>>>>>> Stashed changes
 }
 
 function sendWsMsg() {
@@ -18,7 +23,7 @@ window.onload = getStatus();
 
 function getStatus() {
   console.log(window.location.href);
-  if (window.location.href.endsWith("game.html")) {
+  if (window.location.href.endsWith("game.html") || window.location.href.endsWith("x01.html")) {
     const game = 0;
     json = JSON.stringify({game});
     api_post("/status", json);
@@ -51,7 +56,13 @@ function showMessage(message) {
       let running = json["running"];
       let game_id = json["game_id"];
       if (running) {
-        window.location="game.html";
+        if (game_id == 0) {
+          window.location="game.html";
+        } else if (game_id == 1) {
+          window.location="x01.html";
+        } else {
+          console.error("Game not implemented!");
+        }
       }
       let players = json["players"];
       let game_n_players = json["n_players"];
@@ -80,12 +91,36 @@ function showMessage(message) {
         cardTexts[i].textContent = json["players"][i]["game_score"];
         shots[i] = json["players"][i]["shots"];
       }
-
       drawTable(json["players"]);
       drawDarts(darts, dart_scores);
       drawShots(shots);
       highlightRow(curr_player_idx + 1);
       break;
+<<<<<<< Updated upstream
+=======
+    case MsgId.X01:
+      let x01_n_players = json["n_players"];
+      let x01_darts = json["darts"];
+      let x01_dart_scores = json["dart_scores"];
+      let x01_curr_player_idx = json["current_player"];
+      let x01_curr_player = json["players"][x01_curr_player_idx];
+      document.getElementById("player").innerHTML = x01_curr_player["name"];
+      document.getElementById("game_score").innerHTML = x01_curr_player["game_score"];
+      document.getElementById("round_score").innerHTML = x01_curr_player["round_score"];
+      document.getElementById("round").innerHTML = json["round"];
+      document.getElementById("max_rounds").innerHTML = json["max_rounds"];
+      document.getElementById("title").textContent = json["score"];
+
+      const x01_scoresRow = document.getElementById("scores");
+      const x01_cardHeaders = x01_scoresRow.getElementsByClassName("card-header");
+      const x01_cardTexts = x01_scoresRow.getElementsByClassName("card-text");
+      for (let i = 0; i < x01_n_players; i++) {
+        x01_cardHeaders[i].textContent = json["players"][i]["name"];
+        x01_cardTexts[i].textContent = json["players"][i]["game_score"];
+      }
+      drawDarts(x01_darts, x01_dart_scores);
+      break;
+>>>>>>> Stashed changes
     case MsgId.Player:
       addPlayerToTable(json, 1);
       break;
@@ -95,10 +130,12 @@ function showMessage(message) {
 }
 
 function drawDarts(n_darts, dart_scores) {
+  let dart_img_path = "/res/dart.svg";
+  let dart_closed_img_path = "/res/dart_dark.svg";
   if (n_darts == 0) {
-    document.getElementById("dart1_img").src = "/res/dart.svg";
-    document.getElementById("dart2_img").src = "/res/dart.svg";
-    document.getElementById("dart3_img").src = "/res/dart.svg";
+    document.getElementById("dart1_img").src = dart_img_path;
+    document.getElementById("dart2_img").src = dart_img_path;
+    document.getElementById("dart3_img").src = dart_img_path;
     document.getElementById("dart1_num").innerHTML = "";
     document.getElementById("dart1_zone").innerHTML = "";
     document.getElementById("dart2_num").innerHTML = "";
@@ -107,18 +144,18 @@ function drawDarts(n_darts, dart_scores) {
     document.getElementById("dart3_zone").innerHTML = "";
   }
   if (n_darts >= 1) {
-    document.getElementById("dart1_img").src = "/res/dart_dark.svg";
+    document.getElementById("dart1_img").src = dart_closed_img_path;
     document.getElementById("dart1_num").innerHTML = getNumStr(dart_scores[0]["num"]);
     document.getElementById("dart1_zone").innerHTML = getZoneStr(dart_scores[0]["zone"]);
-    dart_scores[0]["zone"];
+    // document.getElementById("dart1_num").classList.add(<<texto_en_plateado_dorado>>);
   }
   if (n_darts >= 2) {
-    document.getElementById("dart2_img").src = "/res/dart_dark.svg";
+    document.getElementById("dart2_img").src = dart_closed_img_path;
     document.getElementById("dart2_num").innerHTML = getNumStr(dart_scores[1]["num"]);
     document.getElementById("dart2_zone").innerHTML = getZoneStr(dart_scores[1]["zone"]);
   }
   if (n_darts >= 3) {
-    document.getElementById("dart3_img").src = "/res/dart_dark.svg";
+    document.getElementById("dart3_img").src = dart_closed_img_path;
     document.getElementById("dart3_num").innerHTML = getNumStr(dart_scores[2]["num"]);
     document.getElementById("dart3_zone").innerHTML = getZoneStr(dart_scores[2]["zone"]);
   }

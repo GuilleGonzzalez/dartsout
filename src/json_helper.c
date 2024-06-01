@@ -82,7 +82,7 @@ const char* json_helper_cricket_status(cricket_t* cricket)
 {
 	const char* out;
 	cJSON* json = cJSON_CreateObject();
-	cJSON_AddNumberToObject(json, "msg_id", 1); //TODO: hardcoded (crocket msg)
+	cJSON_AddNumberToObject(json, "msg_id", 1); //TODO: hardcoded (cricket msg)
 	cJSON_AddNumberToObject(json, "n_players", cricket->n_players);
 	cJSON_AddNumberToObject(json, "round", cricket->round);
 	cJSON_AddNumberToObject(json, "max_rounds", cricket->max_rounds);
@@ -109,6 +109,39 @@ const char* json_helper_cricket_status(cricket_t* cricket)
 			cJSON_AddItemToArray(shots, cJSON_CreateNumber(p.shots[j]));
 		}
 		cJSON_AddItemToObject(player, "shots", shots);
+		cJSON_AddItemToArray(players, player);
+	}
+	out = cJSON_Print(json);
+	cJSON_Delete(json);
+	return out;
+}
+
+const char* json_helper_x01_status(x01_t* x01)
+{
+	const char* out;
+	cJSON* json = cJSON_CreateObject();
+	cJSON_AddNumberToObject(json, "msg_id", 2); //TODO: hardcoded (x01 msg)
+	cJSON_AddNumberToObject(json, "score", x01->score);
+	cJSON_AddNumberToObject(json, "n_players", x01->n_players);
+	cJSON_AddNumberToObject(json, "round", x01->round);
+	cJSON_AddNumberToObject(json, "max_rounds", x01->max_rounds);
+	cJSON_AddNumberToObject(json, "current_player", x01->current_player);
+	cJSON_AddNumberToObject(json, "darts", x01->darts);
+	cJSON* dart_scores = cJSON_AddArrayToObject(json, "dart_scores");
+	for (int i = 0; i < MAX_DARTS; i++) {
+		dartboard_shot_t ds = x01->dart_scores[i];
+		cJSON* dart_score = cJSON_CreateObject();
+		cJSON_AddNumberToObject(dart_score, "num", ds.number);
+		cJSON_AddNumberToObject(dart_score, "zone", ds.zone);
+		cJSON_AddItemToArray(dart_scores, dart_score);
+	}
+	cJSON* players = cJSON_AddArrayToObject(json, "players");
+	for (int i = 0; i < x01->n_players; i++) {
+		x01_player_t p = x01->players[i];
+		cJSON* player = cJSON_CreateObject();
+		cJSON_AddStringToObject(player, "name", p.name);
+		cJSON_AddNumberToObject(player, "game_score", p.game_score);
+		cJSON_AddNumberToObject(player, "round_score", p.round_score);
 		cJSON_AddItemToArray(players, player);
 	}
 	out = cJSON_Print(json);

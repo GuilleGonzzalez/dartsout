@@ -6,11 +6,13 @@ extern "C" {
 #endif
 
 #include "cricket.h"
+#include "x01.h"
 #include "game.h"
 
 const char* json_helper_simple_int(const char* str_id, int num);
 const char* json_helper_simple_str(const char* str_id, const char* str);
 const char* json_helper_cricket_status(cricket_t* cricket);
+const char* json_helper_x01_status(x01_t* x01);
 const char* json_helper_game_status(game_t* game);
 const char* json_helper_reg_player(player_t* player);
 

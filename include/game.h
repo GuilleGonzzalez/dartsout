@@ -6,8 +6,8 @@
 
 typedef enum {
 	GAME_CRICKET = 0,
-	GAME_100 = 1,
-	GAME_301 = 2,
+	GAME_X01 = 1,
+	GAME_100 = 2,
 	GAME_ROUND_THE_WORLD = 3,
 } game_games_t;
 
