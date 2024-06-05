@@ -42,11 +42,12 @@ function new_game(game_id) {
 
 function next_player() {
   api_post("/next-player", json);
+  document.getElementById("next_player_audio").play();
 }
 
 function new_dart(zone) {
   const board_id = 1;
   const num = parseInt(document.getElementById('num').value);
   json = JSON.stringify({board_id, num, zone})
-  api_post("/new-dart", json) 
+  api_post("/new-dart", json);
 }

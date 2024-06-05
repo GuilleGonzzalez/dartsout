@@ -136,15 +136,17 @@ void cricket_next_player(cricket_t* self)
 	self->players[self->current_player].round_score = 0;
 }
 
-void cricket_new_dart(cricket_t* self, dartboard_shot_t* val)
+bool cricket_new_dart(cricket_t* self, dartboard_shot_t* val)
 {
+	bool scoreable = false;
+
 	if (!valid_shot(val)) {
 		printf("ERROR: Invalid shot!\n");
-		return;
+		return false;
 	}
 	if (self->darts == MAX_DARTS) {
 		printf("No more darts!\n");
-		return;
+		return false;
 	}
 	self->dart_scores[self->darts].number = val->number;
 	self->dart_scores[self->darts].zone = val->zone;
@@ -161,8 +163,9 @@ void cricket_new_dart(cricket_t* self, dartboard_shot_t* val)
 	}
 	for (int i = 0; i < mult; i++) {
 		if (!self->sectors[val->number].enabled) {
-			return;
+			return scoreable;
 		}
+		scoreable = true;
 		if (player->shots[val->number] < 3) {
 			player->shots[val->number]++;
 			if (player->shots[val->number] == 3) {
@@ -175,6 +178,7 @@ void cricket_new_dart(cricket_t* self, dartboard_shot_t* val)
 			player->round_score += sector_values[val->number];
 		}
 	}
+	return scoreable;
 }
 
 const char* cricket_status(cricket_t* self)

@@ -1,1 +1,9 @@
 /* * { outline: 1px solid red; } */
+
+.spacer100 {
+    height: 100px;
+}
+
+.spacer30 {
+    height: 30px;
+}

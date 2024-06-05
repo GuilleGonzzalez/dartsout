@@ -7,6 +7,8 @@ const MsgId = {
 	GameStatus: 0,
 	Cricket:    1,
 	X01:        2,
+  LastDart:   3,
+  Winner:     4,
   // Player:     3,
 }
 
@@ -114,6 +116,30 @@ function showMessage(message) {
         x01_cardTexts[i].textContent = json["players"][i]["game_score"];
       }
       drawDarts(x01_darts, x01_dart_scores);
+      break;
+    case MsgId.LastDart:
+      let last_dart_valid = json["valid"];
+      // let last_dart_num = json["num"];
+      let last_dart_zone = json["zone"];
+      if (last_dart_valid) {
+        switch(last_dart_zone) {
+        case(0):
+          document.getElementById("cricket_triple_audio").play();
+        case(1):
+          document.getElementById("cricket_double_audio").play();
+        default:
+          document.getElementById("cricket_simple_audio").play();
+        }
+      } else {
+        document.getElementById("cricket_no_audio").play();
+      }
+      break;
+    case MsgId.Winner:
+      document.getElementById("winner_audio").play();
+      let winner_name = json["name"];
+      // TODO: temp
+      document.getElementById("title").textContent = `${winner_name} wins!`;
+      // TODO: temp
       break;
     case MsgId.Player:
       addPlayerToTable(json, 1);

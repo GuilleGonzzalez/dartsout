@@ -15,14 +15,14 @@ typedef struct x01_player_t {
 
 typedef struct x01_t {
 	dartboard_sectors_t sectors[N_SECTORS];
+	dartboard_shot_t dart_scores[MAX_DARTS]; // Scores of each shot
 	x01_player_t* players;                   // Array of players
-	int score;                               // Game score (301, 501, etc.)
 	int n_players;                           // Number of players
 	int round;                               // Round number
 	int max_rounds;                          // Max rounds number
+	int score;                               // Game score (301, 501, etc.)
 	int current_player;                      // Player which is playing
 	int darts;                               // Number of darts thrown in this round
-	dartboard_shot_t dart_scores[MAX_DARTS]; // Scores of each shot
 } x01_t;
 
 void x01_new_game(x01_t* self, x01_player_t* players, int n_players, int score,

@@ -7,8 +7,8 @@
 typedef enum {
 	GAME_CRICKET = 0,
 	GAME_X01 = 1,
-	GAME_100 = 2,
-	GAME_ROUND_THE_WORLD = 3,
+	// GAME_100 = 2,
+	// GAME_ROUND_THE_WORLD = 3,
 } game_games_t;
 
 typedef enum {
@@ -35,9 +35,9 @@ typedef struct game_event_rsp_t {
 } game_event_rsp_t;
 
 typedef struct game_t {
-	bool running;
 	game_games_t game;
 	player_t players[MAX_PLAYERS];
+	bool running;
 	int n_players;
 } game_t;
 

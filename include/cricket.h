@@ -30,7 +30,7 @@ void cricket_new_game(cricket_t* self, cricket_player_t* players, int n_players,
 		int max_score, int max_rounds);
 cricket_player_t* cricket_check_finish(cricket_t* self);
 void cricket_next_player(cricket_t* self);
-void cricket_new_dart(cricket_t* self, dartboard_shot_t* val);
+bool cricket_new_dart(cricket_t* self, dartboard_shot_t* val);
 const char* cricket_status(cricket_t* self);
 
 #endif // __CRICKET_H

@@ -78,6 +78,30 @@ const char* json_helper_simple_str(const char* str_id, const char* str)
 	return out;
 }
 
+const char* json_helper_last_dart(bool valid, int num, int zone)
+{
+	const char* out;
+	cJSON* json = cJSON_CreateObject();
+	cJSON_AddNumberToObject(json, "msg_id", 3); //TODO: hardcoded (Last dart msg)
+	cJSON_AddBoolToObject(json, "valid", valid);
+	cJSON_AddNumberToObject(json, "num", num);
+	cJSON_AddNumberToObject(json, "zone", zone);
+	out = cJSON_Print(json);
+	cJSON_Delete(json);
+	return out;
+}
+
+const char* json_helper_winner(const char* name)
+{
+	const char* out;
+	cJSON* json = cJSON_CreateObject();
+	cJSON_AddNumberToObject(json, "msg_id", 4); //TODO: hardcoded (Last dart msg)
+	cJSON_AddStringToObject(json, "name", name);
+	out = cJSON_Print(json);
+	cJSON_Delete(json);
+	return out;
+}
+
 const char* json_helper_cricket_status(cricket_t* cricket)
 {
 	const char* out;

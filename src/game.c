@@ -136,8 +136,11 @@ void game_new_event(game_event_t* event, game_event_rsp_t* rsp)
 		val.number = event->dart.number;
 		val.zone = event->dart.zone;
 		if (game.game == GAME_CRICKET) {
-			cricket_new_dart(&cricket, &val);
+			bool scoreable = cricket_new_dart(&cricket, &val);
 			json = cricket_status(&cricket);
+			api_ws_write(json);
+			free((char*)json);
+			json = json_helper_last_dart(scoreable, val.number, val.zone);
 			api_ws_write(json);
 			free((char*)json);
 			cricket_player_t* winner_player = cricket_check_finish(&cricket);
@@ -145,6 +148,9 @@ void game_new_event(game_event_t* event, game_event_rsp_t* rsp)
 				game.running = false;
 				json = game_status();
 				api_ws_write(json);
+				json = json_helper_winner(winner_player->p.name);
+				api_ws_write(json);
+				free((char*)json);
 				printf("Winner is %s with %d points\n", winner_player->p.name,
 						winner_player->game_score);
 			}
