@@ -128,6 +128,7 @@ const char* json_helper_cricket_status(cricket_t* cricket)
 		cJSON_AddStringToObject(player, "name", p.p.name);
 		cJSON_AddNumberToObject(player, "game_score", p.game_score);
 		cJSON_AddNumberToObject(player, "round_score", p.round_score);
+		cJSON_AddStringToObject(player, "img_path", "res/user.svg");
 		cJSON* shots = cJSON_CreateArray();
 		for (int j = 0; j < N_SECTORS; j++) {
 			cJSON_AddItemToArray(shots, cJSON_CreateNumber(p.shots[j]));

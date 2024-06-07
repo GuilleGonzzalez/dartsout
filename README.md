@@ -18,5 +18,6 @@
   - Cricket -> cut-thr, wild and crazy
 - New games
 - Players table in home
+
 - DB integration (future)
 - Stats button (future)

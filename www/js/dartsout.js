@@ -80,6 +80,10 @@ function showMessage(message) {
       document.getElementById("round").innerHTML = json["round"];
       document.getElementById("max_rounds").innerHTML = json["max_rounds"];
       
+      //TODO: temp
+      document.getElementById("user_img").src = curr_player["img_path"];
+      //TODO: temp
+
       let shots = [];
       const scoresRow = document.getElementById("scores");
       const cardHeaders = scoresRow.getElementsByClassName("card-header");
@@ -119,7 +123,6 @@ function showMessage(message) {
       break;
     case MsgId.LastDart:
       let last_dart_valid = json["valid"];
-      // let last_dart_num = json["num"];
       let last_dart_zone = json["zone"];
       if (last_dart_valid) {
         switch(last_dart_zone) {
@@ -167,17 +170,22 @@ function drawDarts(n_darts, dart_scores) {
     document.getElementById("dart1_img").src = dart_closed_img_path;
     document.getElementById("dart1_num").innerHTML = getNumStr(dart_scores[0]["num"]);
     document.getElementById("dart1_zone").innerHTML = getZoneStr(dart_scores[0]["zone"]);
-    // document.getElementById("dart1_num").classList.add(<<texto_en_plateado_dorado>>);
+    document.getElementById("dart1_num").style.color = getZoneColor(dart_scores[0]["zone"]);
+    document.getElementById("dart1_zone").style.color = getZoneColor(dart_scores[0]["zone"]);
   }
   if (n_darts >= 2) {
     document.getElementById("dart2_img").src = dart_closed_img_path;
     document.getElementById("dart2_num").innerHTML = getNumStr(dart_scores[1]["num"]);
     document.getElementById("dart2_zone").innerHTML = getZoneStr(dart_scores[1]["zone"]);
+    document.getElementById("dart2_num").style.color = getZoneColor(dart_scores[1]["zone"]);
+    document.getElementById("dart2_zone").style.color = getZoneColor(dart_scores[1]["zone"]);
   }
   if (n_darts >= 3) {
     document.getElementById("dart3_img").src = dart_closed_img_path;
     document.getElementById("dart3_num").innerHTML = getNumStr(dart_scores[2]["num"]);
     document.getElementById("dart3_zone").innerHTML = getZoneStr(dart_scores[2]["zone"]);
+    document.getElementById("dart3_num").style.color = getZoneColor(dart_scores[2]["zone"]);
+    document.getElementById("dart3_zone").style.color = getZoneColor(dart_scores[2]["zone"]);
   }
 }
 
@@ -255,6 +263,16 @@ function getZoneStr(zone_id) {
     return "Double";
   } else {
     return "Single";
+  }
+}
+
+function getZoneColor(zone_id) {
+  if (zone_id == 0) {
+    return "rgb(218,165,32)";
+  } else if (zone_id == 1) {
+    return "rgb(128,128,128)";
+  } else {
+    return "white";
   }
 }
 

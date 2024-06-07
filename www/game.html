@@ -15,6 +15,7 @@
     <audio id="cricket_no_audio" src="audio/no.oga"></audio>
     <audio id="winner_audio" src="audio/winner.oga"></audio>
     <audio id="next_player_audio" src="audio/next_player.oga"></audio>
+
     <div class="container-fluid">
       <div class="row">
         <div class="col-1">
@@ -39,7 +40,7 @@
       <div class="row">
         <div class="col col-lg-3">
           <div class="card mb-4" style="width: 18rem;">
-            <img src="res/user.svg" class="card-img-top" height="100rem">
+            <img src="res/user.svg" id="user_img" class="card-img-top" height="100rem">
             <div class="card-body">
               <h2 class="card-title text-center fs-2"><span id="player"></span></h2>
             </div>
@@ -141,7 +142,7 @@
           </table>
         </div>
       </div>
-      <div class="spacer100"></div>
+      <div class="spacer300"></div>
       <input type="text" class="form-control" id="num" placeholder="Number" maxlength="2">
       <button type="button" class="btn btn-primary" onclick="new_dart(0)">Triple shot</button>
       <button type="button" class="btn btn-primary" onclick="new_dart(1)">Double shot</button>
