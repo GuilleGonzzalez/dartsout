@@ -21,7 +21,7 @@ window.onload = getStatus();
 
 function getStatus() {
   console.log(window.location.href);
-  if (window.location.href.endsWith("game.html") || window.location.href.endsWith("x01.html")) {
+  if (window.location.href.endsWith("cricket.html") || window.location.href.endsWith("x01.html")) {
     const game = 0;
     json = JSON.stringify({game});
     api_post("/status", json);
@@ -55,7 +55,7 @@ function showMessage(message) {
       let game_id = json["game_id"];
       if (running) {
         if (game_id == 0) {
-          window.location="game.html";
+          window.location="cricket.html";
         } else if (game_id == 1) {
           window.location="x01.html";
         } else {
