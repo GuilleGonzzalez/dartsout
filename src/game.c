@@ -40,6 +40,8 @@ void game_new_event(game_event_t* event, game_event_rsp_t* rsp)
 			rsp->ret_str = "No game running";
 			return;
 		}
+		json = game_status();
+		api_ws_write(json);
 		if (game.game == GAME_CRICKET) {
 			json = cricket_status(&cricket);
 			api_ws_write(json);

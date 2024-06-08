@@ -45,6 +45,10 @@ function next_player() {
   document.getElementById("next_player_audio").play();
 }
 
+function home() {
+  alert("This will go home");
+}
+
 function new_dart(zone) {
   const board_id = 1;
   const num = parseInt(document.getElementById('num').value);

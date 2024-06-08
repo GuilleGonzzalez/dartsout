@@ -3,13 +3,19 @@ let ws_url = "ws://0.0.0.0:8000/websocket"
 // let ws_url = "ws://192.168.0.39:8000/websocket"
 let socket = new WebSocket(ws_url);
 
+let gameCanvas = document.getElementById("game");
+
 const MsgId = {
-	GameStatus: 0,
-	Cricket:    1,
-	X01:        2,
+  GameStatus: 0,
+  Cricket:    1,
+  X01:        2,
   LastDart:   3,
   Winner:     4,
-  // Player:     3,
+}
+
+const GameId = {
+  Cricket: 0,
+  X01:     1,
 }
 
 function sendWsMsg() {
@@ -17,11 +23,15 @@ function sendWsMsg() {
   socket.send(msg);
 };
 
-window.onload = getStatus();
+window.onload = init();
+
+function init() {
+  getStatus();
+}
 
 function getStatus() {
   console.log(window.location.href);
-  if (window.location.href.endsWith("cricket.html") || window.location.href.endsWith("x01.html")) {
+  if (window.location.href.endsWith("game.html")) {
     const game = 0;
     json = JSON.stringify({game});
     api_post("/status", json);
@@ -30,7 +40,7 @@ function getStatus() {
 
 socket.onmessage = function(event) {
   let incomingMessage = event.data;
-  showMessage(incomingMessage);
+  proccessMessage(incomingMessage);
 };
 
 socket.onclose = function(event) {
@@ -38,6 +48,12 @@ socket.onclose = function(event) {
 }
 
 function showMessage(message) {
+  let messageElem = document.createElement('div');
+  messageElem.textContent = "MSG rvc: " + message;
+  document.getElementById('messages').prepend(messageElem);
+}
+
+function proccessMessage(message) {
   let messageElem = document.createElement('div');
   messageElem.textContent = "MSG rvc: " + message;
   document.getElementById('messages').prepend(messageElem);
@@ -53,50 +69,20 @@ function showMessage(message) {
     case MsgId.GameStatus:
       let running = json["running"];
       let game_id = json["game_id"];
+      let players = json["players"];
+      let game_n_players = json["n_players"];
       if (running) {
-        if (game_id == 0) {
-          window.location="cricket.html";
-        } else if (game_id == 1) {
+        if (game_id == GameId.Cricket) {
+          cricketCreateCanvas(gameCanvas, game_n_players);
+        } else if (game_id == GameId.X01) {
           window.location="x01.html";
         } else {
           console.error("Game not implemented!");
         }
       }
-      let players = json["players"];
-      let game_n_players = json["n_players"];
-      for (let i = 0; i < game_n_players; i++) {
-        document.getElementById("player"+i).innerHTML = players[i]["name"];
-      }
       break;
     case MsgId.Cricket:
-      let n_players = json["n_players"];
-      let darts = json["darts"];
-      let dart_scores = json["dart_scores"];
-      let curr_player_idx = json["current_player"];
-      let curr_player = json["players"][curr_player_idx];
-      document.getElementById("player").innerHTML = curr_player["name"];
-      document.getElementById("game_score").innerHTML = curr_player["game_score"];
-      document.getElementById("round_score").innerHTML = curr_player["round_score"];
-      document.getElementById("round").innerHTML = json["round"];
-      document.getElementById("max_rounds").innerHTML = json["max_rounds"];
-      
-      //TODO: temp
-      document.getElementById("user_img").src = curr_player["img_path"];
-      //TODO: temp
-
-      let shots = [];
-      const scoresRow = document.getElementById("scores");
-      const cardHeaders = scoresRow.getElementsByClassName("card-header");
-      const cardTexts = scoresRow.getElementsByClassName("card-text");
-      for (let i = 0; i < n_players; i++) {
-        cardHeaders[i].textContent = json["players"][i]["name"];
-        cardTexts[i].textContent = json["players"][i]["game_score"];
-        shots[i] = json["players"][i]["shots"];
-      }
-      drawTable(json["players"]);
-      drawDarts(darts, dart_scores);
-      drawShots(shots);
-      highlightRow(curr_player_idx + 1);
+      cricketProccess(json);
       break;
     case MsgId.X01:
       // TODO: fix this
@@ -152,6 +138,12 @@ function showMessage(message) {
   }
 }
 
+function newCricketGame() {
+  window.location="game.html"; //TODO: not necessary?
+  new_game(GameId.Cricket);
+}
+
+
 function drawDarts(n_darts, dart_scores) {
   let dart_img_path = "/res/dart.svg";
   let dart_closed_img_path = "/res/dart_dark.svg";
@@ -189,41 +181,6 @@ function drawDarts(n_darts, dart_scores) {
   }
 }
 
-function drawTable(players) {
-  const table = document.getElementById("cricketTable");
-  const tableBody = table.querySelector("tbody");
-  tableBody.innerHTML = "";
-  for (let i = 0; i < players.length; i++) {
-    var row = document.createElement("tr");
-    var colHeader = document.createElement("th");
-    colHeader.setAttribute('scope', 'row');
-    colHeader.innerHTML = players[i]["name"];
-    row.append(colHeader);
-    for (let i = 0; i < 7; i++) {
-      var col = document.createElement("td");
-      row.append(col);
-    }
-    tableBody.append(row);
-  }
-}
-
-function addPlayerToTable(player, idx) {
-  const table = document.getElementById("playersTable");
-  const tableBody = table.querySelector("tbody");
-  var row = document.createElement("tr");
-  var colHeader = document.createElement("th");
-  colHeader.setAttribute('scope', 'row');
-  colHeader.innerHTML = idx;
-  row.append(colHeader);
-  var userid_cell = document.createElement("td");
-  userid_cell.innerHTML = player["userid"];
-  row.append(userid_cell);
-  var name_cell = document.createElement("td");
-  name_cell.innerHTML = player["name"];
-  row.append(name_cell);
-  tableBody.append(row);
-}
-
 function highlightRow(row) {
   const table = document.getElementById("cricketTable");
   const rows = table.querySelectorAll("tbody tr");
@@ -233,47 +190,6 @@ function highlightRow(row) {
   });
   sel_row.classList.add("table-active");
   
-}
-
-function getSymbol(num) {
-  switch(num) {
-  case 1:
-    return "𝈺";
-  case 2:
-    return "⨉";
-  case 3:
-    return "⦻";
-  default:
-    return "";
-  }
-}
-
-function getNumStr(num) {
-  if (num == 0) {
-    return "Bull";
-  } else {
-    return num;
-  }
-}
-
-function getZoneStr(zone_id) {
-  if (zone_id == 0) {
-    return "Triple";
-  } else if (zone_id == 1) {
-    return "Double";
-  } else {
-    return "Single";
-  }
-}
-
-function getZoneColor(zone_id) {
-  if (zone_id == 0) {
-    return "rgb(218,165,32)";
-  } else if (zone_id == 1) {
-    return "rgb(128,128,128)";
-  } else {
-    return "white";
-  }
 }
 
 // function drawNumbers(shots) {
@@ -288,16 +204,13 @@ function getZoneColor(zone_id) {
 function checkClosed(shots) {
   let isOpen = Array(21).fill(0);
   for (let i = 0; i < shots.length; i++) {
-    console.log(`Shots[${i}]: ${shots[i]}`);
     for (let j = 0; j < 22; j++) {
       if (shots[i][j] < 3) {
-        console.log(shots[i][j]);
         isOpen[j] = 1;
       } else {
       }
     }
   }
-  console.log(`Numbers open: ${isOpen}`);
   return isOpen;
 }
 
