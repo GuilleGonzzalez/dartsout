@@ -14,13 +14,13 @@ function getSymbol(num) {
 
 function getNumStr(num) {
   if (num == 0) {
-    return "Bull";
+    return "BULL";
   } else {
-    return num;
+    return num.toString();
   }
 }
 
-function getZoneStr(zone_id) {
+function getZoneStr(zone_id) {  
   if (zone_id == 0) {
     return "Triple";
   } else if (zone_id == 1) {
@@ -30,12 +30,22 @@ function getZoneStr(zone_id) {
   }
 }
 
-function getZoneColor(zone_id) {
-  if (zone_id == 0) {
+function getZoneColor(zone) {
+  if (zone == "Triple") {
     return "rgb(218,165,32)";
-  } else if (zone_id == 1) {
+  } else if (zone == "Double") {
     return "rgb(128,128,128)";
   } else {
     return "white";
+  }
+}
+
+function getZoneShadow(zone) {
+  if (zone == "Triple") {
+    return "#FC0 0 0 10px";
+  } else if (zone == "Double") {
+    return "#AAA 0 0 10px";
+  } else {
+    return "";
   }
 }

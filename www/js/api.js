@@ -46,7 +46,7 @@ function next_player() {
 }
 
 function home() {
-  alert("This will go home");
+  alert("TODO: go home"); // TODO: fix this: modal are you sure...?, end game
 }
 
 function new_dart(zone) {
