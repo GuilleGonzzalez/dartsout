@@ -46,11 +46,12 @@ function next_player() {
 }
 
 function home() {
-  alert("TODO: go home"); // TODO: fix this: modal are you sure...?, end game
+  // TODO: modal: are you sure...? and finish game if yes
+  window.location.href = "/";
 }
 
 // For testing purposes
-function new_dart(zone) {
+function newDart(zone) {
   const board_id = 99;
   const num = parseInt(document.getElementById('num').value);
   json = JSON.stringify({board_id, num, zone})

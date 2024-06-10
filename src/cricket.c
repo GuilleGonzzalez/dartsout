@@ -31,6 +31,7 @@ static bool player_all_closed(cricket_t* self, cricket_player_t* player)
 	for (int i = 0; i < 7; i++) {
 		printf("Sector: %d is in game with %d shots\n", self->scoreables[i], player->shots[self->scoreables[i]]);
 		if (player->shots[self->scoreables[i]] < 3) {
+			printf("%d is not closed yet (%d)\n", self->scoreables[i], player->shots[self->scoreables[i]]);
 			return false;
 		}
 	}
@@ -79,15 +80,13 @@ static bool valid_shot(dartboard_shot_t* ds)
 
 static void gen_random_scoreables(int* generated, int len)
 {
-	printf("Random numbers selected\n");
-	srand(time(NULL));
 	int vals[N_SECTORS];
 	for (int i = 0; i < N_SECTORS; i++) {
 		vals[i] = i;
 	}
 	int vals_len = N_SECTORS;
 	for (int i = 0; i < len; i++) {
-		int rand_num = rand() % (vals_len + 1);
+		int rand_num = rand() % vals_len;
 		generated[i] = vals[rand_num];
 		for (int j = rand_num; j < vals_len-1; j++) {
 			vals[j] = vals[j+1];
@@ -114,11 +113,8 @@ void cricket_new_game(cricket_t* self, cricket_player_t* players,
 	self->darts = 0;
 	self->options = options;
 	
-	// TODO: asegurarse de que esta función funciona perfecta
-	// for (int i = 0; i < 100; i++) {
-	// 	gen_random_scoreables(scoreables, 7);
-	// }
-	if (self->options | random_numbers) {
+	srand(time(NULL));
+	if (self->options & random_numbers) {
 		gen_random_scoreables(scoreables, 7);
 	}
 
@@ -147,7 +143,11 @@ void cricket_new_game(cricket_t* self, cricket_player_t* players,
 
 cricket_player_t* cricket_check_finish(cricket_t* self)
 {
+	// TODO: here is an error: if all players = 0 points best_player colud be anyone
+	// If a player close all targets and is not best_player, this player won't win
+	// SOLUTION: we can check if a player has all target closed check if has the highest score
 	cricket_player_t* best_player = get_max_score(self);
+	// If last round
 	if (self->round == self->max_rounds &&
 			self->current_player == self->n_players - 1 &&
 			self->darts == MAX_DARTS) {
@@ -164,6 +164,16 @@ void cricket_next_player(cricket_t* self)
 	self->current_player++;
 	if (self->current_player == self->n_players) {
 		self->round++;
+		// Generar nuevos números aleatorios
+		// Solo cambian los targets que están marcados
+		// Si tienen todos los jugadores tienen 0 darts en ese número o alguien lo ha cerrado, no cambia.
+		// la variable global (o la del objeto cricket_t) scoreables se actualiza.
+
+		// Crear función con un parámetro que es un array
+		// Esta función saca de vals (array con números 0-20) los números != -1 del array
+		// Si es un número del 0-20, no se genera nuevo número.
+		// Si es -1, generar número diferente al resto.
+		// gen_new_scoreables([20, -1, 18, -1, -1 17, 0])
 		if (self->round > self->max_rounds) {
 			//TODO: esto en game
 			cricket_check_finish(self);
@@ -211,6 +221,7 @@ bool cricket_new_dart(cricket_t* self, dartboard_shot_t* val)
 						sector_enabled(self, val->number);
 				printf("%s closed %d\n", player->p.name, val->number);
 			}
+			printf("%d =  %d\n", val->number, player->shots[val->number]);
 		} else {
 			player->game_score += sector_values[val->number];
 			player->round_score += sector_values[val->number];

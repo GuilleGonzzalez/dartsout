@@ -14,7 +14,7 @@ function homeCreateCanvas(homeCanvas) {
 
   let spacer2 = createSpacer(30);
   homeCanvas.appendChild(spacer2);
-  let table = createTable("players-table", 6, 3);
+  let table = createTable("players-table", 8, 3);
   homeCanvas.appendChild(table);
   console.log("Table created");
   updateTable("players-table", ["#", "Name", "MPR"], false);

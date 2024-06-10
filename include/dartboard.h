@@ -5,7 +5,7 @@
 
 #include "player.h"
 
-#define MAX_PLAYERS 4
+#define MAX_PLAYERS 8
 #define N_SECTORS   21
 
 typedef struct dartboard_sectors_t {

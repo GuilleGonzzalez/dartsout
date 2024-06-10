@@ -3,7 +3,6 @@
 #include <string.h>
 
 #include "config.h"
-#include "cricket.h"
 #include "json_helper.h"
 #include "game.h"
 
