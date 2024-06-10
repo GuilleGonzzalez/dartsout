@@ -121,6 +121,11 @@ const char* json_helper_cricket_status(cricket_t* cricket)
 		cJSON_AddNumberToObject(dart_score, "zone", ds.zone);
 		cJSON_AddItemToArray(dart_scores, dart_score);
 	}
+	cJSON* scoreables = cJSON_CreateArray();
+	for (int i = 0; i < 7; i++) {
+		cJSON_AddItemToArray(scoreables, cJSON_CreateNumber(cricket->scoreables[i]));
+	}
+	cJSON_AddItemToObject(json, "scoreables", scoreables);
 	cJSON* players = cJSON_AddArrayToObject(json, "players");
 	for (int i = 0; i < cricket->n_players; i++) {
 		cricket_player_t p = cricket->players[i];

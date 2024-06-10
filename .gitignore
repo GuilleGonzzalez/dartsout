@@ -4,3 +4,6 @@ build/*
 *.o
 *.out
 *.db
+.cache/
+.codechecker/
+compile_commands.json

@@ -42,15 +42,16 @@ function new_game(game_id) {
 
 function next_player() {
   api_post("/next-player", json);
-  document.getElementById("next_player_audio").play();
+  soundsNextPlayer();
 }
 
 function home() {
   alert("TODO: go home"); // TODO: fix this: modal are you sure...?, end game
 }
 
+// For testing purposes
 function new_dart(zone) {
-  const board_id = 1;
+  const board_id = 99;
   const num = parseInt(document.getElementById('num').value);
   json = JSON.stringify({board_id, num, zone})
   api_post("/new-dart", json);

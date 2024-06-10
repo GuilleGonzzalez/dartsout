@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 
 #include "cricket.h"
 #include "json_helper.h"
@@ -10,24 +11,26 @@
 static const int sector_values[N_SECTORS] = {25, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
 		11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
 
+static int scoreables[7] = {20, 19, 18, 17, 16, 15, 0};
+
 /* Function prototypes ********************************************************/
 
-static bool player_all_closed(cricket_player_t* player);
+static bool player_all_closed(cricket_t* self, cricket_player_t* player);
 static cricket_player_t* get_max_score(cricket_t* self);
 static bool sector_enabled(cricket_t* self, int sector_number);
 static const char* zone_to_str(dartboard_zone_t zone);
 static bool valid_shot(dartboard_shot_t* ds);
+static void gen_random_scoreables(int* generated, int len);
 
 /* Callbacks ******************************************************************/
 /* Function definitions *******************************************************/
 
-static bool player_all_closed(cricket_player_t* player)
+// true if all ACTIVE numbers are closed
+static bool player_all_closed(cricket_t* self, cricket_player_t* player)
 {
-	for (int i = 0; i < N_SECTORS; i++) {
-		if (sector_values[i] < 15) {
-			continue;
-		}
-		if (player->shots[i] < 3) {
+	for (int i = 0; i < 7; i++) {
+		printf("Sector: %d is in game with %d shots\n", self->scoreables[i], player->shots[self->scoreables[i]]);
+		if (player->shots[self->scoreables[i]] < 3) {
 			return false;
 		}
 	}
@@ -70,15 +73,38 @@ static const char* zone_to_str(dartboard_zone_t zone)
 
 static bool valid_shot(dartboard_shot_t* ds)
 {
-	// NOTE: 0 is bull
 	printf("NUMBER: %d, ZONE: %d\n", ds->number, ds->zone);
 	return ds->number >= 0 && ds->number <= 20 && ds->zone >= 0 && ds->zone <= 4;
 }
 
+static void gen_random_scoreables(int* generated, int len)
+{
+	printf("Random numbers selected\n");
+	srand(time(NULL));
+	int vals[N_SECTORS];
+	for (int i = 0; i < N_SECTORS; i++) {
+		vals[i] = i;
+	}
+	int vals_len = N_SECTORS;
+	for (int i = 0; i < len; i++) {
+		int rand_num = rand() % (vals_len + 1);
+		generated[i] = vals[rand_num];
+		for (int j = rand_num; j < vals_len-1; j++) {
+			vals[j] = vals[j+1];
+		}
+		vals_len--;
+	}
+	for (int i = 0; i < len; i++) {
+		printf("%d ", generated[i]);
+	}
+	printf("\n");
+}
+
 /* Public functions ***********************************************************/
 
-void cricket_new_game(cricket_t* self, cricket_player_t* players, int n_players,
-		int max_score, int max_rounds)
+void cricket_new_game(cricket_t* self, cricket_player_t* players,
+		cricket_options_t options, int n_players, int max_score,
+		int max_rounds)
 {
 	self->n_players = n_players;
 	self->round = 1;
@@ -86,6 +112,18 @@ void cricket_new_game(cricket_t* self, cricket_player_t* players, int n_players,
 	self->max_score = max_score;
 	self->current_player = 0;
 	self->darts = 0;
+	self->options = options;
+	
+	// TODO: asegurarse de que esta función funciona perfecta
+	// for (int i = 0; i < 100; i++) {
+	// 	gen_random_scoreables(scoreables, 7);
+	// }
+	if (self->options | random_numbers) {
+		gen_random_scoreables(scoreables, 7);
+	}
+
+	self->scoreables = scoreables;
+
 	self->players = players;
 	for (int i = 0; i < n_players; i++) {
 		self->players[i].game_score = 0;
@@ -95,9 +133,9 @@ void cricket_new_game(cricket_t* self, cricket_player_t* players, int n_players,
 	for (int i = 0; i < N_SECTORS; i++) {
 		self->sectors[i].shots = 0;
 		self->sectors[i].enabled = 0;
-		if (sector_values[i] >= 15) {
-			self->sectors[i].enabled = 1;
-		}
+	}
+	for (int i = 0; i < 7; i++) {
+		self->sectors[self->scoreables[i]].enabled = 1;
 	}
 	for (int i = 0; i < MAX_DARTS; i++) {
 		self->dart_scores[i].number = -1;
@@ -115,7 +153,7 @@ cricket_player_t* cricket_check_finish(cricket_t* self)
 			self->darts == MAX_DARTS) {
 		return best_player;
 	}
-	if (player_all_closed(best_player)) {
+	if (player_all_closed(self, best_player)) {
 		return best_player;
 	}
 	return NULL;

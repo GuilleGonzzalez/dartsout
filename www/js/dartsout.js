@@ -1,8 +1,10 @@
 // let ws_url = "ws://localhost:8000/websocket"
 let ws_url = "ws://0.0.0.0:8000/websocket"
 // let ws_url = "ws://192.168.0.39:8000/websocket"
+
 let socket = new WebSocket(ws_url);
 
+let homeCanvas = document.getElementById("home");
 let gameCanvas = document.getElementById("game");
 
 const MsgId = {
@@ -26,6 +28,9 @@ function sendWsMsg() {
 window.onload = init();
 
 function init() {
+  if (window.location.pathname == "/") {
+    homeCreateCanvas(homeCanvas);
+  }
   getStatus();
 }
 
@@ -67,6 +72,7 @@ function proccessMessage(message) {
   let msgId = json["msg_id"];
   switch (msgId) {
     case MsgId.GameStatus:
+      console.log(json);
       let running = json["running"];
       let game_id = json["game_id"];
       let players = json["players"];
@@ -79,6 +85,8 @@ function proccessMessage(message) {
         } else {
           console.error("Game not implemented!");
         }
+      } else {
+        homeAddPlayer(json);
       }
       break;
     case MsgId.Cricket:

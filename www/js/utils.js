@@ -14,7 +14,7 @@ function getSymbol(num) {
 
 function getNumStr(num) {
   if (num == 0) {
-    return "BULL";
+    return "◎";
   } else {
     return num.toString();
   }

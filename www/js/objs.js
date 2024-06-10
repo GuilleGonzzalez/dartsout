@@ -40,6 +40,16 @@ function createHeader(name) {
   return header;
 }
 
+function createButton(text, onClick) {
+  let button = document.createElement("button");
+  button.className = "btn btn-block btn-primary";
+  button.type = "button";
+  button.setAttribute("onclick", onClick);
+  button.innerHTML = text;
+
+  return button;
+}
+
 function createSpacer(hSpace) {
   let spacer = document.createElement("div");
   spacer.className = "spacer";
@@ -48,40 +58,14 @@ function createSpacer(hSpace) {
   return spacer;
 }
 
-function createGrid(nPlayers) { // Example
-  let grid = document.createElement("div");
-  grid.className = "container-fluid";
-  let row = document.createElement("div");
-  row.className = "row";
-  let colLeft = document.createElement("div");
-  colLeft.className = "col col-lg-3";
-  let colRight = document.createElement("div");
-  colRight.className = "col";
-  
-  let info = createCardInfo();
-  
-  let cards = createScoreCards(nPlayers);
-  let table = createCricketTable(nPlayers);
-
-  colLeft.appendChild(info);
-  colRight.appendChild(cards);
-  colRight.appendChild(table);
-
-  row.appendChild(colLeft);
-  row.appendChild(colRight);
-  grid.appendChild(row);
-
-  return grid;
-}
-
-function createCricketTable(rows) {
+function createTable(tableId, nRows, nCols) {
   let table = document.createElement("table");
-  table.id = "cricket-table";
+  table.id = tableId;
   table.className = "table text-center";
   let thead = document.createElement("thead");
   thead.className = "table-light fw-bolder fs-2";
   let h_tr = document.createElement("tr");
-  for (let i = 0; i < 8; i++) {
+  for (let i = 0; i < nCols; i++) {
     let th = document.createElement("th");
     th.scope = "col";
     h_tr.appendChild(th);
@@ -89,9 +73,9 @@ function createCricketTable(rows) {
   thead.appendChild(h_tr);
   let tbody = document.createElement("tbody");
   tbody.className = "fs-2";
-  for (let i = 0; i < rows; i++) {
+  for (let i = 0; i < nRows; i++) {
     let b_tr = document.createElement("tr");
-    for (let j = 0; j < 8; j++) {
+    for (let j = 0; j < nCols; j++) {
       let td = document.createElement("td");
       td.scope = "row";
       b_tr.appendChild(td);
@@ -216,6 +200,7 @@ function createAudio(id, src) {
 
   return audio;
 }
+
 // Update functions
 
 function updateTitle(text) {
@@ -223,33 +208,37 @@ function updateTitle(text) {
   title.innerHTML = text;
 }
 
-function updateCricketTable(header, data, closedNumbers) {
-  let table = document.getElementById("cricket-table");
-  let htr = table.firstChild.firstChild;
-  let i;
-  i = 0;
-  for (let th = htr.firstChild; th; th = th.nextSibling) {
-    th.innerHTML = header[i];
-    console.log(header[i], closedNumbers, closedNumbers.includes(header[i]));
-    if (closedNumbers.includes(header[i])) {
-      th.style.color = "#A0A0A0";
+function updateTable(tableId, header, data, closedNumbers) {
+  let table = document.getElementById(tableId);
+  if (header) {
+    let htr = table.firstChild.firstChild;
+    // TODO: closed numbers only for cricket
+    let i;
+    i = 0;
+    for (let th = htr.firstChild; th; th = th.nextSibling) {
+      th.innerHTML = header[i];
+      if (closedNumbers && closedNumbers.includes(header[i])) {
+        th.style.color = "#A0A0A0";
+      }
+      i++;
     }
-    i++;
   }
-  let tBody = table.lastChild; // TODO: query selector
-  i = 0;
-  for (let btr = tBody.firstChild; btr; btr = btr.nextSibling) {
-    j = 0;
-    for (let td = btr.firstChild; td; td = td.nextSibling) {
-      td.innerHTML = data[i][j];
-      j++
+  if (data) {
+    let tBody = table.lastChild; // TODO: query selector
+    i = 0;
+    for (let btr = tBody.firstChild; btr; btr = btr.nextSibling) {
+      j = 0;
+      for (let td = btr.firstChild; td; td = td.nextSibling) {
+        td.innerHTML = data[i][j];
+        j++
+      }
+      i++;
     }
-    i++;
   }
 }
 
-function highlightCricketTableRow(row) {
-  let table = document.getElementById("cricket-table");
+function highlightTableRow(tableId, row) {
+  let table = document.getElementById(tableId);
   let rows = table.querySelectorAll("tbody tr");
   let selRow = table.querySelector(`tbody tr:nth-child(${row+1}`);
   rows.forEach(function(r) {

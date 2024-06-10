@@ -14,6 +14,10 @@ function soundsNewDart(last_dart_valid, last_dart_zone) {
   }
 }
 
-function soundsWinnwer()) {
+function soundsWinner() {
   document.getElementById("winner_audio").play();
+}
+
+function soundsNextPlayer() {
+  document.getElementById("next_player_audio").play();
 }

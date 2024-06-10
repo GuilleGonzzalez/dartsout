@@ -66,7 +66,6 @@ function x01Proccess(json) {
       zones[i] = getZoneStr(dartScores[i]["zone"]);
     }
   }
-  console.log(nums, zones);
   updateDarts(nums, zones, nDarts);
 
   let players_names = Array(nPlayers);

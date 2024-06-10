@@ -32,6 +32,7 @@ SRC_FILES = $(wildcard $(SRC_DIR)/*.c)
 OBJ_FILES = $(patsubst %.c, %.o, $(SRC_FILES))
 
 %.o: %.c
+	$(info Generating: $@)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(OUTPUT_FILE).out: $(OBJ_FILES)
@@ -40,3 +41,21 @@ $(OUTPUT_FILE).out: $(OBJ_FILES)
 clean:
 	$(RM) $(OBJ_FILES)
 	$(RM) $(OUTPUT_FILE)
+
+CLANG_ROOT := $(shell pwd)
+
+.PHONY: compile_commands.json
+
+compile_commands.json: $(SRC_FILES) Makefile
+	$(info Generating: $@)
+	$(file >$@,[)
+	$(foreach F,$(SRC_FILES), \
+	$(file >>$@,    {) \
+	$(file >>$@,            "command": "$(CC) -c $(CFLAGS) $(F)",) \
+	$(file >>$@,            "directory": "$(CLANG_ROOT)",) \
+	$(file >>$@,            "file": "$(F)") \
+	$(file >>$@,    }$(if $(filter $(word $(words $(SRC_FILES)),$(SRC_FILES)),$(F)),,,)) \
+	)
+	$(file >>$@,])
+	@:
+

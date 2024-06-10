@@ -14,10 +14,20 @@ typedef struct cricket_player_t {
 	int shots[N_SECTORS]; // Number of darts in each sector
 } cricket_player_t;
 
+enum {
+	random_numbers = (1 << 0),
+	cut_throat = (1 << 1),
+	wild_cracy = (1 << 2),
+};
+
+typedef int cricket_options_t;
+
 typedef struct cricket_t {
 	dartboard_sectors_t sectors[N_SECTORS];  // All dartboard sectors
 	dartboard_shot_t dart_scores[MAX_DARTS]; // Scores of each shot
 	cricket_player_t* players; // Pointer to an array of players
+	cricket_options_t options; // Cricket options
+	int* scoreables;           // Scoreables numbers // TODO: cluld not be 7
 	int n_players;             // Number of players
 	int round;                 // Round number
 	int max_rounds;            // Max rounds number
@@ -26,8 +36,9 @@ typedef struct cricket_t {
 	int darts;                 // Number of darts thrown in this round
 } cricket_t;
 
-void cricket_new_game(cricket_t* self, cricket_player_t* players, int n_players,
-		int max_score, int max_rounds);
+void cricket_new_game(cricket_t* self, cricket_player_t* players,
+		cricket_options_t options, int n_players, int max_score,
+		int max_rounds);
 cricket_player_t* cricket_check_finish(cricket_t* self);
 void cricket_next_player(cricket_t* self);
 bool cricket_new_dart(cricket_t* self, dartboard_shot_t* val);

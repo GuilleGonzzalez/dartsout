@@ -38,7 +38,7 @@ function cricketCreateGrid(nPlayers) {
   let info = createCardInfo();
   
   let cards = createScoreCards(nPlayers);
-  let table = createCricketTable(nPlayers);
+  let table = createTable("cricket-table", nPlayers, 8);
   
   colLeft.appendChild(info);
   colRight.appendChild(cards);
@@ -55,13 +55,14 @@ function cricketProccess(json) {
   let nPlayers = json["n_players"];
   let nDarts = json["darts"];
   let dartScores = json["dart_scores"];
+  let scoreables = json["scoreables"];
   let currPlayerIdx = json["current_player"];
   let currPlayer = json["players"][currPlayerIdx];
 
   let roundStr = `Round: ${json["round"]}/${json["max_rounds"]}`;
   let scoreStr = `Round score: ${currPlayer["round_score"]}`
   updateCardInfo(currPlayer["name"], [roundStr, scoreStr]);
-  highlightCricketTableRow(currPlayerIdx);
+  highlightTableRow("cricket-table", currPlayerIdx);
 
   let nums = Array(dartScores.length).fill("");
   let zones = Array(dartScores.length).fill("");
@@ -71,12 +72,10 @@ function cricketProccess(json) {
       zones[i] = getZoneStr(dartScores[i]["zone"]);
     }
   }
-  console.log(nums, zones);
   updateDarts(nums, zones, nDarts);
 
   let header = ["Player"];
-  let scoreables = [20, 19, 18, 17, 16, 15, 0];
-  let scoreablesStr = ["20", "19", "18", "17", "16", "15", "BULL"];
+  let scoreablesStr = scoreablesToStr(scoreables);
   header = header.concat(scoreablesStr);
 
   let players_names = Array(nPlayers);
@@ -98,12 +97,24 @@ function cricketProccess(json) {
 
   let closedNumbers = checkClosed(players_shots);
 
-  updateCricketTable(header, data, closedNumbers);
+  updateTable("cricket-table", header, data, closedNumbers);
   updateScoreCards(players_names, players_scores);
 }
 
+function scoreablesToStr(scoreables) {
+  let str = [];
+  for (let i = 0; i < scoreables.length; i++) {
+    if (scoreables[i] == 0) {
+      str.push("◎");
+    } else {
+      str.push(scoreables[i].toString());
+    }
+  }
+
+  return str;
+}
+
 function checkClosed(shots) {
-  console.log("shots", shots);
   let closedNumbers = [];
   for (let i = 0; i < shots[0].length; i++) { // 21 nums
     let opened = 0;
