@@ -111,9 +111,9 @@ function proccessMessage(message) {
   }
 }
 
-function newCricketGame() {
+function newCricketGame(options) {
   window.location="game.html"; //TODO: not necessary?
-  new_game(GameId.Cricket);
+  new_game(GameId.Cricket, options);
 }
 
 function newX01Game() {

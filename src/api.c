@@ -86,10 +86,12 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			free((char*)json);
 		} else if (mg_http_match_uri(hm, "/new-game")) {
 			int game_id;
-			json_helper_new_game(hm->body.ptr, &game_id);
+			int options;
+			json_helper_new_game(hm->body.ptr, &game_id, &options);
 			game_event_t event;
 			event.type = GAME_EVENT_NEW_GAME;
 			event.game_id = game_id;
+			event.options = options;
 			game_new_event(&event, &game_rsp);
 			const char* json = json_helper_simple_str("result",
 					game_rsp.ret_str);

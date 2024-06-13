@@ -34,9 +34,10 @@ function new_player() {
   api_post("/new-player", json);
 }
 
-function new_game(game_id) {
+function new_game(game_id, options) {
   const game = game_id;
-  json = JSON.stringify({game});
+  json = JSON.stringify({game, options});
+  console.log(`New game: ${game_id} with options=${options}. json=${json}`);
   api_post("/new-game", json);
 }
 
@@ -47,6 +48,7 @@ function next_player() {
 
 function home() {
   // TODO: modal: are you sure...? and finish game if yes
+  
   window.location.href = "/";
 }
 

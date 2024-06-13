@@ -230,7 +230,7 @@ int json_helper_new_player(const char* json_str, char* name, int name_len)
 	return err;
 }
 
-int json_helper_new_game(const char* json_str, int* game)
+int json_helper_new_game(const char* json_str, int* game, int* options)
 {
 	cJSON* json = cJSON_Parse(json_str);
 	if (json == NULL) {
@@ -238,6 +238,7 @@ int json_helper_new_game(const char* json_str, int* game)
 	}
 	int err = 0;
 	err |= json_get_int((int*)(game), json, "game");
+	err |= json_get_int((int*)(options), json, "options");
 	cJSON_Delete(json);
 	return err;
 }

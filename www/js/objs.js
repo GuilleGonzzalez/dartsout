@@ -201,6 +201,81 @@ function createAudio(id, src) {
   return audio;
 }
 
+function createModal(id) {
+  let modal = document.createElement("div");
+  modal.className = "modal fade";
+  modal.id = id;
+  modal.tabIndex = -1;
+  modal.setAttribute("aria-labelledby", "registerPlayerModalLabel");
+  modal.setAttribute("aria-hidden", "true");
+  let modalDialog = document.createElement("div");
+  modalDialog.className = "modal-dialog";
+  let modalContent = document.createElement("div");
+  modalContent.className = "modal-content";
+  let modalHeader = document.createElement("div");
+  modalHeader.className = "modal-header";
+  let modalTitle = document.createElement("h1");
+  modalTitle.className = "modal-title fs-5";
+  let btnClose = document.createElement("button");
+  btnClose.type = "button";
+  btnClose.className = "btn-close";
+  btnClose.setAttribute("data-bs-dismiss", "modal");
+  btnClose.setAttribute("aria-label", "Close");
+  let modalBody = document.createElement("div");
+  modalBody.className = "modal-body";
+  modalHeader.appendChild(modalTitle);
+  modalHeader.appendChild(btnClose);
+  modalContent.appendChild(modalHeader);
+  modalContent.appendChild(modalBody);
+  modalDialog.appendChild(modalContent);
+  modal.appendChild(modalDialog);
+
+  return modal;
+}
+
+function createRadio(options) {
+  let radioGroup = document.createElement("div");
+  for (let i = 0; i < options.length; i++) {
+    let radio = document.createElement("div");
+    radioGroup.className = "form-check";
+    let input = document.createElement("input");
+    input.className = "form-check-input";
+    input.type = "radio";
+    input.name = "flexRadioDefault";
+    input.id = `flexRadioDefault${i}`;
+    let label = document.createElement("label");
+    label.className = "form-check-label";
+    label.setAttribute("for", `flexRadioDefault${i}`);
+    label.innerHTML = options[i];
+    radio.append(input);
+    radio.append(label);
+    radioGroup.append(radio);
+  }
+
+  return radioGroup;
+}
+
+
+function launchModal(id) {
+  new bootstrap.Modal(document.getElementById(id)).show();
+}
+
+function hideModal(id) {
+  new bootstrap.Modal(document.getElementById(id)).hide();
+}
+
+function addTitleModal(id, title) {
+  let modal = document.getElementById(id);
+  let modalTitle = modal.querySelector(".modal-title");
+  modalTitle.innerHTML = title;
+}
+
+function addContentModal(id, content) {
+  let modal = document.getElementById(id);
+  let modalBody = modal.querySelector(".modal-body");
+  modalBody.appendChild(content);
+}
+
 // Update functions
 
 function updateTitle(text) {

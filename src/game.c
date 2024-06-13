@@ -73,8 +73,7 @@ void game_new_event(game_event_t* event, game_event_rsp_t* rsp)
 		if (game.game == GAME_CRICKET) {
 			int max_points = 200;
 			int max_rounds = 25;
-			cricket_options_t options = 0;
-			options |= random_numbers; // TEMP
+			cricket_options_t options = event->options;
 			cricket_new_game(&cricket, players, options, game.n_players,
 					max_points, max_rounds);
 		} else if (game.game == GAME_X01) {

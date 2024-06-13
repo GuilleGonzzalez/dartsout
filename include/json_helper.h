@@ -19,7 +19,7 @@ const char* json_helper_game_status(game_t* game);
 const char* json_helper_reg_player(player_t* player);
 
 int json_helper_new_player(const char* json_str, char* name, int name_len);
-int json_helper_new_game(const char* json_str, int* game);
+int json_helper_new_game(const char* json_str, int* game, int* options);
 int json_helper_new_dart(const char* json_str, int* board_id, int* num,
 		int* zone);
 int json_helper_register_player(const char* json_str, char* userid,

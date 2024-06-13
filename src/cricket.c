@@ -114,7 +114,7 @@ void cricket_new_game(cricket_t* self, cricket_player_t* players,
 	self->options = options;
 	
 	srand(time(NULL));
-	if (self->options & random_numbers) {
+	if (self->options & wild) {
 		gen_random_scoreables(scoreables, 7);
 	}
 
@@ -162,8 +162,7 @@ cricket_player_t* cricket_check_finish(cricket_t* self)
 void cricket_next_player(cricket_t* self)
 {
 	self->current_player++;
-	if (self->current_player == self->n_players) {
-		self->round++;
+	if (self->options & crazy) {
 		// Generar nuevos números aleatorios
 		// Solo cambian los targets que están marcados
 		// Si tienen todos los jugadores tienen 0 darts en ese número o alguien lo ha cerrado, no cambia.
@@ -174,6 +173,9 @@ void cricket_next_player(cricket_t* self)
 		// Si es un número del 0-20, no se genera nuevo número.
 		// Si es -1, generar número diferente al resto.
 		// gen_new_scoreables([20, -1, 18, -1, -1 17, 0])
+	}
+	if (self->current_player == self->n_players) {
+		self->round++;
 		if (self->round > self->max_rounds) {
 			//TODO: esto en game
 			cricket_check_finish(self);
