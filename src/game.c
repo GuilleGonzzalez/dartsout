@@ -67,19 +67,27 @@ void game_new_event(game_event_t* event, game_event_rsp_t* rsp)
 		}
 		game.running = true;
 		game.game = event->game_id;
+		game.options = event->options;
 		json = game_status();
 		api_ws_write(json);
 		free((char*)json);
 		if (game.game == GAME_CRICKET) {
-			int max_points = 200;
-			int max_rounds = 25;
+			int max_points = 200; //TODO: event.max_points
+			int max_rounds = 25;  //TODO: event.max_rounds
 			cricket_options_t options = event->options;
-			cricket_new_game(&cricket, players, options, game.n_players,
+			printf("Options: %d\n", options);
+			cricket_new_game(&cricket, players, game.n_players, options,
 					max_points, max_rounds);
 		} else if (game.game == GAME_X01) {
-			int score = 301;
-			int max_rounds = 25;
-			x01_new_game(&x01, x01_players, game.n_players, score, max_rounds);
+			int score = 301;      //TODO: event.score
+			int max_rounds = 25;  //TODO: event.max_rounds
+			x01_options_t options = event->options;
+			printf("Nplayers: %d\n", game.n_players);
+			printf("Options: %d\n", options);
+			printf("Score: %d\n", score);
+			printf("Max rouds: %d\n", max_rounds);
+			x01_new_game(&x01, x01_players, game.n_players, options, score,
+					max_rounds);
 		} else {
 			printf("ERROR: game not implemented!\n");
 		}
@@ -104,7 +112,7 @@ void game_new_event(game_event_t* event, game_event_rsp_t* rsp)
 		strcpy(name, event->player->name);
 		game.players[game.n_players].name = name;
 		players[game.n_players].p.name = name;
-		x01_players[game.n_players].name = name; // TODO: fixit
+		x01_players[game.n_players].p.name = name; // TODO: fixit
 		game.n_players++;
 		json = game_status();
 		api_ws_write(json);
@@ -158,11 +166,24 @@ void game_new_event(game_event_t* event, game_event_rsp_t* rsp)
 						winner_player->game_score);
 			}
 		} else if (game.game == GAME_X01) {
-			x01_new_dart(&x01, &val);
+			bool valid = x01_new_dart(&x01, &val);
 			json = x01_status(&x01);
 			api_ws_write(json);
 			free((char*)json);
-			// TODO game.running = false
+			json = json_helper_last_dart(valid, val.number, val.zone);
+			api_ws_write(json);
+			free((char*)json);
+			x01_player_t* winner_player = x01_check_finish(&x01);
+			if (winner_player != NULL) {
+				game.running = false;
+				json = game_status();
+				api_ws_write(json);
+				json = json_helper_winner(winner_player->p.name);
+				api_ws_write(json);
+				free((char*)json);
+				printf("Winner is %s with %d points\n", winner_player->p.name,
+						winner_player->game_score);
+			}
 		} else {
 			printf("ERROR: game not implemented!\n");
 		}

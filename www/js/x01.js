@@ -1,6 +1,13 @@
 
-function x01CreateCanvas(gameCanvas, nPlayers, maxScore) {
-  let title = createHeader(maxScore);
+function x01CreateCanvas(gameCanvas, nPlayers, maxScore, options) {
+  let titleStr = maxScore;
+  if (options & (1<<0)) {
+    titleStr += " - Double In";
+  }
+  if (options & (1<<1)) {
+    titleStr += " - Double Out";
+  }
+  let title = createHeader(titleStr);
   gameCanvas.appendChild(title);
   let spacer = createSpacer(30);
   gameCanvas.appendChild(spacer);
@@ -14,11 +21,13 @@ function x01CreateCanvas(gameCanvas, nPlayers, maxScore) {
   let tripleAudio = createAudio("triple_audio", "audio/triple.oga");
   let doubleAudio = createAudio("double_audio", "audio/double.oga");
   let simpleAudio = createAudio("simple_audio", "audio/simple.oga");
+  let noAudio = createAudio("no_audio", "audio/no.oga");
   gameCanvas.appendChild(winnerAudio);
   gameCanvas.appendChild(nextPlayerAudio);
   gameCanvas.appendChild(tripleAudio);
   gameCanvas.appendChild(doubleAudio);
   gameCanvas.appendChild(simpleAudio);
+  gameCanvas.appendChild(noAudio);
 
   gameCanvas.appendChild(spacer2);
 }

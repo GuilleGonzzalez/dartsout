@@ -39,6 +39,7 @@ typedef struct game_event_rsp_t {
 
 typedef struct game_t {
 	game_games_t game;
+	int options;
 	player_t players[MAX_PLAYERS];
 	bool running;
 	int n_players;

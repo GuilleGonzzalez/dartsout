@@ -52,12 +52,6 @@ socket.onclose = function(event) {
   console.log(`Closed ${event.code}`);
 }
 
-function showMessage(message) {
-  let messageElem = document.createElement('div');
-  messageElem.textContent = "MSG rvc: " + message;
-  document.getElementById('messages').prepend(messageElem);
-}
-
 function proccessMessage(message) {
   let messageElem = document.createElement('div');
   messageElem.textContent = "MSG rvc: " + message;
@@ -72,16 +66,16 @@ function proccessMessage(message) {
   let msgId = json["msg_id"];
   switch (msgId) {
     case MsgId.GameStatus:
-      console.log(json);
       let running = json["running"];
       let game_id = json["game_id"];
+      let options = json["options"];
       let players = json["players"];
       let game_n_players = json["n_players"];
       if (running) {
         if (game_id == GameId.Cricket) {
           cricketCreateCanvas(gameCanvas, game_n_players);
         } else if (game_id == GameId.X01) {
-          x01CreateCanvas(gameCanvas, game_n_players, 301);
+          x01CreateCanvas(gameCanvas, game_n_players, 301, options);
         } else {
           console.error("Game not implemented!");
         }
@@ -116,7 +110,7 @@ function newCricketGame(options) {
   new_game(GameId.Cricket, options);
 }
 
-function newX01Game() {
+function newX01Game(options) {
   window.location="game.html"; //TODO: not necessary?
-  new_game(GameId.X01);
+  new_game(GameId.X01, options);
 }

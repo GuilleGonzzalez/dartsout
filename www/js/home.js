@@ -5,20 +5,26 @@ function homeCreateCanvas(homeCanvas) {
   let spacer = createSpacer(30);
   homeCanvas.appendChild(spacer);
 
-  let newPlayerBtn = createButton("Add player",  "new_player()");
+  let newPlayerBtn = createButton("Add player", "new_player()");
   homeCanvas.appendChild(newPlayerBtn);
-  let newCricketBtn = createButton("New cricket game",  "newCricketGame((1 << 0))");
+  let newCricketBtn = createButton("New cricket game", "newCricketGame()");
   homeCanvas.appendChild(newCricketBtn);
-  let newCricketBtnWild = createButton("New cricket wild game",  "newCricketGame((1 << 2))");
+  let cricketWildOptions = (1 << 2);
+  let newCricketBtnWild = createButton("New cricket wild game",
+      `newCricketGame(${cricketWildOptions})`);
   homeCanvas.appendChild(newCricketBtnWild);
   let new301Btn = createButton("New 301 game",  "newX01Game()");
   homeCanvas.appendChild(new301Btn);
+  let x01DoubleOutOptions = (1 << 1);
+  let x01DoubleInOptions = (1 << 0);
+  let new301DOBtn = createButton("New 301 game DInOut",
+      `newX01Game(${x01DoubleOutOptions | x01DoubleInOptions})`);
+  homeCanvas.appendChild(new301DOBtn);
 
   let spacer2 = createSpacer(30);
   homeCanvas.appendChild(spacer2);
   let table = createTable("players-table", 8, 3);
   homeCanvas.appendChild(table);
-  console.log("Table created");
   updateTable("players-table", ["#", "Name", "MPR"], false);
   let spacer3 = createSpacer(30);
   homeCanvas.appendChild(spacer3);
@@ -48,7 +54,5 @@ function homeAddPlayer(json) {
   for (let i = 0; i < players.length; i++) {
     data.push([i+1, players[i]["name"], "--"]);
   }
-  console.log("data", data);
-  
   updateTable("players-table", false, data);
 }

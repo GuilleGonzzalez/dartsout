@@ -89,17 +89,20 @@ function createTable(tableId, nRows, nCols) {
   return table;
 }
 
-function createSimpleCard(headerText, bodyText) {
+function createCard(headerText, bodyText, width="10rem",
+    headerFontASize = "20px". textFontSize="50px") {
   let card = document.createElement("div");
   card.className = "card text-center";
-  card.style = "width: 10rem;";
+  card.style = `width: ${width};`;
   let cardHeader = document.createElement("div");
   cardHeader.className = "card-header fw-bolder";
+  cardHeader.style = `font-size: ${headerFontASize};`;
   cardHeader.innerHTML = headerText;
   let cardBody = document.createElement("div");
   cardBody.className = "card-body";
   let cardText = document.createElement("h1");
-  cardText.className = "card-text fw-bolder fs-1";
+  cardText.className = "card-text fw-bolder";
+  cardText.style = `font-size: ${textFontSize};`;
   cardText.innerHTML = bodyText;
 
   cardBody.appendChild(cardText);
@@ -116,7 +119,8 @@ function createScoreCards(num) {
   for (let i = 0; i < num; i++) {
     let col = document.createElement("div");
     col.className = "col mb-4";
-    let card = createSimpleCard(`Card ${i}`, `Text ${i}`);
+    let card = createCard(`Card ${i}`, `Text ${i}`, width="20rem",
+        headerFontSize="30px", textFontSize="100px");
     col.appendChild(card);
     scores.appendChild(col);
   }
@@ -288,6 +292,7 @@ function updateTable(tableId, header, data, closedNumbers) {
   if (header) {
     let htr = table.firstChild.firstChild;
     // TODO: closed numbers only for cricket
+    // TODO: querySelector
     let i;
     i = 0;
     for (let th = htr.firstChild; th; th = th.nextSibling) {
@@ -299,15 +304,12 @@ function updateTable(tableId, header, data, closedNumbers) {
     }
   }
   if (data) {
-    let tBody = table.lastChild; // TODO: query selector
-    i = 0;
-    for (let btr = tBody.firstChild; btr; btr = btr.nextSibling) {
-      j = 0;
-      for (let td = btr.firstChild; td; td = td.nextSibling) {
-        td.innerHTML = data[i][j];
-        j++
+    let rows = table.querySelectorAll("tbody tr");
+    for (let i = 0; i < data.length; i++) {
+      let cols = rows[i].querySelectorAll("td");
+      for (let j = 0; j < cols.length; j++) {
+        cols[j].innerHTML = data[i][j];
       }
-      i++;
     }
   }
 }

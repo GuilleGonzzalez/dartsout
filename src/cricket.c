@@ -101,9 +101,8 @@ static void gen_random_scoreables(int* generated, int len)
 
 /* Public functions ***********************************************************/
 
-void cricket_new_game(cricket_t* self, cricket_player_t* players,
-		cricket_options_t options, int n_players, int max_score,
-		int max_rounds)
+void cricket_new_game(cricket_t* self, cricket_player_t* players, int n_players,
+		cricket_options_t options, int max_score, int max_rounds)
 {
 	self->n_players = n_players;
 	self->round = 1;

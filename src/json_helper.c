@@ -63,7 +63,7 @@ const char* json_helper_simple_int(const char* str_id, int num)
 	char* out;
 	cJSON* json = cJSON_CreateObject();
 	cJSON_AddNumberToObject(json, str_id, num);
-	out = cJSON_Print(json);
+	out = cJSON_PrintUnformatted(json);
 	cJSON_Delete(json);
 	return out;
 }
@@ -73,7 +73,7 @@ const char* json_helper_simple_str(const char* str_id, const char* str)
 	char* out;
 	cJSON* json = cJSON_CreateObject();
 	cJSON_AddStringToObject(json, str_id, str);
-	out = cJSON_Print(json);
+	out = cJSON_PrintUnformatted(json);
 	cJSON_Delete(json);
 	return out;
 }
@@ -86,7 +86,7 @@ const char* json_helper_last_dart(bool valid, int num, int zone)
 	cJSON_AddBoolToObject(json, "valid", valid);
 	cJSON_AddNumberToObject(json, "num", num);
 	cJSON_AddNumberToObject(json, "zone", zone);
-	out = cJSON_Print(json);
+	out = cJSON_PrintUnformatted(json);
 	cJSON_Delete(json);
 	return out;
 }
@@ -97,7 +97,7 @@ const char* json_helper_winner(const char* name)
 	cJSON* json = cJSON_CreateObject();
 	cJSON_AddNumberToObject(json, "msg_id", 4); //TODO: hardcoded (Last dart msg)
 	cJSON_AddStringToObject(json, "name", name);
-	out = cJSON_Print(json);
+	out = cJSON_PrintUnformatted(json);
 	cJSON_Delete(json);
 	return out;
 }
@@ -141,7 +141,7 @@ const char* json_helper_cricket_status(cricket_t* cricket)
 		cJSON_AddItemToObject(player, "shots", shots);
 		cJSON_AddItemToArray(players, player);
 	}
-	out = cJSON_Print(json);
+	out = cJSON_PrintUnformatted(json);
 	cJSON_Delete(json);
 	return out;
 }
@@ -169,12 +169,12 @@ const char* json_helper_x01_status(x01_t* x01)
 	for (int i = 0; i < x01->n_players; i++) {
 		x01_player_t p = x01->players[i];
 		cJSON* player = cJSON_CreateObject();
-		cJSON_AddStringToObject(player, "name", p.name);
+		cJSON_AddStringToObject(player, "name", p.p.name);
 		cJSON_AddNumberToObject(player, "game_score", p.game_score);
 		cJSON_AddNumberToObject(player, "round_score", p.round_score);
 		cJSON_AddItemToArray(players, player);
 	}
-	out = cJSON_Print(json);
+	out = cJSON_PrintUnformatted(json);
 	cJSON_Delete(json);
 	return out;
 }
@@ -186,6 +186,7 @@ const char* json_helper_game_status(game_t* game)
 	cJSON_AddNumberToObject(json, "msg_id", 0); //TODO:  (status msg)
 	cJSON_AddBoolToObject(json, "running", game->running);
 	cJSON_AddNumberToObject(json, "game_id", game->game);
+	cJSON_AddNumberToObject(json, "options", game->options);
 	cJSON_AddNumberToObject(json, "n_players", game->n_players);
 	cJSON* players = cJSON_AddArrayToObject(json, "players");
 	for (int i = 0; i < game->n_players; i++) {
@@ -195,7 +196,7 @@ const char* json_helper_game_status(game_t* game)
 		cJSON_AddStringToObject(player, "name", p.name);
 		cJSON_AddItemToArray(players, player);
 	}
-	out = cJSON_Print(json);
+	out = cJSON_PrintUnformatted(json);
 	cJSON_Delete(json);
 	return out;
 }
@@ -207,7 +208,7 @@ const char* json_helper_reg_player(player_t* player)
 	cJSON_AddNumberToObject(json, "msg_id", 2); //TODO:  (reg player msg)
 	cJSON_AddStringToObject(json, "userid", player->userid);
 	cJSON_AddStringToObject(json, "name", player->name);
-	out = cJSON_Print(json);
+	out = cJSON_PrintUnformatted(json);
 	cJSON_Delete(json);
 	return out;
 }

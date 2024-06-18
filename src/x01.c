@@ -1,8 +1,8 @@
-#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
 #include "x01.h"
+#include "dartboard.h"
 #include "json_helper.h"
 
 /* Global variables ***********************************************************/
@@ -14,6 +14,8 @@ static const int sector_values[N_SECTORS] = {25, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
 
 static const char* zone_to_str(dartboard_zone_t zone);
 static bool valid_shot(dartboard_shot_t* ds);
+static x01_player_t* get_min_score(x01_t* self);
+static void fill_darts_null(x01_t* self);
 
 /* Callbacks ******************************************************************/
 /* Function definitions *******************************************************/
@@ -39,14 +41,36 @@ static bool valid_shot(dartboard_shot_t* ds)
 	return ds->number >= 0 && ds->number <= 20 && ds->zone >= 0 && ds->zone <= 4;
 }
 
+static x01_player_t* get_min_score(x01_t* self)
+{
+	x01_player_t* best_player = &self->players[0];
+	for (int i = 0; i < self->n_players; i++) {
+		if (self->players[i].game_score < best_player->game_score) {
+			best_player = &self->players[i];
+		}
+	}
+	return best_player;
+}
+
+static void fill_darts_null(x01_t* self)
+{
+	for (int i = self->darts; i < MAX_DARTS; i++) {
+		self->dart_scores[i].number = -1;
+		self->dart_scores[i].zone = -1;
+		self->darts = MAX_DARTS;
+	}
+}
+
 /* Public functions ***********************************************************/
 
-void x01_new_game(x01_t* self, x01_player_t* players, int n_players, int score,
-		int max_rounds)
+void x01_new_game(x01_t* self, x01_player_t* players, int n_players,
+		x01_options_t options, int score, int max_rounds)
 {
 	self->score = score;
 	self->n_players = n_players;
+	self->options = options;
 	self->round = 1;
+	self->prev_score = 0;
 	self->max_rounds = max_rounds;
 	self->current_player = 0;
 	self->darts = 0;
@@ -68,6 +92,21 @@ void x01_new_game(x01_t* self, x01_player_t* players, int n_players, int score,
 				score, self->n_players, self->max_rounds);
 }
 
+x01_player_t* x01_check_finish(x01_t* self)
+{
+	x01_player_t* best_player = get_min_score(self);
+	// If last round
+	if (self->round == self->max_rounds &&
+			self->current_player == self->n_players - 1 &&
+			self->darts == MAX_DARTS) {
+		return best_player;
+	}
+	if (best_player->game_score == 0) {
+		return best_player;
+	}
+	return NULL;
+}
+
 void x01_next_player(x01_t* self)
 {
 	self->current_player++;
@@ -79,25 +118,29 @@ void x01_next_player(x01_t* self)
 		self->current_player = 0;
 	}
 	self->darts = 0;
-	self->players[self->current_player].round_score = 0;
+	x01_player_t current_player = self->players[self->current_player];
+	self->prev_score = current_player.game_score;
+	current_player.round_score = 0;
 }
 
-void x01_new_dart(x01_t* self, dartboard_shot_t* val)
+bool x01_new_dart(x01_t* self, dartboard_shot_t* val)
 {
+	bool valid = true;
+
 	if (!valid_shot(val)) {
 		printf("ERROR: Invalid shot!\n");
-		return;
+		return false;
 	}
 	if (self->darts == MAX_DARTS) {
 		printf("No more darts!\n");
-		return;
+		return false;
 	}
 	self->dart_scores[self->darts].number = val->number;
 	self->dart_scores[self->darts].zone = val->zone;
 	self->darts++;
 
 	x01_player_t* player = &self->players[self->current_player];
-	printf("%s hit %s %d \n", player->name, zone_to_str(val->zone),
+	printf("%s hit %s %d \n", player->p.name, zone_to_str(val->zone),
 			val->number);
 	int mult = 1;
 	if (val->zone == ZONE_TRIPLE) {
@@ -105,18 +148,37 @@ void x01_new_dart(x01_t* self, dartboard_shot_t* val)
 	} else if (val->zone == ZONE_DOUBLE) {
 		mult = 2;
 	}
-	for (int i = 0; i < mult; i++) {
-		//TODO: check double in / double out
-		player->game_score -= sector_values[val->number];
-		player->round_score += sector_values[val->number];
-		if (player->game_score < 0) {
-			player->game_score += sector_values[val->number];
-		} else if (player->game_score == 0) {
-			// win!
-			printf("%s win! %d\n", player->name, val->number);
-			return;
+	int score = player->game_score;
+	score -= (sector_values[val->number] * mult);
+	if (player->game_score == self->score) {
+		if ((self->options & double_in) && (val->zone != ZONE_DOUBLE)) {
+			printf("Not double in\n");
+			return false;
+		}
+	} else if (score < 0) {
+		valid = false;
+		// TODO: this is a temp solution
+		fill_darts_null(self);
+		score = self->prev_score;
+	} else if ((score == 1) && (self->options &= double_out)) {
+		score = 2;
+		// TODO: this is a temp solution
+		fill_darts_null(self);
+	} else if (score == 0) {
+		if ((self->options & double_out) && (val->zone != ZONE_DOUBLE)) {
+			valid = false;
+			printf("Not double out\n");
+			score = self->prev_score;
+			// TODO: this is a temp solution
+			fill_darts_null(self);
+		} else {
+			printf("%s win! %d\n", player->p.name, val->number);
 		}
 	}
+	player->game_score = score;
+	player->round_score += sector_values[val->number];
+
+	return valid;
 }
 
 const char* x01_status(x01_t* self)
