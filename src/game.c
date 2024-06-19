@@ -86,7 +86,7 @@ void game_new_event(game_event_t* event, game_event_rsp_t* rsp)
 			printf("Options: %d\n", options);
 			printf("Score: %d\n", score);
 			printf("Max rouds: %d\n", max_rounds);
-			x01_new_game(&x01, x01_players, game.n_players, options, score,
+			x01_new_game(&x01, x01_players, game.n_players, options,
 					max_rounds);
 		} else {
 			printf("ERROR: game not implemented!\n");

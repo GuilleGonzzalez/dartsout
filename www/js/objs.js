@@ -42,7 +42,7 @@ function createHeader(name) {
 
 function createButton(text, onClick) {
   let button = document.createElement("button");
-  button.className = "btn btn-block btn-primary";
+  button.className = "btn btn-block btn-primary m-2";
   button.type = "button";
   button.setAttribute("onclick", onClick);
   button.innerHTML = text;

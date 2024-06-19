@@ -41,22 +41,16 @@ function homeCreateCanvas(homeCanvas) {
   let newCricketWildBtn = createButton("New cricket wild game",
       `newCricketGame(${cricketWildOptions})`);
   homeCanvas.appendChild(newCricketWildBtn);
-  let new301Btn = createButton("New 301 game",  "newX01Game()");
-  homeCanvas.appendChild(new301Btn);
-  let x01DoubleOutOptions = (1 << 1);
-  let x01DoubleInOptions = (1 << 0);
-  let new301DOBtn = createButton("New 301 game DInOut",
-  `newX01Game(${x01DoubleOutOptions | x01DoubleInOptions})`);
-  homeCanvas.appendChild(new301DOBtn);
 
   let newCricketOptsBtn = createButton("New cricket OPTS",
       'launchModal("cricket-modal")');
   homeCanvas.appendChild(newCricketOptsBtn);
-  let newX01OptsBtn = createButton("New X01 OPTS",
+
+  let newX01OptsBtn = createButton("New X01",
       'launchModal("x01-modal")');
   homeCanvas.appendChild(newX01OptsBtn);
 
-  // Players-tavble
+  // Players-table
   let spacer2 = createSpacer(30);
   homeCanvas.appendChild(spacer2);
   let table = createTable("players-table", 8, 3);
@@ -65,14 +59,6 @@ function homeCreateCanvas(homeCanvas) {
   let spacer3 = createSpacer(30);
   homeCanvas.appendChild(spacer3);
 
-  // let modalContent = document.createElement("div");
-  // let text = document.createElement("h3");
-  // text.innerHTML = "Are you sure you want to finish this game?";
-  // let btnYes = createButton("Yes", "home()");
-  // let btnNo = createButton("No", 'hideModal("exit-modal")');
-  // modalContent.appendChild(text);
-  // modalContent.appendChild(btnYes);
-  // modalContent.appendChild(btnNo);
 }
 
 function x01GameCb() {
@@ -85,17 +71,22 @@ function x01GameCb() {
   }
   let tmp = selectedRadio.id.split("_");
   let score = tmp[tmp.length - 1];
+  options |= ((1 << score) << 2);
 
+  // OPTIONS
+  // |                       SCORE                    | DOUBLE OPTS |
+  // |   8  |   7  |   6  |   5  |   4  |   3  |   2  |   1  |   0  |
+  // |  RES |  RES | 1001 |  901 |  701 |  501 |  301 | DOUT |  DIN |
+  
   let selectedChecks = document.querySelectorAll('input[name="x01-check"]:checked');
   for (let i = 0; i < selectedChecks.length; i++) {
-    selectedChecks[i]
     let tmp = selectedChecks[i].id.split("_");
     let opt = tmp[tmp.length - 1];
     console.log("OPT: ", opt);
     options |= (1 << opt); // DIN -> opt = 0; DOUT -> opt = 1;
   }
 
-  console.log("Score: ", score);
+  console.log("X01 Options: ", options);
 
   newX01Game(options);
 }

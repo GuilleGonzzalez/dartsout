@@ -1,10 +1,24 @@
 
-function x01CreateCanvas(gameCanvas, nPlayers, maxScore, options) {
-  let titleStr = maxScore;
-  if (options & (1<<0)) {
+function x01CreateCanvas(gameCanvas, nPlayers, options) {
+  let titleStr = "";
+  if (options & (1 << 2)) {
+    titleStr = "301";
+  } else if (options & (1 << 3)) {
+    titleStr = "501";
+  } else if (options & (1 << 4)) {
+    titleStr = "701";
+  } else if (options & (1 << 5)) {
+    titleStr = "901";
+  } else if (options & (1 << 6)) {
+    titleStr = "1001";
+  } else {
+    titleStr = "ERROR";
+    console.log("Error in X01 options")
+  }
+  if (options & (1 << 0)) {
     titleStr += " - Double In";
   }
-  if (options & (1<<1)) {
+  if (options & (1 << 1)) {
     titleStr += " - Double Out";
   }
   let title = createHeader(titleStr);

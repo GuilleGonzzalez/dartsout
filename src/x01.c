@@ -12,6 +12,7 @@ static const int sector_values[N_SECTORS] = {25, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
 
 /* Function prototypes ********************************************************/
 
+static int get_score(int options);
 static const char* zone_to_str(dartboard_zone_t zone);
 static bool valid_shot(dartboard_shot_t* ds);
 static void reset_darts(x01_t* self);
@@ -20,6 +21,24 @@ static void fill_darts_null(x01_t* self);
 
 /* Callbacks ******************************************************************/
 /* Function definitions *******************************************************/
+
+static int get_score(int options)
+{
+	switch(options >> 2) {
+	case (1 << 0):
+		return 301;
+	case (1 << 1):
+		return 501;
+	case (1 << 2):
+		return 701;
+	case (1 << 3):
+		return 901;
+	case (1 << 4):
+		return 1001;
+	default:
+		return 301;
+	}
+}
 
 //TODO: move to dartboard (?)
 static const char* zone_to_str(dartboard_zone_t zone)
@@ -73,9 +92,9 @@ static void fill_darts_null(x01_t* self)
 /* Public functions ***********************************************************/
 
 void x01_new_game(x01_t* self, x01_player_t* players, int n_players,
-		x01_options_t options, int score, int max_rounds)
+		x01_options_t options, int max_rounds)
 {
-	self->score = score;
+	self->score = get_score(options);
 	self->n_players = n_players;
 	self->options = options;
 	self->round = 1;
@@ -85,7 +104,7 @@ void x01_new_game(x01_t* self, x01_player_t* players, int n_players,
 	self->darts = 0;
 	self->players = players;
 	for (int i = 0; i < n_players; i++) {
-		self->players[i].game_score = score;
+		self->players[i].game_score = self->score;
 		self->players[i].round_score = 0;
 		memset(self->players[i].shots, 0, N_SECTORS * sizeof(int));
 	}
@@ -95,7 +114,7 @@ void x01_new_game(x01_t* self, x01_player_t* players, int n_players,
 	}
 	reset_darts(self);
 	printf("[%d] New game: %d players, %d rounds\n",
-				score, self->n_players, self->max_rounds);
+				self->score, self->n_players, self->max_rounds);
 }
 
 x01_player_t* x01_check_finish(x01_t* self)

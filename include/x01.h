@@ -17,6 +17,11 @@ typedef struct x01_player_t {
 enum {
 	double_in  = (1 << 0),
 	double_out = (1 << 1),
+	x301       = (1 << 2),
+	x501       = (1 << 3),
+	x701       = (1 << 4),
+	x901       = (1 << 5),
+	x1001      = (1 << 2),
 };
 
 typedef int x01_options_t;
@@ -36,7 +41,7 @@ typedef struct x01_t {
 } x01_t;
 
 void x01_new_game(x01_t* self, x01_player_t* players, int n_players,
-		x01_options_t options, int score, int max_rounds);
+		x01_options_t options, int max_rounds);
 x01_player_t* x01_check_finish(x01_t* self);
 void x01_next_player(x01_t* self);
 bool x01_new_dart(x01_t* self, dartboard_shot_t* val);

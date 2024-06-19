@@ -75,7 +75,8 @@ function proccessMessage(message) {
         if (game_id == GameId.Cricket) {
           cricketCreateCanvas(gameCanvas, game_n_players);
         } else if (game_id == GameId.X01) {
-          x01CreateCanvas(gameCanvas, game_n_players, 301, options);
+          console.log("Options:", options);
+          x01CreateCanvas(gameCanvas, game_n_players, options);
         } else {
           console.error("Game not implemented!");
         }
