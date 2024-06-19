@@ -89,10 +89,11 @@ function createTable(tableId, nRows, nCols) {
   return table;
 }
 
-function createCard(headerText, bodyText, width="10rem",
+function createCard(id, headerText, bodyText, width="10rem",
     headerFontASize = "20px". textFontSize="50px") {
   let card = document.createElement("div");
   card.className = "card text-center";
+  card.id = id;
   card.style = `width: ${width};`;
   let cardHeader = document.createElement("div");
   cardHeader.className = "card-header fw-bolder";
@@ -119,8 +120,8 @@ function createScoreCards(num) {
   for (let i = 0; i < num; i++) {
     let col = document.createElement("div");
     col.className = "col mb-4";
-    let card = createCard(`Card ${i}`, `Text ${i}`, width="20rem",
-        headerFontSize="30px", textFontSize="100px");
+    let card = createCard(`score_card_${i}`, `Card ${i}`, `Text ${i}`,
+        width="20rem", headerFontSize="30px", textFontSize="100px");
     col.appendChild(card);
     scores.appendChild(col);
   }
@@ -237,7 +238,7 @@ function createModal(id) {
   return modal;
 }
 
-function createRadio(options) {
+function createRadio(id, options) {
   let radioGroup = document.createElement("div");
   for (let i = 0; i < options.length; i++) {
     let radio = document.createElement("div");
@@ -245,11 +246,11 @@ function createRadio(options) {
     let input = document.createElement("input");
     input.className = "form-check-input";
     input.type = "radio";
-    input.name = "flexRadioDefault";
-    input.id = `flexRadioDefault${i}`;
+    input.name = id;
+    input.id = `${id}_${i}`;
     let label = document.createElement("label");
     label.className = "form-check-label";
-    label.setAttribute("for", `flexRadioDefault${i}`);
+    label.setAttribute("for", `${id}_${i}`);
     label.innerHTML = options[i];
     radio.append(input);
     radio.append(label);
@@ -259,6 +260,27 @@ function createRadio(options) {
   return radioGroup;
 }
 
+function createCheck(id, options) {
+  let checkGroup = document.createElement("div");
+  for (let i = 0; i < options.length; i++) {
+    let check = document.createElement("div");
+    checkGroup.className = "form-check";
+    let input = document.createElement("input");
+    input.className = "form-check-input";
+    input.type = "checkbox";
+    input.name = id;
+    input.id = `${id}_${i}`;
+    let label = document.createElement("label");
+    label.className = "form-check-label";
+    label.setAttribute("for", `${id}_${i}`);
+    label.innerHTML = options[i];
+    check.append(input);
+    check.append(label);
+    checkGroup.append(check);
+  }
+
+  return checkGroup;
+}
 
 function launchModal(id) {
   new bootstrap.Modal(document.getElementById(id)).show();
@@ -360,6 +382,7 @@ function updateDarts(nums, zones, nDarts) {
 
 function updateScoreCards(players, scores) {
   let scoreCards = document.getElementById("scores");
+  // TODO: temp
   let i = 0;
   for (let col = scoreCards.firstChild; col; col = col.nextSibling) {
     let card = col.firstChild;
@@ -370,4 +393,19 @@ function updateScoreCards(players, scores) {
     text.innerHTML = scores[i];
     i++;
   }
+}
+
+function highlightScoreCard(idx) {
+  let scoreCards = document.getElementById("scores");
+  // TODO: temp
+  let i = 0;
+  for (let col = scoreCards.firstChild; col; col = col.nextSibling) {
+    let card = col.firstChild;
+    let body = card.lastChild;
+    body.classList.remove("custom-highlight");
+    i++;
+  }
+  let card = document.getElementById(`score_card_${idx}`);
+  let body = card.lastChild;
+  body.classList.add("custom-highlight");
 }

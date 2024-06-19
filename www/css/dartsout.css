@@ -1,13 +1,5 @@
 /* * { outline: 1px solid red; } */
 
-.spacer300 {
-    height: 300px;
-}
-
-.spacer100 {
-    height: 100px;
-}
-
-.spacer30 {
-    height: 30px;
+.custom-highlight {
+    background-color: #3a4045;
 }

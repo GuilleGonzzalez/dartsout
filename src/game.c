@@ -173,6 +173,7 @@ void game_new_event(game_event_t* event, game_event_rsp_t* rsp)
 			json = json_helper_last_dart(valid, val.number, val.zone);
 			api_ws_write(json);
 			free((char*)json);
+			// TODO: issue: puede ser que el juego se acabe al pasar de ronda
 			x01_player_t* winner_player = x01_check_finish(&x01);
 			if (winner_player != NULL) {
 				game.running = false;

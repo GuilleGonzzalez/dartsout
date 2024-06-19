@@ -70,10 +70,8 @@ function x01Proccess(json) {
   let nums = Array(dartScores.length).fill("");
   let zones = Array(dartScores.length).fill("");
   for (let i = 0; i < dartScores.length; i++) {
-    if (i < nDarts) {
-      nums[i] = getNumStr(dartScores[i]["num"]);
-      zones[i] = getZoneStr(dartScores[i]["zone"]);
-    }
+    nums[i] = getNumStr(dartScores[i]["num"]);
+    zones[i] = getZoneStr(dartScores[i]["zone"]);
   }
   updateDarts(nums, zones, nDarts);
 
@@ -85,4 +83,5 @@ function x01Proccess(json) {
   }
 
   updateScoreCards(players_names, players_scores);
+  highlightScoreCard(currPlayerIdx);
 }

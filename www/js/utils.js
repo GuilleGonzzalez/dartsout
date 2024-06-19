@@ -15,13 +15,17 @@ function getSymbol(num) {
 function getNumStr(num) {
   if (num == 0) {
     return "◎";
+  } else if (num == -1) {
+    return "-";
   } else {
     return num.toString();
   }
 }
 
 function getZoneStr(zone_id) {  
-  if (zone_id == 0) {
+  if (zone_id == -1) {
+    return "--";
+  } else if (zone_id == 0) {
     return "Triple";
   } else if (zone_id == 1) {
     return "Double";
