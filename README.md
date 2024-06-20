@@ -2,20 +2,41 @@
 
 A simple darts game.
 
-![](./res/dartsout_screenshot.png)
+![](./res/dartsout_shot.png)
 
-## Hardware
+## Dartboard Hardware and Firmware
 
-[Dartsout Hardware](https://github.com/GuilleGonzzalez/hw-dartsout)
-[Dartsout Firmware](https://github.com/GuilleGonzzalez/fw-dartsout)
+[Dartsout! Hardware](https://github.com/GuilleGonzzalez/hw-dartsout)
+
+[Dartsout! Firmware](https://github.com/GuilleGonzzalez/fw-dartsout)
 
 ## Installation
-
 - Clone repository ```git clone https://github.com/GuilleGonzzalez/dartsout ```
 - Compile ```make```
 - Go to directory ```cd dartsout```
 - Execute program ```./dartsout```
 - ```localhost:8000``` in explorer
+
+## Games
+
+### Cricket
+- Cricket normal
+- Cricket no score (TODO) 
+- Cricket cut throat (TODO) 
+- Cricket wild (TODO) 
+- Cricket crazy (TODO) 
+- Cricket wild and crazy (TODO) 
+
+### X01
+- 301
+- 501
+- 701
+- 901
+- 1001
+
+#### Options
+- Double in
+- Double out
 
 ## TODO list
 
