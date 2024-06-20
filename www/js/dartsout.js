@@ -73,13 +73,13 @@ function proccessMessage(message) {
       let game_n_players = json["n_players"];
       if (running) {
         if (game_id == GameId.Cricket) {
-          cricketCreateCanvas(gameCanvas, game_n_players);
+          cricketCreateCanvas(gameCanvas, game_n_players, options);
         } else if (game_id == GameId.X01) {
-          console.log("Options:", options);
           x01CreateCanvas(gameCanvas, game_n_players, options);
         } else {
           console.error("Game not implemented!");
         }
+        addHomeModal(gameCanvas);
       } else {
         homeAddPlayer(json);
       }
@@ -114,4 +114,20 @@ function newCricketGame(options) {
 function newX01Game(options) {
   window.location="game.html"; //TODO: not necessary?
   new_game(GameId.X01, options);
+}
+
+function addHomeModal(canvas) {
+    let homeModal = createModal("home-modal");
+    canvas.appendChild(homeModal);
+    addTitleModal("home-modal", "Exit");
+    let homeModalContent = document.createElement("div");
+    let homeModalTxt = document.createElement("h5");
+    homeModalTxt.innerHTML = "Are you sure you want to exit?";
+    let homeModalTxt2 = document.createElement("p");
+    homeModalTxt2.innerHTML = "Game will finish";
+    homeModalContent.appendChild(homeModalTxt);
+    homeModalContent.appendChild(homeModalTxt2);
+    let yesBtn = createButton("Yes", "homeCb()");
+    homeModalContent.appendChild(yesBtn);
+    addContentModal("home-modal", homeModalContent);
 }

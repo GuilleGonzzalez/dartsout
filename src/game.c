@@ -190,13 +190,9 @@ void game_new_event(game_event_t* event, game_event_rsp_t* rsp)
 		}
 		break;
 	case GAME_EVENT_FINISH_GAME:
-		//TODO: if a player has userid, score must be saved in DB
-		if (!game.running) {
-			rsp->ret_code = 400;
-			rsp->ret_str = "No game running";
-			return;
-		}
 		game.running = false;
+		game.n_players = 0;
+		printf("Game finished!\n");
 		break;
 	default:
 		break;

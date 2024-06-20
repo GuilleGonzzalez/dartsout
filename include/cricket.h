@@ -15,11 +15,12 @@ typedef struct cricket_player_t {
 } cricket_player_t;
 
 enum {
-	no_score   = (1 << 0),
-	cut_throat = (1 << 1),
-	wild       = (1 << 2), // Random numbers
-	crazy      = (1 << 3), // Los numeros cambian en cada ronda, a menos que se cierre
-	wild_crazy = (1 << 4), // Combinación de ambos
+	normal     = (1 << 0),
+	no_score   = (1 << 1),
+	cut_throat = (1 << 2),
+	wild       = (1 << 3), // Random numbers
+	crazy      = (1 << 4), // Los numeros cambian en cada ronda, a menos que se cierre
+	wild_crazy = (1 << 5), // Combinación de ambos
 };
 
 typedef int cricket_options_t;

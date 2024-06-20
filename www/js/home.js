@@ -5,9 +5,9 @@ function homeCreateCanvas(homeCanvas) {
   let cricketModal = createModal("cricket-modal");
   homeCanvas.appendChild(cricketModal);
   let cricketModalContent = document.createElement("div");
-  let cricketRadioGroup = createRadio("cricket-radio", ["Classic", "Cricket wild", "Cricket crazy", "Cricket wild and crazy"]);
+  let cricketRadioGroup = createRadio("cricket-radio", ["Normal", "No score", "Cut throat", "Wild", "Crazy", "Wild and crazy"]);
   cricketModalContent.appendChild(cricketRadioGroup);
-  let cricketPlayBtn = createButton("Play!", "newCricketGame()");
+  let cricketPlayBtn = createButton("Play!", "CricketGameCb()");
   cricketModalContent.appendChild(cricketPlayBtn);
   addTitleModal("cricket-modal", "Cricket");
   addContentModal("cricket-modal", cricketModalContent);
@@ -35,18 +35,10 @@ function homeCreateCanvas(homeCanvas) {
   // Buttons
   let newPlayerBtn = createButton("Add player", "new_player()");
   homeCanvas.appendChild(newPlayerBtn);
-  let newCricketBtn = createButton("New cricket game", "newCricketGame()");
-  homeCanvas.appendChild(newCricketBtn);
-  let cricketWildOptions = (1 << 2);
-  let newCricketWildBtn = createButton("New cricket wild game",
-      `newCricketGame(${cricketWildOptions})`);
-  homeCanvas.appendChild(newCricketWildBtn);
-
-  let newCricketOptsBtn = createButton("New cricket OPTS",
+  let newCricketOptsBtn = createButton("Cricket",
       'launchModal("cricket-modal")');
   homeCanvas.appendChild(newCricketOptsBtn);
-
-  let newX01OptsBtn = createButton("New X01",
+  let newX01OptsBtn = createButton("X01",
       'launchModal("x01-modal")');
   homeCanvas.appendChild(newX01OptsBtn);
 
@@ -59,6 +51,29 @@ function homeCreateCanvas(homeCanvas) {
   let spacer3 = createSpacer(30);
   homeCanvas.appendChild(spacer3);
 
+}
+
+function CricketGameCb() {
+  let options = 0;
+
+  let selectedRadio = document.querySelector('input[name="cricket-radio"]:checked');
+  if (!selectedRadio) {
+    console.error("No radio selected");
+    return;
+  }
+  let tmp = selectedRadio.id.split("_");
+  let mode = tmp[tmp.length - 1];
+  options |= (1 << mode);
+
+  // OPTIONS
+  // |                             MODE                             |
+  // |   8  |   7  |   6  |   5  |   4  |   3  |   2  |   1  |   0  |
+  // |  RES |  RES |  RES |  w&c | craz | wild | cthr | nsco | norm |
+  
+
+  console.log("Cricket Options: ", options);
+
+  newCricketGame(options);
 }
 
 function x01GameCb() {

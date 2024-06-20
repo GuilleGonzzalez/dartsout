@@ -46,9 +46,17 @@ function next_player() {
   soundsNextPlayer();
 }
 
+function finish_game() {
+  api_post("/finish-game", json);
+}
+
 function home() {
-  // TODO: modal: are you sure...? and finish game if yes
-  
+  launchModal("home-modal");
+}
+
+function homeCb() {
+  // TODO: finish game
+  finish_game();
   window.location.href = "/";
 }
 

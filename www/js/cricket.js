@@ -1,6 +1,23 @@
 
-function cricketCreateCanvas(gameCanvas, nPlayers) {
-  let title = createHeader("Cricket");
+function cricketCreateCanvas(gameCanvas, nPlayers, options) {
+  let titleStr = "Cricket";
+  if (options & (1 << 0)) {
+    titleStr += "";
+  } else if (options & (1 << 1)) {
+    titleStr += " no score";
+  } else if (options & (1 << 2)) {
+    titleStr += " cut throat";
+  } else if (options & (1 << 3)) {
+    titleStr += " wild";
+  } else if (options & (1 << 4)) {
+    titleStr += " crazy";
+  } else if (options & (1 << 5)) {
+    titleStr += " wild and crazy";
+  } else {
+    titleStr += "ERROR";
+    console.log("Error in Cricket options")
+  }
+  let title = createHeader(titleStr);
   gameCanvas.appendChild(title);
   let spacer = createSpacer(30);
   gameCanvas.appendChild(spacer);
