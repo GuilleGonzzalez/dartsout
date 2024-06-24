@@ -12,8 +12,11 @@ A simple darts game.
 
 ## Installation
 - Clone repository ```git clone https://github.com/GuilleGonzzalez/dartsout ```
-- Compile ```make```
 - Go to directory ```cd dartsout```
+- Install dependencies ```mongoose``` and ```cjson```. In arch:
+    - ```sudo pikaur -S mongoose```
+    - ```sudo pacman -S cjson```
+- Compile ```make```
 - Execute program ```./dartsout```
 - ```localhost:8000``` in explorer
 
@@ -45,6 +48,8 @@ A simple darts game.
 - Fix circket score cards (too large)
 - Cricket game modes implementation
 - Remove home and next player button in home header
+- 301 Outchart
+- Bootstrap alerts instead alert()
 
 ### Requested features
 - MPR, MPD

@@ -256,6 +256,8 @@ function createRadio(id, options) {
     radio.append(label);
     radioGroup.append(radio);
   }
+  // Default check first option
+  radioGroup.firstChild.firstChild.setAttribute("checked", "");
 
   return radioGroup;
 }

@@ -17,6 +17,7 @@ static int scoreables[7] = {20, 19, 18, 17, 16, 15, 0};
 
 static bool player_all_closed(cricket_t* self, cricket_player_t* player);
 static cricket_player_t* get_max_score(cricket_t* self);
+static bool has_max_score(cricket_t* self, cricket_player_t* player);
 static bool sector_enabled(cricket_t* self, int sector_number);
 static const char* zone_to_str(dartboard_zone_t zone);
 static bool valid_shot(dartboard_shot_t* ds);
@@ -29,9 +30,7 @@ static void gen_random_scoreables(int* generated, int len);
 static bool player_all_closed(cricket_t* self, cricket_player_t* player)
 {
 	for (int i = 0; i < 7; i++) {
-		printf("Sector: %d is in game with %d shots\n", self->scoreables[i], player->shots[self->scoreables[i]]);
 		if (player->shots[self->scoreables[i]] < 3) {
-			printf("%d is not closed yet (%d)\n", self->scoreables[i], player->shots[self->scoreables[i]]);
 			return false;
 		}
 	}
@@ -47,6 +46,16 @@ static cricket_player_t* get_max_score(cricket_t* self)
 		}
 	}
 	return best_player;
+}
+
+static bool has_max_score(cricket_t* self, cricket_player_t* player)
+{
+	for (int i = 0; i < self->n_players; i++) {
+		if (self->players[i].game_score > player->game_score) {
+			return false;
+		}
+	}
+	return true;
 }
 
 static bool sector_enabled(cricket_t* self, int sector_number)
@@ -142,18 +151,16 @@ void cricket_new_game(cricket_t* self, cricket_player_t* players, int n_players,
 
 cricket_player_t* cricket_check_finish(cricket_t* self)
 {
-	// TODO: here is an error: if all players = 0 points best_player colud be anyone
-	// If a player close all targets and is not best_player, this player won't win
-	// SOLUTION: we can check if a player has all target closed check if has the highest score
-	cricket_player_t* best_player = get_max_score(self);
-	// If last round
-	if (self->round == self->max_rounds &&
-			self->current_player == self->n_players - 1 &&
-			self->darts == MAX_DARTS) {
-		return best_player;
+	for (int i = 0; i < self->n_players; i++) {
+		cricket_player_t* p = &self->players[i];
+		if (player_all_closed(self, p) && (has_max_score(self, p))) {
+			return p;
+		}
 	}
-	if (player_all_closed(self, best_player)) {
-		return best_player;
+	// If last round
+	if (self->round == self->max_rounds && self->darts == MAX_DARTS &&
+			self->current_player == self->n_players - 1) {
+		return get_max_score(self);
 	}
 	return NULL;
 }
@@ -222,10 +229,11 @@ bool cricket_new_dart(cricket_t* self, dartboard_shot_t* val)
 						sector_enabled(self, val->number);
 				printf("%s closed %d\n", player->p.name, val->number);
 			}
-			printf("%d =  %d\n", val->number, player->shots[val->number]);
 		} else {
-			player->game_score += sector_values[val->number];
-			player->round_score += sector_values[val->number];
+			if (!(self->options & no_score)) {
+				player->game_score += sector_values[val->number];
+				player->round_score += sector_values[val->number];
+			}
 		}
 	}
 	return scoreable;
