@@ -9,7 +9,8 @@ function api_post(url, json) {
   .then(response => {
     if (!response.ok) {
       response.json().then(rsp => {
-        alert(rsp["result"])
+        window.location.href = "/";
+        console.error(rsp["result"]);
       });
       return;
     } else {
@@ -30,6 +31,11 @@ function new_player() {
     alert("Invalid player");
     return;
   }
+  json = JSON.stringify({name});
+  api_post("/new-player", json);
+}
+
+function new_player2(name) {
   json = JSON.stringify({name});
   api_post("/new-player", json);
 }

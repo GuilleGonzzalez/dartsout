@@ -89,8 +89,23 @@ function createTable(tableId, nRows, nCols) {
   return table;
 }
 
+function createSimpleCard(id) {
+  let card = document.createElement("div");
+  card.className = "card mb-3";
+  card.id = id;
+  let cardBody = document.createElement("div");
+  cardBody.className = "card-body";
+  let cardText = document.createElement("h1");
+  cardText.className = "card-text fw-bolder";
+  // cardText.style = `font-size: ${textFontSize};`;
+  cardBody.appendChild(cardText);
+  card.appendChild(cardBody);
+
+  return card;
+}
+
 function createCard(id, headerText, bodyText, width="10rem",
-    headerFontASize = "20px". textFontSize="50px") {
+    headerFontASize="20px", textFontSize="50px") {
   let card = document.createElement("div");
   card.className = "card text-center";
   card.id = id;
@@ -113,7 +128,7 @@ function createCard(id, headerText, bodyText, width="10rem",
   return card;
 }
 
-function createScoreCards(num) {
+function createScoreCards(num, width, headerFontSize, textFontSize) {
   let scores = document.createElement("div");
   scores.className = "row";
   scores.id = "scores";
@@ -121,11 +136,10 @@ function createScoreCards(num) {
     let col = document.createElement("div");
     col.className = "col mb-4";
     let card = createCard(`score_card_${i}`, `Card ${i}`, `Text ${i}`,
-        width="20rem", headerFontSize="30px", textFontSize="100px");
+        width=width, headerFontSize=headerFontSize, textFontSize=textFontSize);
     col.appendChild(card);
     scores.appendChild(col);
   }
-
   return scores;
 }
 
@@ -142,8 +156,7 @@ function createCardInfo() {
   card.appendChild(img);
   
   let infoTitle = createCardInfoTitle();
-  let listItems = ["Round", "Game score", "Round score"];
-  let infoBody = createCardInfoBody(listItems);
+  let infoBody = createCardInfoBody();
   card.appendChild(infoTitle);
   card.appendChild(infoBody);
 
@@ -158,7 +171,7 @@ function createCardInfoTitle() {
   return cardTitle;
 }
 
-function createCardInfoBody(listItems) {
+function createCardInfoBody() {
   let cardBody = document.createElement("div");
   cardBody.className = "card-body";
   let list = document.createElement("ul");
@@ -304,6 +317,44 @@ function addContentModal(id, content) {
   modalBody.appendChild(content);
 }
 
+function createdPlayerForm(onClick) {
+  let form = document.createElement("form");
+  let playerName = document.createElement("div");
+  playerName.className = "mb-3";
+  let playerNameLabel = document.createElement("label");
+  playerNameLabel.className = "form-label";
+  playerNameLabel.setAttribute("for", "playerName"); // ??
+  playerNameLabel.innerHTML = "Player name";
+  let playerNameInput = document.createElement("input");
+  playerNameInput.id = "playerName";
+  playerNameInput.type = "text";
+  playerNameInput.className = "form-control";
+  let button = document.createElement("button");
+  button.className = "btn btn-primary";
+  button.type = "button";
+  button.innerHTML = "Add player";
+  button.setAttribute("onclick", onClick);
+
+  playerName.appendChild(playerNameLabel);
+  playerName.appendChild(playerNameInput);
+  form.appendChild(playerName);
+  form.appendChild(button);
+
+  console.log(form);
+
+  return form;
+}
+
+function createAlert(severity, text) {
+  let alert = document.createElement("div");
+  alert.className = "alert";
+  alert.classList.add(severity);
+  alert.role = "alert";
+  alert.innerHTML = text;
+
+  return alert;
+}
+
 // Update functions
 
 function updateTitle(text) {
@@ -348,17 +399,17 @@ function highlightTableRow(tableId, row) {
   selRow.classList.add("table-active");
 }
 
-function updateCardInfo(name, info_list) {
+function updateCardInfo(name, infoList) {
   let title = document.getElementById("card-info-title");
   title.innerHTML = name;
   let list = document.getElementById("card-info-list");
   while (list.lastElementChild) {
     list.removeChild(list.lastElementChild);
   }
-  for (let i = 0; i < info_list.length; i++) {
+  for (let i = 0; i < infoList.length; i++) {
     let listItem = document.createElement("li");
     listItem.className = "list-group-item";
-    listItem.innerHTML = info_list[i];
+    listItem.innerHTML = infoList[i];
     list.appendChild(listItem);
   }
 }
@@ -380,6 +431,12 @@ function updateDarts(nums, zones, nDarts) {
       img.src = dart_closed_img_path;
     }
   }
+}
+
+function udpdateSimpleCard(id, text) {
+  let card = document.getElementById(id);
+  let textBody = card.querySelector("div h1");
+  textBody.innerHTML = text;
 }
 
 function updateScoreCards(players, scores) {

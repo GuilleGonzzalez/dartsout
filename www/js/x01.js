@@ -59,10 +59,12 @@ function x01CreateGrid(nPlayers) {
   let info = createCardInfo();
   
   // TEST
-  let suggested = document.createElement("h1");
-  suggested.id = "suggested";
+  // let suggested = document.createElement("h1");
+  // suggested.id = "suggested";
 
-  let cards = createScoreCards(nPlayers);
+  let suggested = createSimpleCard("suggested");
+
+  let cards = createScoreCards(nPlayers, "20rem", "30px", "100px");
   
   colLeft.appendChild(info);
   colRight.appendChild(suggested);
@@ -86,11 +88,11 @@ function x01Proccess(json) {
   let scoreStr = `Round score: ${currPlayer["round_score"]}`
   updateCardInfo(currPlayer["name"], [roundStr, scoreStr]);
 
-  let suggested = document.getElementById("suggested");
   let suggestions = getSugestions(currPlayer["game_score"]);
-  console.log(suggestions);
   if (suggestions) {
-    suggested.innerHTML = suggestions;
+    udpdateSimpleCard("suggested", suggestions.join(' - '));
+  } else {
+    udpdateSimpleCard("suggested", "");
   }
 
   let nums = Array(dartScores.length).fill("");

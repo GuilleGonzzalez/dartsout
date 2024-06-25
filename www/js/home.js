@@ -2,6 +2,14 @@
 function homeCreateCanvas(homeCanvas) {
 
   // Modals
+  let playerModal = createModal("player-modal");
+  homeCanvas.appendChild(playerModal);
+  let playerModalContent = document.createElement("div");
+  let playerForm = createdPlayerForm("playerCb()");
+  playerModalContent.appendChild(playerForm);
+  addTitleModal("player-modal", "Add player");
+  addContentModal("player-modal", playerModalContent);
+
   let cricketModal = createModal("cricket-modal");
   homeCanvas.appendChild(cricketModal);
   let cricketModalContent = document.createElement("div");
@@ -35,6 +43,8 @@ function homeCreateCanvas(homeCanvas) {
   // Buttons
   let newPlayerBtn = createButton("Add player", "new_player()");
   homeCanvas.appendChild(newPlayerBtn);
+  let newPlayerBtn2 = createButton("Add player 2", 'launchModal("player-modal")');
+  homeCanvas.appendChild(newPlayerBtn2);
   let newCricketOptsBtn = createButton("Cricket",
       'launchModal("cricket-modal")');
   homeCanvas.appendChild(newCricketOptsBtn);
@@ -51,6 +61,14 @@ function homeCreateCanvas(homeCanvas) {
   let spacer3 = createSpacer(30);
   homeCanvas.appendChild(spacer3);
 
+}
+
+function playerCb(alert) {
+  let playerName = document.getElementById("playerName").value;
+  if (playerName == "") {
+    return;
+  }
+  new_player2(playerName);
 }
 
 function CricketGameCb() {
