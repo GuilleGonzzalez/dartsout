@@ -197,7 +197,6 @@ void game_new_event(game_event_t* event, game_event_rsp_t* rsp)
 	default:
 		break;
 	}
-
 	rsp->ret_code = 200;
 	rsp->ret_str = "Success";
 }

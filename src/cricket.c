@@ -11,26 +11,29 @@
 static const int sector_values[N_SECTORS] = {25, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
 		11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
 
-static int scoreables[7] = {20, 19, 18, 17, 16, 15, 0};
-
 /* Function prototypes ********************************************************/
 
-static bool player_all_closed(cricket_t* self, cricket_player_t* player);
+static bool player_all_closed(cricket_player_t* player);
 static cricket_player_t* get_max_score(cricket_t* self);
 static bool has_max_score(cricket_t* self, cricket_player_t* player);
-static bool sector_enabled(cricket_t* self, int sector_number);
 static const char* zone_to_str(dartboard_zone_t zone);
+static int get_mult_from_zone(int zone);
 static bool valid_shot(dartboard_shot_t* ds);
-static void gen_random_scoreables(int* generated, int len);
+static void gen_random_targets(int* targets, int len);
+static void find_targets_to_gen(cricket_t* self);
+static void gen_new_targets(cricket_t* self);
+static bool number_closed(cricket_t* self, int num);
+
+static void list_remove(int* list, int* len, int pos);
+static int list_exists(int* list, int len, int val);
 
 /* Callbacks ******************************************************************/
 /* Function definitions *******************************************************/
 
-// true if all ACTIVE numbers are closed
-static bool player_all_closed(cricket_t* self, cricket_player_t* player)
+static bool player_all_closed(cricket_player_t* player)
 {
-	for (int i = 0; i < 7; i++) {
-		if (player->shots[self->scoreables[i]] < 3) {
+	for (int i = 0; i < N_ENABLED; i++) {
+		if (player->shots[i] < 3) {
 			return false;
 		}
 	}
@@ -58,16 +61,7 @@ static bool has_max_score(cricket_t* self, cricket_player_t* player)
 	return true;
 }
 
-static bool sector_enabled(cricket_t* self, int sector_number)
-{
-	for (int i = 0; i < self->n_players; i++) {
-		if (self->players[i].shots[sector_number] < 3) {
-			return true;
-		}
-	}
-	return false;
-}
-
+// TODO: to dartboard
 static const char* zone_to_str(dartboard_zone_t zone)
 {
 	const char* str_zone;
@@ -81,14 +75,32 @@ static const char* zone_to_str(dartboard_zone_t zone)
 	return str_zone;
 }
 
+// TODO: to dartboard
+static int get_mult_from_zone(int zone)
+{
+	if (zone == ZONE_TRIPLE) {
+		return 3;
+	} else if (zone == ZONE_DOUBLE) {
+		return 2;
+	}
+	return 1;
+}
+
+// TODO: to dartboard
+// This function check if a shot is valid. This is:
+// - Number must be between [0, 20]
+// - Zone must be between [0, 4]
 static bool valid_shot(dartboard_shot_t* ds)
 {
 	printf("NUMBER: %d, ZONE: %d\n", ds->number, ds->zone);
 	return ds->number >= 0 && ds->number <= 20 && ds->zone >= 0 && ds->zone <= 4;
 }
 
-static void gen_random_scoreables(int* generated, int len)
+// This function generates random numbers for all possible targets.
+// All numbers must be different.
+static void gen_random_targets(int* targets, int len)
 {
+	// TODO: create fonctions for list manipulation (add, remove, etc)
 	int vals[N_SECTORS];
 	for (int i = 0; i < N_SECTORS; i++) {
 		vals[i] = i;
@@ -96,16 +108,106 @@ static void gen_random_scoreables(int* generated, int len)
 	int vals_len = N_SECTORS;
 	for (int i = 0; i < len; i++) {
 		int rand_num = rand() % vals_len;
-		generated[i] = vals[rand_num];
-		for (int j = rand_num; j < vals_len-1; j++) {
-			vals[j] = vals[j+1];
+		targets[i] = vals[rand_num];
+		list_remove(vals, &vals_len, rand_num);
+	}
+}
+
+// This function finds which numbers have to change.
+// The requirements that must be met for the number to change are:
+// - No one has closed it (no one has 3 targets)
+// - Someone has opened it (someone has 1 or 2 targets)
+static void find_targets_to_gen(cricket_t* self)
+{
+	for (int i = 0; i < N_ENABLED; i++) {
+		bool change_closed = true;
+		bool change_opened = false;
+		for (int j = 0; j < self->n_players; j++) {
+			if (self->players[j].shots[i] == 3) {
+				change_closed = false;
+			} else if (self->players[j].shots[i] != 0) {
+				change_opened = true;
+			}
 		}
-		vals_len--;
+		if (change_closed && change_opened) {
+			printf("%d has to be changed\n", self->enabled[i]);
+			self->enabled[i] = -1;
+		}
 	}
+}
+
+// This function generates an array with all possible targets
+static void gen_all_targets_array(int* targets, int* len)
+{
+	for (int i = 0; i < *len; i++) {
+		targets[i] = i;
+	}
+}
+
+// This function generates the numbers of the enabled list that are marked as -1
+// (has to be changed). New numbers cannot match those already on the list.
+static void gen_new_targets(cricket_t* self)
+{
+	int targets[N_SECTORS];
+	int targets_len = N_SECTORS;
+	gen_all_targets_array(targets, &targets_len);
+
+	// Remove from vals array numbers which we alredy have
+	for (int i = 0; i < N_ENABLED; i++) {
+		if (self->enabled[i] != -1) {
+			list_remove(targets, &targets_len, self->enabled[i]);
+		}
+	}
+	// Generate random numbers for postions == -1
+	for (int i = 0; i < N_ENABLED; i++) {
+		if (self->enabled[i] == -1) {
+			int rand_num = rand() % targets_len;
+			self->enabled[i] = targets[rand_num];
+			list_remove(targets, &targets_len, rand_num);
+		}
+	}
+}
+
+// This function check if a given number is closed.
+// For that, find the number position in the "enabled" array and check that
+// all players have 3 targets on it.
+// If the number does not exist in the "enabled" array, returns false
+static bool number_closed(cricket_t* self, int num)
+{
+	int pos = -1;
+	for (int i = 0; i < N_ENABLED; i++) {
+		if (self->enabled[i] == num) {
+			pos = i;
+			break;
+		}
+	}
+	if (pos == -1) {
+		return false;
+	}
+	for (int i = 0; i < self->n_players; i++) {
+		if (self->players[i].shots[pos] != 3) {
+			return false;
+		}
+	}
+	return true;
+}
+
+static void list_remove(int* list, int* len, int pos)
+{
+	(*len)--;
+	for (int i = pos; i < *len; i++) {
+		list[i] = list[i+1];
+	}
+}
+
+static int list_exists(int* list, int len, int val)
+{
 	for (int i = 0; i < len; i++) {
-		printf("%d ", generated[i]);
+		if (list[i] == val) {
+			return i;
+		}
 	}
-	printf("\n");
+	return -1;
 }
 
 /* Public functions ***********************************************************/
@@ -120,26 +222,19 @@ void cricket_new_game(cricket_t* self, cricket_player_t* players, int n_players,
 	self->current_player = 0;
 	self->darts = 0;
 	self->options = options;
-	
+
+	int en[N_ENABLED] = {20, 19, 18, 17, 16, 15, 0};
+	memcpy(self->enabled, en, sizeof(en));
+
 	srand(time(NULL));
-	if (self->options & wild) {
-		gen_random_scoreables(scoreables, 7);
+	if (self->options & wild || self->options & crazy) {
+		gen_random_targets(self->enabled, N_ENABLED);
 	}
-
-	self->scoreables = scoreables;
-
 	self->players = players;
 	for (int i = 0; i < n_players; i++) {
 		self->players[i].game_score = 0;
 		self->players[i].round_score = 0;
 		memset(self->players[i].shots, 0, N_SECTORS * sizeof(int));
-	}
-	for (int i = 0; i < N_SECTORS; i++) {
-		self->sectors[i].shots = 0;
-		self->sectors[i].enabled = 0;
-	}
-	for (int i = 0; i < 7; i++) {
-		self->sectors[self->scoreables[i]].enabled = 1;
 	}
 	for (int i = 0; i < MAX_DARTS; i++) {
 		self->dart_scores[i].number = -1;
@@ -153,11 +248,10 @@ cricket_player_t* cricket_check_finish(cricket_t* self)
 {
 	for (int i = 0; i < self->n_players; i++) {
 		cricket_player_t* p = &self->players[i];
-		if (player_all_closed(self, p) && (has_max_score(self, p))) {
+		if (player_all_closed(p) && (has_max_score(self, p))) {
 			return p;
 		}
 	}
-	// If last round
 	if (self->round == self->max_rounds && self->darts == MAX_DARTS &&
 			self->current_player == self->n_players - 1) {
 		return get_max_score(self);
@@ -169,16 +263,23 @@ void cricket_next_player(cricket_t* self)
 {
 	self->current_player++;
 	if (self->options & crazy) {
-		// Generar nuevos números aleatorios
-		// Solo cambian los targets que están marcados
-		// Si tienen todos los jugadores tienen 0 darts en ese número o alguien lo ha cerrado, no cambia.
-		// la variable global (o la del objeto cricket_t) scoreables se actualiza.
-
-		// Crear función con un parámetro que es un array
-		// Esta función saca de vals (array con números 0-20) los números != -1 del array
-		// Si es un número del 0-20, no se genera nuevo número.
-		// Si es -1, generar número diferente al resto.
-		// gen_new_scoreables([20, -1, 18, -1, -1 17, 0])
+		printf("Numbers enabled before: \n");
+		for (int i = 0; i < N_ENABLED; i++) {
+			printf("%d, ", self->enabled[i]);
+		}
+		printf("\n");
+		find_targets_to_gen(self);
+		printf("Numbers enabled after: \n");
+		for (int i = 0; i < N_ENABLED; i++) {
+			printf("%d, ", self->enabled[i]);
+		}
+		printf("\n");
+		gen_new_targets(self);
+		printf("Numbers enabled new: \n");
+		for (int i = 0; i < N_ENABLED; i++) {
+			printf("%d, ", self->enabled[i]);
+		}
+		printf("\n");
 	}
 	if (self->current_player == self->n_players) {
 		self->round++;
@@ -194,8 +295,6 @@ void cricket_next_player(cricket_t* self)
 
 bool cricket_new_dart(cricket_t* self, dartboard_shot_t* val)
 {
-	bool scoreable = false;
-
 	if (!valid_shot(val)) {
 		printf("ERROR: Invalid shot!\n");
 		return false;
@@ -211,22 +310,15 @@ bool cricket_new_dart(cricket_t* self, dartboard_shot_t* val)
 	cricket_player_t* player = &self->players[self->current_player];
 	printf("%s hit %s %d \n", player->p.name, zone_to_str(val->zone),
 			val->number);
-	int mult = 1;
-	if (val->zone == ZONE_TRIPLE) {
-		mult = 3;
-	} else if (val->zone == ZONE_DOUBLE) {
-		mult = 2;
-	}
+	int mult = get_mult_from_zone(val->zone);
 	for (int i = 0; i < mult; i++) {
-		if (!self->sectors[val->number].enabled) {
-			return scoreable;
+		int pos = list_exists(self->enabled, N_ENABLED, val->number);
+		if (pos == -1 || number_closed(self, val->number)) {
+			return false;
 		}
-		scoreable = true;
-		if (player->shots[val->number] < 3) {
-			player->shots[val->number]++;
-			if (player->shots[val->number] == 3) {
-				self->sectors[val->number].enabled =
-						sector_enabled(self, val->number);
+		if (player->shots[pos] < 3) {
+			player->shots[pos]++;
+			if (player->shots[pos] == 3) {
 				printf("%s closed %d\n", player->p.name, val->number);
 			}
 		} else {
@@ -236,7 +328,7 @@ bool cricket_new_dart(cricket_t* self, dartboard_shot_t* val)
 			}
 		}
 	}
-	return scoreable;
+	return true;
 }
 
 const char* cricket_status(cricket_t* self)

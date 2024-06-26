@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "json_helper.h"
+#include "cricket.h"
 
 /* Global variables ***********************************************************/
 /* Function prototypes ********************************************************/
@@ -121,11 +122,11 @@ const char* json_helper_cricket_status(cricket_t* cricket)
 		cJSON_AddNumberToObject(dart_score, "zone", ds.zone);
 		cJSON_AddItemToArray(dart_scores, dart_score);
 	}
-	cJSON* scoreables = cJSON_CreateArray();
+	cJSON* enabled = cJSON_CreateArray();
 	for (int i = 0; i < 7; i++) {
-		cJSON_AddItemToArray(scoreables, cJSON_CreateNumber(cricket->scoreables[i]));
+		cJSON_AddItemToArray(enabled, cJSON_CreateNumber(cricket->enabled[i]));
 	}
-	cJSON_AddItemToObject(json, "scoreables", scoreables);
+	cJSON_AddItemToObject(json, "enabled", enabled);
 	cJSON* players = cJSON_AddArrayToObject(json, "players");
 	for (int i = 0; i < cricket->n_players; i++) {
 		cricket_player_t p = cricket->players[i];
@@ -135,7 +136,7 @@ const char* json_helper_cricket_status(cricket_t* cricket)
 		cJSON_AddNumberToObject(player, "round_score", p.round_score);
 		cJSON_AddStringToObject(player, "img_path", "res/user.svg");
 		cJSON* shots = cJSON_CreateArray();
-		for (int j = 0; j < N_SECTORS; j++) {
+		for (int j = 0; j < N_ENABLED; j++) {
 			cJSON_AddItemToArray(shots, cJSON_CreateNumber(p.shots[j]));
 		}
 		cJSON_AddItemToObject(player, "shots", shots);

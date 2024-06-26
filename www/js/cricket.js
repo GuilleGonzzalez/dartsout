@@ -72,7 +72,7 @@ function cricketProccess(json) {
   let nPlayers = json["n_players"];
   let nDarts = json["darts"];
   let dartScores = json["dart_scores"];
-  let scoreables = json["scoreables"];
+  let enabled = json["enabled"];
   let currPlayerIdx = json["current_player"];
   let currPlayer = json["players"][currPlayerIdx];
 
@@ -92,48 +92,47 @@ function cricketProccess(json) {
   updateDarts(nums, zones, nDarts);
 
   let header = ["Player"];
-  let scoreablesStr = scoreablesToStr(scoreables);
-  header = header.concat(scoreablesStr);
+  let targetsStr = targetsToStr(enabled);
+  header = header.concat(targetsStr);
 
   let players_names = Array(nPlayers);
   let players_scores = Array(nPlayers);
   let players_shots = Array(nPlayers);
   let data = Array(nPlayers);
   for (let i = 0; i < nPlayers; i++) {
-    data[i] = Array(scoreables.length);
+    data[i] = Array(enabled.length);
     data[i][0] = json["players"][i]["name"];
-    for (let j = 0; j < scoreables.length; j++) {
+    for (let j = 0; j < enabled.length; j++) {
       let shots = json["players"][i]["shots"]
-      data[i][j+1] = getSymbol(shots[scoreables[j]]);
+      data[i][j+1] = getSymbol(shots[j]);
     }
-    data[i][scoreables.length-1]
     players_names[i] = json["players"][i]["name"];
     players_scores[i] = json["players"][i]["game_score"];
     players_shots[i] = json["players"][i]["shots"];
   }
 
-  let closedNumbers = checkClosed(players_shots);
+  let closedNumbers = getClosed(enabled, players_shots);
 
   updateTable("cricket-table", header, data, closedNumbers);
   updateScoreCards(players_names, players_scores);
 }
 
-function scoreablesToStr(scoreables) {
+function targetsToStr(targets) {
   let str = [];
-  for (let i = 0; i < scoreables.length; i++) {
-    if (scoreables[i] == 0) {
+  for (let i = 0; i < targets.length; i++) {
+    if (targets[i] == 0) {
       str.push("◎");
     } else {
-      str.push(scoreables[i].toString());
+      str.push(targets[i].toString());
     }
   }
 
   return str;
 }
 
-function checkClosed(shots) {
+function getClosed(enabled, shots) {
   let closedNumbers = [];
-  for (let i = 0; i < shots[0].length; i++) { // 21 nums
+  for (let i = 0; i < shots[0].length; i++) { // 7 nums
     let opened = 0;
     for (let j = 0; j < shots.length; j++) { // 3 players
       if (shots[j][i] != 3) {
@@ -141,7 +140,7 @@ function checkClosed(shots) {
       }
     }
     if (opened == 0) {
-      closedNumbers.push(getNumStr(i));
+      closedNumbers.push(getNumStr(enabled[i]));
     }
   }
   return closedNumbers;

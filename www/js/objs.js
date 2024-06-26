@@ -97,15 +97,14 @@ function createSimpleCard(id) {
   cardBody.className = "card-body";
   let cardText = document.createElement("h1");
   cardText.className = "card-text fw-bolder";
-  // cardText.style = `font-size: ${textFontSize};`;
   cardBody.appendChild(cardText);
   card.appendChild(cardBody);
 
   return card;
 }
 
-function createCard(id, headerText, bodyText, width="10rem",
-    headerFontASize="20px", textFontSize="50px") {
+function createCard(id, width="10rem", headerFontASize="20px",
+    textFontSize="50px") {
   let card = document.createElement("div");
   card.className = "card text-center";
   card.id = id;
@@ -113,13 +112,11 @@ function createCard(id, headerText, bodyText, width="10rem",
   let cardHeader = document.createElement("div");
   cardHeader.className = "card-header fw-bolder";
   cardHeader.style = `font-size: ${headerFontASize};`;
-  cardHeader.innerHTML = headerText;
   let cardBody = document.createElement("div");
   cardBody.className = "card-body";
   let cardText = document.createElement("h1");
   cardText.className = "card-text fw-bolder";
   cardText.style = `font-size: ${textFontSize};`;
-  cardText.innerHTML = bodyText;
 
   cardBody.appendChild(cardText);
   card.appendChild(cardHeader);
@@ -135,8 +132,8 @@ function createScoreCards(num, width, headerFontSize, textFontSize) {
   for (let i = 0; i < num; i++) {
     let col = document.createElement("div");
     col.className = "col mb-4";
-    let card = createCard(`score_card_${i}`, `Card ${i}`, `Text ${i}`,
-        width=width, headerFontSize=headerFontSize, textFontSize=textFontSize);
+    let card = createCard(`score_card_${i}`, width=width,
+        headerFontSize=headerFontSize, textFontSize=textFontSize);
     col.appendChild(card);
     scores.appendChild(col);
   }
@@ -339,8 +336,6 @@ function createdPlayerForm(onClick) {
   playerName.appendChild(playerNameInput);
   form.appendChild(playerName);
   form.appendChild(button);
-
-  console.log(form);
 
   return form;
 }

@@ -5,13 +5,13 @@
 #include "dartboard.h"
 #include "player.h"
 
-#define MAX_DARTS   3
-
+#define MAX_DARTS 3
+#define N_ENABLED 7
 typedef struct cricket_player_t {
 	player_t p;           // Player
 	int game_score;       // Number of "points" in the game
 	int round_score;      // Number of "points" in the round
-	int shots[N_SECTORS]; // Number of darts in each sector
+	int shots[N_ENABLED]; // Number of darts in each sector
 } cricket_player_t;
 
 enum {
@@ -26,11 +26,10 @@ enum {
 typedef int cricket_options_t;
 
 typedef struct cricket_t {
-	dartboard_sectors_t sectors[N_SECTORS];  // All dartboard sectors
 	dartboard_shot_t dart_scores[MAX_DARTS]; // Scores of each shot
 	cricket_player_t* players; // Pointer to an array of players
 	cricket_options_t options; // Cricket options
-	int* scoreables;           // Scoreables numbers // TODO: cluld not be 7
+	int enabled[N_ENABLED];    // Scoreables numbers
 	int n_players;             // Number of players
 	int round;                 // Round number
 	int max_rounds;            // Max rounds number
