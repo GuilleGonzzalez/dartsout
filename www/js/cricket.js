@@ -78,7 +78,8 @@ function cricketProccess(json) {
 
   let roundStr = `Round: ${json["round"]}/${json["max_rounds"]}`;
   let scoreStr = `Round score: ${currPlayer["round_score"]}`
-  updateCardInfo(currPlayer["name"], [roundStr, scoreStr]);
+  let mprStr = `MPR: ${currPlayer["mpr"] / 100}`
+  updateCardInfo(currPlayer["name"], [roundStr, scoreStr, mprStr]);
   highlightTableRow("cricket-table", currPlayerIdx);
 
   let nums = Array(dartScores.length).fill("");

@@ -144,7 +144,6 @@ function createCardInfo() {
   let card = document.createElement("div");
   card.id = "card-info";
   card.className = "card mb-4";
-  card.style = "width: 18rem;";
   let img = document.createElement("img");
   img.id = "user_img";
   img.src ="res/user.svg"

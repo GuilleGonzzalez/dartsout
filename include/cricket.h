@@ -12,6 +12,7 @@ typedef struct cricket_player_t {
 	int game_score;       // Number of "points" in the game
 	int round_score;      // Number of "points" in the round
 	int shots[N_ENABLED]; // Number of darts in each sector
+	int marks;
 } cricket_player_t;
 
 enum {

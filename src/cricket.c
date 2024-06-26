@@ -234,6 +234,7 @@ void cricket_new_game(cricket_t* self, cricket_player_t* players, int n_players,
 	for (int i = 0; i < n_players; i++) {
 		self->players[i].game_score = 0;
 		self->players[i].round_score = 0;
+		self->players[i].marks = 0;
 		memset(self->players[i].shots, 0, N_SECTORS * sizeof(int));
 	}
 	for (int i = 0; i < MAX_DARTS; i++) {
@@ -310,14 +311,15 @@ bool cricket_new_dart(cricket_t* self, dartboard_shot_t* val)
 	cricket_player_t* player = &self->players[self->current_player];
 	printf("%s hit %s %d \n", player->p.name, zone_to_str(val->zone),
 			val->number);
+	int pos = list_exists(self->enabled, N_ENABLED, val->number);
+	if (pos == -1 || number_closed(self, val->number)) {
+		return false;
+	}
 	int mult = get_mult_from_zone(val->zone);
 	for (int i = 0; i < mult; i++) {
-		int pos = list_exists(self->enabled, N_ENABLED, val->number);
-		if (pos == -1 || number_closed(self, val->number)) {
-			return false;
-		}
 		if (player->shots[pos] < 3) {
 			player->shots[pos]++;
+			player->marks++;
 			if (player->shots[pos] == 3) {
 				printf("%s closed %d\n", player->p.name, val->number);
 			}
@@ -325,6 +327,7 @@ bool cricket_new_dart(cricket_t* self, dartboard_shot_t* val)
 			if (!(self->options & no_score)) {
 				player->game_score += sector_values[val->number];
 				player->round_score += sector_values[val->number];
+				player->marks++;
 			}
 		}
 	}

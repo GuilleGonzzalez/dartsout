@@ -123,17 +123,19 @@ const char* json_helper_cricket_status(cricket_t* cricket)
 		cJSON_AddItemToArray(dart_scores, dart_score);
 	}
 	cJSON* enabled = cJSON_CreateArray();
-	for (int i = 0; i < 7; i++) {
+	for (int i = 0; i < N_ENABLED; i++) {
 		cJSON_AddItemToArray(enabled, cJSON_CreateNumber(cricket->enabled[i]));
 	}
 	cJSON_AddItemToObject(json, "enabled", enabled);
 	cJSON* players = cJSON_AddArrayToObject(json, "players");
 	for (int i = 0; i < cricket->n_players; i++) {
 		cricket_player_t p = cricket->players[i];
+		int mpr = (int)((float)p.marks / cricket->round * 100.0);
 		cJSON* player = cJSON_CreateObject();
 		cJSON_AddStringToObject(player, "name", p.p.name);
 		cJSON_AddNumberToObject(player, "game_score", p.game_score);
 		cJSON_AddNumberToObject(player, "round_score", p.round_score);
+		cJSON_AddNumberToObject(player, "mpr", mpr);
 		cJSON_AddStringToObject(player, "img_path", "res/user.svg");
 		cJSON* shots = cJSON_CreateArray();
 		for (int j = 0; j < N_ENABLED; j++) {
