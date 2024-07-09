@@ -34,7 +34,7 @@ typedef enum {
 typedef struct dartboard_event_t {
 	dartboard_event_type_t type;
 	union {
-		player_t* player;
+		player_t player;
 		char* userid;
 	};
 } dartboard_event_t;

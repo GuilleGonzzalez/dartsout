@@ -6,8 +6,6 @@
 #include "player.h"
 #include "json_helper.h"
 
-#include <stdio.h>
-
 /* Global variables ***********************************************************/
 /* Function prototypes ********************************************************/
 /* Callbacks ******************************************************************/
@@ -26,7 +24,7 @@ void dartboard_new_event(dartboard_event_t* event, dartboard_event_rsp_t* rsp)
 
 	switch (event->type) {
 	case DARTBOARD_EVENT_REGISTER_PLAYER:
-		err = db_players_new(event->player);
+		err = db_players_new(&event->player);
 		if (err != 0) {
 			rsp->ret_code = 400;
 			rsp->ret_str = "UserID alredy exists";

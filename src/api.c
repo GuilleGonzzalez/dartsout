@@ -1,3 +1,5 @@
+#include "api.h"
+
 #include "mongoose.h"
 #include <stdio.h>
 #include <string.h>
@@ -112,8 +114,8 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 					name, sizeof(name));
 			dartboard_event_t event;
 			event.type = DARTBOARD_EVENT_REGISTER_PLAYER;
-			event.player->userid = userid;
-			event.player->name = name;
+			event.player.userid = userid;
+			event.player.name = name;
 			dartboard_new_event(&event, &dartboard_rsp);
 			const char* json = json_helper_simple_str("result",
 					dartboard_rsp.ret_str);

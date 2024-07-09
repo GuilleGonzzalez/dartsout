@@ -9,38 +9,45 @@ MK=mkdir
 RM=rm -rf
 
 CFLAGS=-I$(INC_DIR)
+CFLAGS+=-Ilib/mongoose
 CFLAGS+=-Os
 CFLAGS+=-Wall
 CFLAGS+=-Werror
 CFLAGS+=-Wextra
 CFLAGS+=-pedantic
 
-LIBS=-lmongoose
-LIBS+=-lsqlite3
-LIBS+=-lwebsockets
+LIBS=-lsqlite3
 LIBS+=-lcjson
 
 OUTPUT_FILE=$(PROJECT_NAME)
 
-.PHONY: clean
+.PHONY: clean all
 
 all: $(OUTPUT_FILE).out
 
 # wildcard proporciona un string con los *.c separados por un espacio
 # patsubst reemplaza todos los *.c por *.o
 SRC_FILES = $(wildcard $(SRC_DIR)/*.c)
-OBJ_FILES = $(patsubst %.c, %.o, $(SRC_FILES))
+SRC_FILES += lib/mongoose/mongoose.c
+OBJ_FILES := $(foreach sf, $(SRC_FILES), \
+	$(eval of := $(OUT_DIR)/$(notdir $(sf).o)) \
+	$(eval $(of)_SRC := $(sf)) \
+	$(eval $(of): $($(of)_SRC)) \
+	$(of))
 
-%.o: %.c
+%.c.o: $(OUT_DIR)
 	$(info Generating: $@)
-	$(CC) $(CFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $($@_SRC) -o $@
 
 $(OUTPUT_FILE).out: $(OBJ_FILES)
 	$(CC) $(CFLAGS) $(OBJ_FILES) $(LIBS) -o $@
 
+$(OUT_DIR):
+	$(MK) $(OUT_DIR)
+
 clean:
-	$(RM) $(OBJ_FILES)
 	$(RM) $(OUTPUT_FILE)
+	$(RM) $(OUT_DIR)
 
 CLANG_ROOT := $(shell pwd)
 
