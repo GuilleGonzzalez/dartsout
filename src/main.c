@@ -4,7 +4,6 @@
 #include "api.h"
 #include "db.h"
 #include "game.h"
-#include "websocket.h"
 
 /* Global variables ***********************************************************/
 /* Main function **************************************************************/

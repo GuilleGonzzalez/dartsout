@@ -235,7 +235,7 @@ void cricket_new_game(cricket_t* self, cricket_player_t* players, int n_players,
 		self->players[i].game_score = 0;
 		self->players[i].round_score = 0;
 		self->players[i].marks = 0;
-		memset(self->players[i].shots, 0, N_SECTORS * sizeof(int));
+		memset(self->players[i].shots, 0, N_ENABLED * sizeof(int));
 	}
 	for (int i = 0; i < MAX_DARTS; i++) {
 		self->dart_scores[i].number = -1;
@@ -322,6 +322,9 @@ bool cricket_new_dart(cricket_t* self, dartboard_shot_t* val)
 			player->marks++;
 			if (player->shots[pos] == 3) {
 				printf("%s closed %d\n", player->p.name, val->number);
+				if (number_closed(self, val->number)) {
+					return true;
+				}
 			}
 		} else {
 			if (!(self->options & no_score)) {
