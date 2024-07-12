@@ -21,7 +21,7 @@ static x01_player_t x01_players[MAX_PLAYERS];
 /* Function definitions *******************************************************/
 /* Public functions ***********************************************************/
 
-void game_init()
+void game_init(void)
 {
 	game.running = false;
 	printf("Game module init!\n");
@@ -103,13 +103,13 @@ void game_new_event(game_event_t* event, game_event_rsp_t* rsp)
 			rsp->ret_str = "Max players reached";
 			return;
 		}
-		char* name = malloc(strlen(event->player->name));
+		char* name = malloc(strlen(event->player.name));
 		if (name == NULL) {
 			rsp->ret_code = 400;
 			rsp->ret_str = "Error adding player";
 			return;
 		}
-		strcpy(name, event->player->name);
+		strcpy(name, event->player.name);
 		game.players[game.n_players].name = name;
 		players[game.n_players].p.name = name;
 		x01_players[game.n_players].p.name = name; // TODO: fixit
@@ -201,7 +201,7 @@ void game_new_event(game_event_t* event, game_event_rsp_t* rsp)
 	rsp->ret_str = "Success";
 }
 
-const char* game_status()
+const char* game_status(void)
 {
 	return json_helper_game_status(&game);
 }

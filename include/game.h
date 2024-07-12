@@ -24,7 +24,7 @@ typedef struct game_event_t {
 	game_event_type_t type;
 	union {
 		dartboard_shot_t dart;
-		player_t* player;
+		player_t player;
 		struct {
 			int game_id;
 			int options;
@@ -45,8 +45,8 @@ typedef struct game_t {
 	int n_players;
 } game_t;
 
-void game_init();
+void game_init(void);
 void game_new_event(game_event_t* event, game_event_rsp_t* rsp);
-const char* game_status();
+const char* game_status(void);
 
 #endif // __GAME_H

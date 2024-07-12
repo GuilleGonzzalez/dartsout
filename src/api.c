@@ -72,7 +72,7 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			json_helper_new_player(hm->body.ptr, player_name, sizeof(player_name));
 			game_event_t event;
 			event.type = GAME_EVENT_NEW_PLAYER;
-			event.player->name = player_name;
+			event.player.name = player_name;
 			game_new_event(&event, &game_rsp);
 			const char* json = json_helper_simple_str("result",
 					game_rsp.ret_str);
@@ -175,7 +175,7 @@ static void del_connection(struct mg_connection* c)
 
 /* Public functions ***********************************************************/
 
-void api_init() {
+void api_init(void) {
 	// mg_log_set(MG_LL_DEBUG);
 	mg_mgr_init(&mgr);
 	char url[50];
@@ -184,7 +184,7 @@ void api_init() {
 	printf("API started!\n");
 }
 
-void api_fire()
+void api_fire(void)
 {
 	mg_mgr_poll(&mgr, 1000);
 }
