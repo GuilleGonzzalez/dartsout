@@ -30,20 +30,13 @@ window.onload = init();
 function init() {
   if (window.location.pathname == "/") {
     homeCreateCanvas(homeCanvas);
-  }
-  getStatus();
-}
-
-function getStatus() {
-  console.log(window.location.href);
-  if (window.location.href.endsWith("game.html")) {
-    const game = 0;
-    json = JSON.stringify({game});
-    api_post("/status", json);
+  } else if (window.location.href.endsWith("game.html")) {
+    api_get("/status");
   }
 }
 
 socket.onmessage = function(event) {
+  console.log("Message received:", event.data);
   let incomingMessage = event.data;
   proccessMessage(incomingMessage);
 };
@@ -66,6 +59,7 @@ function proccessMessage(message) {
   let msgId = json["msg_id"];
   switch (msgId) {
     case MsgId.GameStatus:
+      console.log("Status message!");
       let running = json["running"];
       let game_id = json["game_id"];
       let options = json["options"];
@@ -73,6 +67,7 @@ function proccessMessage(message) {
       let game_n_players = json["n_players"];
       if (running) {
         if (game_id == GameId.Cricket) {
+          console.log(`Creating cricket canvas... (${game_n_players} players)`);
           cricketCreateCanvas(gameCanvas, game_n_players, options);
         } else if (game_id == GameId.X01) {
           x01CreateCanvas(gameCanvas, game_n_players, options);

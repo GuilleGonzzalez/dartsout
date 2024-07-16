@@ -21,7 +21,7 @@ function x01CreateCanvas(gameCanvas, nPlayers, options) {
   if (options & (1 << 1)) {
     titleStr += " - Double Out";
   }
-  let title = createHeader(titleStr);
+  let title = createGameHeader(titleStr);
   gameCanvas.appendChild(title);
   let spacer = createSpacer(30);
   gameCanvas.appendChild(spacer);

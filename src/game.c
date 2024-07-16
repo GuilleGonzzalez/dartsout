@@ -35,6 +35,7 @@ void game_new_event(game_event_t* event, game_event_rsp_t* rsp)
 	// TODO: this is only for cricket!
 	switch (event->type) {
 	case GAME_EVENT_STATUS:
+		printf("Status event received!\n");
 		if (!game.running) {
 			rsp->ret_code = 400;
 			rsp->ret_str = "No game running";
@@ -42,14 +43,17 @@ void game_new_event(game_event_t* event, game_event_rsp_t* rsp)
 		}
 		json = game_status();
 		api_ws_write(json);
+		printf("Status writed\n");
 		if (game.game == GAME_CRICKET) {
 			json = cricket_status(&cricket);
 			api_ws_write(json);
 			free((char*)json);
+			printf("Cricket event sent via WS\n");
 		} else if (game.game == GAME_X01) {
 			json = x01_status(&x01);
 			api_ws_write(json);
 			free((char*)json);
+			printf("X01 event sent via WS\n");
 		} else {
 			printf("ERROR: game not implemented!\n");
 		}

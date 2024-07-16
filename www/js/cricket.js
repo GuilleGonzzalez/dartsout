@@ -17,7 +17,7 @@ function cricketCreateCanvas(gameCanvas, nPlayers, options) {
     titleStr += "ERROR";
     console.log("Error in Cricket options")
   }
-  let title = createHeader(titleStr);
+  let title = createGameHeader(titleStr);
   gameCanvas.appendChild(title);
   let spacer = createSpacer(30);
   gameCanvas.appendChild(spacer);

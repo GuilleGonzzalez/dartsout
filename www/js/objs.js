@@ -1,7 +1,8 @@
-function createImgButton(onClick, src) {
+function createImgButton(onClick, src, align="left") {
   let button = document.createElement("button");
   button.type = "button";
   button.className = "btn";
+  button.style = `margin: auto; margin-${align}: 0; display: block`;
   button.setAttribute("onclick", onClick);
   let img = document.createElement("img");
   img.src = src;
@@ -16,8 +17,27 @@ function createHeader(name) {
   header.className = "container-fluid";
   let row = document.createElement("div");
   row.className = "row";
+  let title = document.createElement("col");
+  title.className = "col";
+  let h1 = document.createElement("h1");
+  h1.className = "display-3 fw-bolder text-center";
+  h1.id = "title";
+  h1.innerHTML = name;
+  title.appendChild(h1);
+
+  row.appendChild(title);
+  header.appendChild(row);
+
+  return header;
+}
+
+function createGameHeader(name) {
+  let header = document.createElement("div");
+  header.className = "container-fluid";
+  let row = document.createElement("div");
+  row.className = "row";
   let home = document.createElement("div");
-  home.className = "col-1";
+  home.className = "col-3";
   let homeBtn = createImgButton("home()", "res/home.svg");
   home.appendChild(homeBtn);
   let title = document.createElement("col");
@@ -28,8 +48,9 @@ function createHeader(name) {
   h1.innerHTML = name;
   title.appendChild(h1);
   let nextPlayer = document.createElement("div");
-  nextPlayer.className = "col-1";
-  let nextPlayerBtn = createImgButton("next_player()", "res/next_player.svg");
+  nextPlayer.className = "col-3";
+  let nextPlayerBtn = createImgButton("next_player()", "res/next_player.svg",
+      align="right");
   nextPlayer.appendChild(nextPlayerBtn);
 
   row.appendChild(home);
@@ -148,7 +169,7 @@ function createCardInfo() {
   img.id = "user_img";
   img.src ="res/user.svg"
   img.className = "card-img-top";
-  img.height = 200;
+  img.style = "width:50%; margin:auto";
   card.appendChild(img);
   
   let infoTitle = createCardInfoTitle();
