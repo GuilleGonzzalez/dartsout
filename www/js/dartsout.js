@@ -31,7 +31,7 @@ function init() {
   if (window.location.pathname == "/") {
     homeCreateCanvas(homeCanvas);
   } else if (window.location.href.endsWith("game.html")) {
-    api_get("/status");
+    socket.onopen = () => socket.send("status");
   }
 }
 

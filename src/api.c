@@ -139,13 +139,18 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 		}
 	} else if (ev == MG_EV_WS_MSG) {
 		// Got websocket frame. Received data is wm->data. Echo it back!
-		struct mg_ws_message* wm = (struct mg_ws_message*) ev_data;
+		struct mg_ws_message* wm = (struct mg_ws_message*)ev_data;
 		mg_ws_send(c, wm->data.ptr, wm->data.len, WEBSOCKET_OP_TEXT);
-		printf("Websocket message received\n");
+		if (strcmp(wm->data.ptr, "status") == 0) {
+			game_event_t event;
+			event.type = GAME_EVENT_STATUS;
+			game_new_event(&event, &game_rsp);
+		}
+		printf("Websocket message received: %s\n", wm->data.ptr);
 	} else if (ev == MG_EV_CLOSE) {
 		del_connection(c);
 	}
-	(void) fn_data;
+	(void)fn_data;
 }
 
 /* Function definitions *******************************************************/
