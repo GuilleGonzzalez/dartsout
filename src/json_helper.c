@@ -6,6 +6,7 @@
 
 #include "json_helper.h"
 #include "cricket.h"
+#include "game.h"
 
 /* Global variables ***********************************************************/
 /* Function prototypes ********************************************************/
@@ -98,6 +99,28 @@ const char* json_helper_winner(const char* name)
 	cJSON* json = cJSON_CreateObject();
 	cJSON_AddNumberToObject(json, "msg_id", 4); //TODO: hardcoded (Last dart msg)
 	cJSON_AddStringToObject(json, "name", name);
+	out = cJSON_PrintUnformatted(json);
+	cJSON_Delete(json);
+	return out;
+}
+
+const char* json_helper_cricket_winner(cricket_t* cricket, const char* name)
+{
+	const char* out;
+	cJSON* json = cJSON_CreateObject();
+	cJSON_AddNumberToObject(json, "msg_id", 4); //TODO: hardcoded (Last dart msg)
+	cJSON_AddNumberToObject(json, "game_id", GAME_CRICKET);
+	cJSON_AddStringToObject(json, "name", name);
+	cJSON* players = cJSON_AddArrayToObject(json, "players");
+	for (int i = 0; i < cricket->n_players; i++) {
+		cricket_player_t p = cricket->players[i];
+		int mpr = (int)((float)p.marks / cricket->round * 100.0);
+		cJSON* player = cJSON_CreateObject();
+		cJSON_AddStringToObject(player, "name", p.p.name);
+		cJSON_AddNumberToObject(player, "game_score", p.game_score);
+		cJSON_AddNumberToObject(player, "mpr", mpr);
+		cJSON_AddItemToArray(players, player);
+	}
 	out = cJSON_PrintUnformatted(json);
 	cJSON_Delete(json);
 	return out;

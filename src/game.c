@@ -163,7 +163,7 @@ void game_new_event(game_event_t* event, game_event_rsp_t* rsp)
 				game.running = false;
 				json = game_status();
 				api_ws_write(json);
-				json = json_helper_winner(winner_player->p.name);
+				json = json_helper_cricket_winner(&cricket, winner_player->p.name);
 				api_ws_write(json);
 				free((char*)json);
 				printf("Winner is %s with %d points\n", winner_player->p.name,

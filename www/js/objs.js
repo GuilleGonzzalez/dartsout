@@ -282,9 +282,9 @@ function createRadio(id, options) {
     label.className = "form-check-label";
     label.setAttribute("for", `${id}_${i}`);
     label.innerHTML = options[i];
-    radio.append(input);
-    radio.append(label);
-    radioGroup.append(radio);
+    radio.appendChild(input);
+    radio.appendChild(label);
+    radioGroup.appendChild(radio);
   }
   // Default check first option
   radioGroup.firstChild.firstChild.setAttribute("checked", "");

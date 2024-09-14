@@ -13,6 +13,7 @@ const char* json_helper_simple_int(const char* str_id, int num);
 const char* json_helper_simple_str(const char* str_id, const char* str);
 const char* json_helper_last_dart(bool valid, int num, int zone);
 const char* json_helper_winner(const char* name);
+const char* json_helper_cricket_winner(cricket_t* cricket, const char* name);
 const char* json_helper_cricket_status(cricket_t* cricket);
 const char* json_helper_x01_status(x01_t* x01);
 const char* json_helper_game_status(game_t* game);

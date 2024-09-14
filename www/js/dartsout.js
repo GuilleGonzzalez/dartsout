@@ -82,7 +82,7 @@ function proccessMessage(message) {
     case MsgId.Cricket:
       cricketProccess(json);
       break;
-      case MsgId.X01:
+    case MsgId.X01:
       x01Proccess(json);
       break;
     case MsgId.LastDart:
@@ -91,8 +91,23 @@ function proccessMessage(message) {
       soundsNewDart(last_dart_valid, last_dart_zone);
       break;
     case MsgId.Winner:
+      let game_id2 = json["game_id"];
+      let winnerName = json["name"];
       soundsWinner();
-      updateTitle(`${json["name"]} wins!`);
+      updateTitle(`${winnerName} wins!`);
+      if (game_id2 == GameId.Cricket) {
+        let nPlayers = json["players"].length;
+        let stats = []
+        for (let i = 0; i < nPlayers; i++) {
+          let p = json["players"][i]
+          stats.push([p["name"], p["game_score"], p["mpr"]/100]);
+        }
+        console.log(stats);
+        // TODO: modal add class modal-lg
+        // TODO: highlight winner player
+        addFinishModal(gameCanvas, 0, stats);
+        launchModal("finish-modal");
+      }
       break;
     case MsgId.Player:
       break;
@@ -125,4 +140,29 @@ function addHomeModal(canvas) {
     let yesBtn = createButton("Yes", "homeCb()");
     homeModalContent.appendChild(yesBtn);
     addContentModal("home-modal", homeModalContent);
+}
+
+function addFinishModal(canvas, winnerPlayerId, mprs) {
+    let finishModal = createModal("finish-modal");
+    canvas.appendChild(finishModal);
+    addTitleModal("finish-modal", "The end");
+    let finishModalContent = document.createElement("div");
+    let finishModalTxt = document.createElement("h5");
+    // TODO: define winner WS message
+    finishModalTxt.innerHTML = `${"Player 2"} wins!`;
+    finishModalContent.appendChild(finishModalTxt);
+    // TODO: repeat game implementation
+    let repeatBtn = createButton("Repeat game", "HomeCb()");
+    let homeBtn = createButton("Home", "HomeCb()");
+    finishModalContent.appendChild(homeBtn);
+    finishModalContent.appendChild(repeatBtn);
+    addContentModal("finish-modal", finishModalContent);
+    // TODO: for now, only MPR, more stats in future
+    let tableHeader = ["Player", "Score", "MPR"];
+    let table = createTable('finish-table', Object.keys(mprs).length,
+        tableHeader.length);
+    finishModalContent.appendChild(table);
+    updateTable('finish-table', tableHeader, mprs);
+    // TODO: highlight winner player
+    // highlightTableRow('finish-table', winnerPlayerId);
 }

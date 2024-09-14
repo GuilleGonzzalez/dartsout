@@ -58,11 +58,13 @@ function new_player() {
     return;
   }
   json = JSON.stringify({name});
+  // TODO: change to websockets
   api_post("/new-player", json);
 }
 
 function new_player2(name) {
   json = JSON.stringify({name});
+  // TODO: change to websockets
   api_post("/new-player", json);
 }
 
@@ -70,10 +72,12 @@ function new_game(game_id, options) {
   const game = game_id;
   json = JSON.stringify({game, options});
   console.log(`New game: ${game_id} with options=${options}. json=${json}`);
+  // TODO: change to websockets
   api_post("/new-game", json);
 }
 
 function next_player() {
+  // TODO: change to websockets
   api_get("/next-player");
   soundsNextPlayer();
 }
@@ -87,7 +91,6 @@ function home() {
 }
 
 function homeCb() {
-  // TODO: finish game
   finish_game();
   window.location.href = "/";
 }
@@ -96,6 +99,7 @@ function homeCb() {
 function newDart(zone) {
   const board_id = 99;
   const num = parseInt(document.getElementById('num').value);
-  json = JSON.stringify({board_id, num, zone})
+  json = JSON.stringify({board_id, num, zone});
+  // TODO: change to websockets
   api_post("/new-dart", json);
 }
