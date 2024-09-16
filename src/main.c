@@ -1,19 +1,17 @@
 #include <stdio.h>
 #include <unistd.h>
-#include "main.h"
+#include "game_manager.h"
 #include "api.h"
-#include "db.h"
-#include "game.h"
 
 /* Global variables ***********************************************************/
 /* Main function **************************************************************/
 
-int main()
+int main(void)
 {
 	printf("Starting Dartsout!\n");
 
+	game_manager_init();
 	api_init();
-	game_init();
 
 	for (;;) {
 		// In for loop, only api_fire

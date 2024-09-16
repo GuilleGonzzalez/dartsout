@@ -30,8 +30,8 @@ window.onload = init();
 function init() {
   if (window.location.pathname == "/") {
     homeCreateCanvas(homeCanvas);
-  } else if (window.location.href.endsWith("game.html")) {
-    socket.onopen = () => socket.send("status");
+  } else {
+    socket.onopen = () => socket.send("0,status");
   }
 }
 
@@ -67,6 +67,8 @@ function proccessMessage(message) {
       let game_n_players = json["n_players"];
       if (running) {
         if (game_id == GameId.Cricket) {
+          // TODO: aquí puede estar el problema de crear varios canvas. Solo debería crearse si:
+          // se abre una sesión y hay una partida en juego (?)
           console.log(`Creating cricket canvas... (${game_n_players} players)`);
           cricketCreateCanvas(gameCanvas, game_n_players, options);
         } else if (game_id == GameId.X01) {
@@ -76,6 +78,9 @@ function proccessMessage(message) {
         }
         addHomeModal(gameCanvas);
       } else {
+        // window.location.href = "/";
+        // TODO: al crear un jugador, no devolver status, devolver un mensaje players con los jugadores.
+        // Esto es para poder redirigir a / si no hay juego y se entra en /game.html
         homeAddPlayer(json);
       }
       break;

@@ -61,6 +61,10 @@ function homeCreateCanvas(homeCanvas) {
   let spacer3 = createSpacer(30);
   homeCanvas.appendChild(spacer3);
 
+  let gameId = createInputText("gameId");
+  let joinBtn = createButton("Join", "joinGame()");
+  homeCanvas.appendChild(gameId);
+  homeCanvas.appendChild(joinBtn);
 }
 
 function playerCb(alert) {
@@ -131,4 +135,15 @@ function homeAddPlayer(json) {
     data.push([i+1, players[i]["name"], "--"]);
   }
   updateTable("players-table", false, data);
+}
+
+function joinGame() {
+  let gameId = document.getElementById('gameId');
+  if (!gameId || gameId.value == "") {
+    console.error("No game ID");
+    return;
+  }
+  console.log(gameId.value);
+
+  // joinGame(gameId.value);
 }

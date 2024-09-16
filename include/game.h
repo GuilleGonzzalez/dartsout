@@ -12,6 +12,11 @@ typedef enum {
 } game_games_t;
 
 typedef enum {
+	GAME_STATUS_DISABLED,
+	GAME_STATUS_PLAYING,
+} game_status_t;
+
+typedef enum {
 	GAME_EVENT_STATUS,
 	GAME_EVENT_NEW_GAME,
 	GAME_EVENT_NEW_PLAYER,
@@ -39,14 +44,17 @@ typedef struct game_event_rsp_t {
 
 typedef struct game_t {
 	game_games_t game;
+	game_status_t status;
+	int id;
+	bool running; // TODO: remove
 	int options;
 	player_t players[MAX_PLAYERS];
-	bool running;
 	int n_players;
 } game_t;
 
-void game_init(void);
-void game_new_event(game_event_t* event, game_event_rsp_t* rsp);
-const char* game_status(void);
+void game_init(game_t* game);
+void game_new_event(game_t* game, game_event_t* event, game_event_rsp_t* rsp);
+const char* game_status(game_t* game);
+void game_reset(game_t* game);
 
 #endif // __GAME_H
