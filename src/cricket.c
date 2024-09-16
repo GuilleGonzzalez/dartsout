@@ -4,6 +4,7 @@
 #include <time.h>
 
 #include "cricket.h"
+#include "dartboard.h"
 #include "json_helper.h"
 
 /* Global variables ***********************************************************/
@@ -19,12 +20,15 @@ static bool has_max_score(cricket_t* self, cricket_player_t* player);
 static const char* zone_to_str(dartboard_zone_t zone);
 static int get_mult_from_zone(int zone);
 static bool valid_shot(dartboard_shot_t* ds);
-static void gen_random_targets(int* targets, int len);
+static void gen_random_targets(int* possible_targets, int possible_targets_len,
+		int* targets, int targets_len);
 static void find_targets_to_gen(cricket_t* self);
+static void gen_all_targets_array(int* targets, int* len);
 static void gen_new_targets(cricket_t* self);
 static bool number_closed(cricket_t* self, int num);
 
-static void list_remove(int* list, int* len, int pos);
+static void list_remove(int* list, int* len, int val);
+static void list_pop(int* list, int* len, int pos);
 static int list_exists(int* list, int len, int val);
 
 /* Callbacks ******************************************************************/
@@ -96,20 +100,15 @@ static bool valid_shot(dartboard_shot_t* ds)
 	return ds->number >= 0 && ds->number <= 20 && ds->zone >= 0 && ds->zone <= 4;
 }
 
-// This function generates random numbers for all possible targets.
+// This function generates random numbers for a list of targets passed as param.
 // All numbers must be different.
-static void gen_random_targets(int* targets, int len)
+static void gen_random_targets(int* possible_targets, int possible_targets_len,
+		int* targets, int targets_len)
 {
-	// TODO: create fonctions for list manipulation (add, remove, etc)
-	int vals[N_SECTORS];
-	for (int i = 0; i < N_SECTORS; i++) {
-		vals[i] = i;
-	}
-	int vals_len = N_SECTORS;
-	for (int i = 0; i < len; i++) {
-		int rand_num = rand() % vals_len;
-		targets[i] = vals[rand_num];
-		list_remove(vals, &vals_len, rand_num);
+	for (int i = 0; i < targets_len; i++) {
+		int rand_num = rand() % possible_targets_len;
+		targets[i] = possible_targets[rand_num];
+		list_pop(possible_targets, &possible_targets_len, rand_num);
 	}
 }
 
@@ -151,21 +150,13 @@ static void gen_new_targets(cricket_t* self)
 	int targets[N_SECTORS];
 	int targets_len = N_SECTORS;
 	gen_all_targets_array(targets, &targets_len);
-
 	// Remove from vals array numbers which we alredy have
 	for (int i = 0; i < N_ENABLED; i++) {
 		if (self->enabled[i] != -1) {
 			list_remove(targets, &targets_len, self->enabled[i]);
 		}
 	}
-	// Generate random numbers for postions == -1
-	for (int i = 0; i < N_ENABLED; i++) {
-		if (self->enabled[i] == -1) {
-			int rand_num = rand() % targets_len;
-			self->enabled[i] = targets[rand_num];
-			list_remove(targets, &targets_len, rand_num);
-		}
-	}
+	gen_random_targets(targets, targets_len, self->enabled, N_ENABLED);
 }
 
 // This function check if a given number is closed.
@@ -192,7 +183,21 @@ static bool number_closed(cricket_t* self, int num)
 	return true;
 }
 
-static void list_remove(int* list, int* len, int pos)
+static void list_remove(int* list, int* len, int val)
+{
+	for (int i = 0; i < *len; i++) {
+		if (list[i] == val) {
+			for (int j = i; j < *len; j++) {
+				list[j] = list[j+1];
+			}
+			(*len)--;
+			return;
+		}
+	}
+	printf("[Warning] list_remove: value %d not found in list\n", val);
+}
+
+static void list_pop(int* list, int* len, int pos)
 {
 	(*len)--;
 	for (int i = pos; i < *len; i++) {
@@ -228,7 +233,11 @@ void cricket_new_game(cricket_t* self, cricket_player_t* players, int n_players,
 
 	srand(time(NULL));
 	if (self->options & wild || self->options & crazy) {
-		gen_random_targets(self->enabled, N_ENABLED);
+		int all_targets[N_SECTORS];
+		int all_targets_len = N_SECTORS;
+		gen_all_targets_array(all_targets, &all_targets_len);
+		gen_random_targets(all_targets, all_targets_len, self->enabled,
+				N_ENABLED);
 	}
 	self->players = players;
 	for (int i = 0; i < n_players; i++) {
@@ -253,8 +262,10 @@ cricket_player_t* cricket_check_finish(cricket_t* self)
 			return p;
 		}
 	}
-	if (self->round == self->max_rounds && self->darts == MAX_DARTS &&
-			self->current_player == self->n_players - 1) {
+	if ((self->round > self->max_rounds) ||
+			(self->round == self->max_rounds &&
+			self->darts == MAX_DARTS &&
+			self->current_player == self->n_players - 1)) {
 		return get_max_score(self);
 	}
 	return NULL;
@@ -264,30 +275,11 @@ void cricket_next_player(cricket_t* self)
 {
 	self->current_player++;
 	if (self->options & crazy) {
-		printf("Numbers enabled before: \n");
-		for (int i = 0; i < N_ENABLED; i++) {
-			printf("%d, ", self->enabled[i]);
-		}
-		printf("\n");
 		find_targets_to_gen(self);
-		printf("Numbers enabled after: \n");
-		for (int i = 0; i < N_ENABLED; i++) {
-			printf("%d, ", self->enabled[i]);
-		}
-		printf("\n");
 		gen_new_targets(self);
-		printf("Numbers enabled new: \n");
-		for (int i = 0; i < N_ENABLED; i++) {
-			printf("%d, ", self->enabled[i]);
-		}
-		printf("\n");
 	}
 	if (self->current_player == self->n_players) {
 		self->round++;
-		if (self->round > self->max_rounds) {
-			//TODO: esto en game
-			cricket_check_finish(self);
-		}
 		self->current_player = 0;
 	}
 	self->darts = 0;

@@ -17,8 +17,28 @@ static cricket_player_t players[MAX_PLAYERS];
 static x01_player_t x01_players[MAX_PLAYERS];
 
 /* Function prototypes ********************************************************/
+
+static void check_cricket_finish(void);
+
 /* Callbacks ******************************************************************/
 /* Function definitions *******************************************************/
+
+static void check_cricket_finish(void)
+{
+	const char* json;
+	cricket_player_t* winner_player = cricket_check_finish(&cricket);
+	if (winner_player != NULL) {
+		game.running = false;
+		json = game_status();
+		api_ws_write(json);
+		json = json_helper_cricket_winner(&cricket, winner_player->p.name);
+		api_ws_write(json);
+		free((char*)json);
+		printf("Winner is %s with %d points\n", winner_player->p.name,
+				winner_player->game_score);
+	}
+}
+
 /* Public functions ***********************************************************/
 
 void game_init(void)
@@ -133,6 +153,7 @@ void game_new_event(game_event_t* event, game_event_rsp_t* rsp)
 			json = cricket_status(&cricket);
 			api_ws_write(json);
 			free((char*)json);
+			check_cricket_finish();
 		} else if (game.game == GAME_X01) {
 			x01_next_player(&x01);
 			json = x01_status(&x01);
@@ -158,17 +179,7 @@ void game_new_event(game_event_t* event, game_event_rsp_t* rsp)
 			json = json_helper_last_dart(scoreable, val.number, val.zone);
 			api_ws_write(json);
 			free((char*)json);
-			cricket_player_t* winner_player = cricket_check_finish(&cricket);
-			if (winner_player != NULL) {
-				game.running = false;
-				json = game_status();
-				api_ws_write(json);
-				json = json_helper_cricket_winner(&cricket, winner_player->p.name);
-				api_ws_write(json);
-				free((char*)json);
-				printf("Winner is %s with %d points\n", winner_player->p.name,
-						winner_player->game_score);
-			}
+			check_cricket_finish();
 		} else if (game.game == GAME_X01) {
 			bool valid = x01_new_dart(&x01, &val);
 			json = x01_status(&x01);

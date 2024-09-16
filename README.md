@@ -55,6 +55,7 @@ A simple darts game.
 - When new connection, a new canvas is created below the original
 - When there is a game running if someone enters in dartsout server, msg to go there o directly redirect
 - Add player button
+- Si estoy en /game y no hay juego, redirigir a /; si estoy en / y hay juego, redirigir a /game
 
 ### Mid-term issues
 
