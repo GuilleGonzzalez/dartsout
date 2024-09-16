@@ -47,6 +47,28 @@ A simple darts game.
 
 ## TODO list
 
+### Dónde me he quedado
+
+Implementando la funcionalidad de poder tener varias instancias de juegos, de forma que puedan existir varias partidas a la vez.
+La idea es que cada partida (cada game), tenga un ID distinto. Un jugador podrá unirse a una partida ya iniciada (ya se ha pulsado en Play Cricket / Play xxxx) introduciendo su ID, que el creador de la partida podrá facilitar por otra vía.
+El problema es que el ID del juego se genera en new_game (al pulsar en Play xxxx), pero al añadir jugadores ya es necesario este gameID.
+Soluciones:
+
+- El gameId se crea al pulsar sobre Play XXX, y sale otro menú para añadir jugadores
+  - PROS: soluciona el problema
+  - CONS: nuevo menú, menos inteligente
+- El gameId se crea al añadir el primer jugador
+  - PROS: soluciona el problema
+  - CONS: no me parece que sea una solución limpia
+- New player no necesita gameId <--- ESTA es la buena
+  - PROS: soluciona el problema, misma interfaz
+  - CONS: se puede? ---> SI
+
+Implementación de la solución seleccionada:
+
+- El servidor no es el que lleva la cuenta de los jugadores, es el cliente el que crea una lista que al pulsar 'Play', se la pasará de una vez, quizá en el mensaje de new_game (cambiar a ws)
+- new player no genera un evento, solo responde con datos de interés (ahora nada, en el futuro será, username, name, mpr, clasificación, etc).
+
 ### Easy and prior fixes
 
 - Cricket game modes implementation

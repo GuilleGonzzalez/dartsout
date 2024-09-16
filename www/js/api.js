@@ -59,32 +59,32 @@ function new_player() {
   }
   json = JSON.stringify({name});
   // TODO: change to websockets
-  api_post("/new-player?game_id=0", json);
+  api_post(`/new-player?game_id=${gameId}`, json);
 }
 
-function new_player2(name) {
-  json = JSON.stringify({name});
-  // TODO: change to websockets
-  api_post("/new-player?game_id=0", json);
-}
+// function new_player2(name) {
+//   json = JSON.stringify({name});
+//   // TODO: change to websockets
+//   api_post(`/new-player?game_id=${gameId}`, json);
+// }
 
-function new_game(game_id, options) {
+function new_game(game_ref, options) {
   // TODO: esto no es el game_id, esto es el game_name/game_type/game_ref
-  const game = game_id;
+  const game = game_ref;
   json = JSON.stringify({game, options});
-  console.log(`New game: ${game_id} with options=${options}. json=${json}`);
+  console.log(`New game: ${game_ref} with options=${options}. json=${json}`);
   // TODO: change to websockets
-  api_post("/new-game?game_id=0", json);
+  api_post(`/new-game?game_id=${gameId}`, json);
 }
 
 function next_player() {
   // TODO: change to websockets
-  api_get("/next-player?game_id=0");
+  api_get(`/next-player?game_id=${gameId}`);
   soundsNextPlayer();
 }
 
 function finish_game() {
-  api_get("/finish-game?game_id=0");
+  api_get(`/finish-game?game_id=${gameId}`);
 }
 
 function home() {

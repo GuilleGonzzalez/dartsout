@@ -239,6 +239,17 @@ const char* json_helper_reg_player(player_t* player)
 	return out;
 }
 
+const char* json_helper_send_game_id(int game_id)
+{
+	const char* out;
+	cJSON* json = cJSON_CreateObject();
+	cJSON_AddNumberToObject(json, "msg_id", 5);
+	cJSON_AddNumberToObject(json, "game_id", game_id);
+	out = cJSON_PrintUnformatted(json);
+	cJSON_Delete(json);
+	return out;
+}
+
 int json_helper_new_player(const char* json_str, char* name, int name_len)
 {
 	cJSON* json = cJSON_Parse(json_str);

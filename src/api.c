@@ -26,6 +26,7 @@ static void new_connection(struct mg_connection* c);
 static void del_connection(struct mg_connection* c);
 
 static int get_game_id(struct mg_str query);
+static int get_ws_info(struct mg_str data, char* msg);
 
 /* Callbacks ******************************************************************/
 
@@ -99,11 +100,10 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			mg_http_reply(c, game_rsp.ret_code, "", json);
 			free((char*)json);
 		} else if (mg_http_match_uri(hm, "/new-game")) {
-			int game_id = get_game_id(hm->query);
-			game_t* game = game_manager_get_by_id(game_id);
 			int game_ref; // TODO: ver como llamar al nombre/identificador de juego
 			int options;
 			json_helper_new_game(hm->body.ptr, &game_ref, &options);
+			game_t* game = game_manager_new();
 			game_event_t event;
 			event.type = GAME_EVENT_NEW_GAME;
 			event.game_id = game_ref;
@@ -156,15 +156,10 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 		// Got websocket frame. Received data is wm->data. Echo it back!
 		struct mg_ws_message* wm = (struct mg_ws_message*)ev_data;
 		mg_ws_send(c, wm->data.ptr, wm->data.len, WEBSOCKET_OP_TEXT);
-		// Split by comma (<GAME_ID>,<MSG>)
-		char* pt = strtok((char*)(wm->data.ptr), ",");
-		int game_id = atoi(pt);
-		pt = strtok(NULL, ",");
-		char* msg = pt;
-		// Get game
+		char msg[20];
+		int game_id = get_ws_info(wm->data, msg);
 		game_t* game = game_manager_get_by_id(game_id);
 		printf("Game ID: %d, msg: %s\n", game_id, msg);
-		// Proccess websocket message
 		if (strcmp(msg, "status") == 0) {
 			game_event_t event;
 			event.type = GAME_EVENT_STATUS;
@@ -211,6 +206,17 @@ static int get_game_id(struct mg_str query)
 	game_id_str[param.len] = '\0';
 	int game_id = atoi(game_id_str);
 	printf("Game ID: %d\n", game_id);
+	return game_id;
+}
+
+static int get_ws_info(struct mg_str data, char* msg)
+{
+	char* pt = strtok((char*)data.ptr, ",");
+	int game_id = atoi(pt);
+	pt = strtok(NULL, ",");
+	strncpy(msg, pt, data.len);
+	msg[data.len] = '\0';
+
 	return game_id;
 }
 

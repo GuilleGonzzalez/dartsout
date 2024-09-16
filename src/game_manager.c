@@ -29,9 +29,9 @@ game_t* game_manager_new(void) {
 	for (int i = 0; i < MAX_GAMES; i++) {
 		if (games[i].status == GAME_STATUS_DISABLED) {
 			games[i].status = GAME_STATUS_PLAYING;
-			// games[i].running = true;
-			// game_start(&games[i]);
+			// games[i].running = true; // en el futuro habría que quitar esto
 			games_running++;
+			printf("New game with ID=%d\n", games[i].id);
 			return &games[i];
 		}
 	}

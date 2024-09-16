@@ -7,12 +7,15 @@ let socket = new WebSocket(ws_url);
 let homeCanvas = document.getElementById("home");
 let gameCanvas = document.getElementById("game");
 
+let gameId = -1;
+
 const MsgId = {
   GameStatus: 0,
   Cricket:    1,
   X01:        2,
   LastDart:   3,
   Winner:     4,
+  GameId:     5,
 }
 
 const GameId = {
@@ -114,7 +117,9 @@ function proccessMessage(message) {
         launchModal("finish-modal");
       }
       break;
-    case MsgId.Player:
+    case MsgId.GameId:
+      gameId = json["game_id"];
+      console.log("GameId", gameId);
       break;
     default:
       alert("Error");

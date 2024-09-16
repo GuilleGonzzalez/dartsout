@@ -15,6 +15,8 @@ static cricket_t cricket;
 static x01_t x01;
 static cricket_player_t players[MAX_PLAYERS];
 static x01_player_t x01_players[MAX_PLAYERS];
+// TODO: player_t debería tener dentro una unión con las cosas de los jugadores de cricket, x01, etc.
+// NO puede haber variables globales, cricket debe estar dentro de game, también como unión (?)
 
 /* Function prototypes ********************************************************/
 
@@ -91,11 +93,13 @@ void game_new_event(game_t* game, game_event_t* event, game_event_rsp_t* rsp)
 			rsp->ret_str = "No players added";
 			return;
 		}
-		game->running = true;
 		game->game = event->game_id;
 		game->options = event->options;
+		game->running = true;
 		json = game_status(game);
 		api_ws_write(json);
+		free((char*)json);
+		json = json_helper_send_game_id(game->id);
 		free((char*)json);
 		if (game->game == GAME_CRICKET) {
 			int max_points = 200; //TODO: event.max_points
