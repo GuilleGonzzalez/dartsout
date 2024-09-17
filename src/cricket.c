@@ -6,6 +6,7 @@
 #include "cricket.h"
 #include "dartboard.h"
 #include "json_helper.h"
+#include "log.h"
 
 /* Global variables ***********************************************************/
 
@@ -96,7 +97,7 @@ static int get_mult_from_zone(int zone)
 // - Zone must be between [0, 4]
 static bool valid_shot(dartboard_shot_t* ds)
 {
-	printf("NUMBER: %d, ZONE: %d\n", ds->number, ds->zone);
+	LOG_DEBUG("NUMBER: %d, ZONE: %d", ds->number, ds->zone);
 	return ds->number >= 0 && ds->number <= 20 && ds->zone >= 0 && ds->zone <= 4;
 }
 
@@ -129,7 +130,7 @@ static void find_targets_to_gen(cricket_t* self)
 			}
 		}
 		if (change_closed && change_opened) {
-			printf("%d has to be changed\n", self->enabled[i]);
+			LOG_DEBUG("%d has to be changed", self->enabled[i]);
 			self->enabled[i] = -1;
 		}
 	}
@@ -194,7 +195,7 @@ static void list_remove(int* list, int* len, int val)
 			return;
 		}
 	}
-	printf("[Warning] list_remove: value %d not found in list\n", val);
+	LOG_WARN("list_remove: value %d not found in list", val);
 }
 
 static void list_pop(int* list, int* len, int pos)
@@ -250,7 +251,7 @@ void cricket_new_game(cricket_t* self, cricket_player_t* players, int n_players,
 		self->dart_scores[i].number = -1;
 		self->dart_scores[i].zone = -1;
 	}
-	printf("[Cricket] New game: %d players, %d rounds, max %d points\n",
+	LOG_INFO("New game: %d players, %d rounds, max %d points",
 				self->n_players, self->max_rounds, self->max_score);
 }
 
@@ -289,11 +290,11 @@ void cricket_next_player(cricket_t* self)
 bool cricket_new_dart(cricket_t* self, dartboard_shot_t* val)
 {
 	if (!valid_shot(val)) {
-		printf("ERROR: Invalid shot!\n");
+		LOG_ERROR("ERROR: Invalid shot!");
 		return false;
 	}
 	if (self->darts == MAX_DARTS) {
-		printf("No more darts!\n");
+		LOG_WARN("No more darts!");
 		return false;
 	}
 	self->dart_scores[self->darts].number = val->number;
@@ -301,7 +302,7 @@ bool cricket_new_dart(cricket_t* self, dartboard_shot_t* val)
 	self->darts++;
 
 	cricket_player_t* player = &self->players[self->current_player];
-	printf("%s hit %s %d \n", player->p.name, zone_to_str(val->zone),
+	LOG_INFO("%s hit %s %d", player->p.name, zone_to_str(val->zone),
 			val->number);
 	int pos = list_exists(self->enabled, N_ENABLED, val->number);
 	if (pos == -1 || number_closed(self, val->number)) {
@@ -313,7 +314,7 @@ bool cricket_new_dart(cricket_t* self, dartboard_shot_t* val)
 			player->shots[pos]++;
 			player->marks++;
 			if (player->shots[pos] == 3) {
-				printf("%s closed %d\n", player->p.name, val->number);
+				LOG_INFO("%s closed %d", player->p.name, val->number);
 				if (number_closed(self, val->number)) {
 					return true;
 				}

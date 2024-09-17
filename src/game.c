@@ -5,6 +5,7 @@
 #include "game.h"
 #include "api.h"
 #include "cricket.h"
+#include "log.h"
 #include "x01.h"
 #include "json_helper.h"
 
@@ -36,7 +37,7 @@ static void check_cricket_finish(game_t* game)
 		json = json_helper_cricket_winner(&game->cricket, winner_player->p.name);
 		api_ws_write(json);
 		free((char*)json);
-		printf("Winner is %s with %d points\n", winner_player->p.name,
+		LOG_INFO("Winner is %s with %d points", winner_player->p.name,
 				winner_player->game_score);
 	}
 }
@@ -48,7 +49,7 @@ void game_init(game_t* game)
 	game->running = false;
 	game->status = GAME_STATUS_DISABLED;
 
-	printf("Game with ID=%d init!\n", game->id);
+	LOG_INFO("Game with ID=%d init!", game->id);
 }
 
 void game_new_event(game_t* game, game_event_t* event, game_event_rsp_t* rsp)
@@ -59,15 +60,14 @@ void game_new_event(game_t* game, game_event_t* event, game_event_rsp_t* rsp)
 	// TODO: this is only for cricket!
 	switch (event->type) {
 	case GAME_EVENT_STATUS:
-		printf("Status event received!\n");
+		LOG_DEBUG("Status event received!");
 		// TODO: mando aquí el game ID o en un json (?). Hay que mandarlo siempre antes de getStatus
 		// json = json_helper_send_game_id(game->id);
 		// api_ws_write(json);
 		// free((char*)json);
-		// printf("Game ID writed\n");
+		// LOG_TRACE("Game ID writed");
 		json = game_status(game);
 		api_ws_write(json);
-		printf("Status writed\n");
 		if (!game->running) {
 			rsp->ret_code = 400;
 			rsp->ret_str = "No game running";
@@ -77,14 +77,14 @@ void game_new_event(game_t* game, game_event_t* event, game_event_rsp_t* rsp)
 			json = cricket_status(&game->cricket);
 			api_ws_write(json);
 			free((char*)json);
-			printf("Cricket event sent via WS\n");
+			LOG_DEBUG("Cricket event sent via WS");
 		} else if (game->game_ref == GAME_X01) {
 			json = x01_status(&game->x01);
 			api_ws_write(json);
 			free((char*)json);
-			printf("X01 event sent via WS\n");
+			LOG_DEBUG("X01 event sent via WS");
 		} else {
-			printf("ERROR: game not implemented!\n");
+			LOG_ERROR("Game not implemented!");
 		}
 		break;
 	case GAME_EVENT_NEW_GAME:
@@ -104,12 +104,11 @@ void game_new_event(game_t* game, game_event_t* event, game_event_rsp_t* rsp)
 		json = json_helper_send_game_id(game->id);
 		api_ws_write(json);
 		free((char*)json);
-		printf("Game ID writed\n");
 		if (game->game_ref == GAME_CRICKET) {
 			int max_points = 200; //TODO: event.max_points
 			int max_rounds = 25;  //TODO: event.max_rounds
 			cricket_options_t options = event->options;
-			printf("Options: %d\n", options);
+			LOG_DEBUG("Options: %d", options);
 			cricket_new_game(&game->cricket,
 					game->cricket_players, game->n_players, options,
 					max_points, max_rounds);
@@ -117,14 +116,14 @@ void game_new_event(game_t* game, game_event_t* event, game_event_rsp_t* rsp)
 			int score = 301;      //TODO: event.score
 			int max_rounds = 25;  //TODO: event.max_rounds
 			x01_options_t options = event->options;
-			printf("Nplayers: %d\n", game->n_players);
-			printf("Options: %d\n", options);
-			printf("Score: %d\n", score);
-			printf("Max rouds: %d\n", max_rounds);
+			LOG_DEBUG("Nplayers: %d", game->n_players);
+			LOG_DEBUG("Options: %d", options);
+			LOG_DEBUG("Score: %d", score);
+			LOG_DEBUG("Max rouds: %d", max_rounds);
 			x01_new_game(&game->x01, game->x01_players, game->n_players, options,
 					max_rounds);
 		} else {
-			printf("ERROR: game not implemented!\n");
+			LOG_ERROR("Game not implemented!");
 		}
 		break;
 	case GAME_EVENT_NEW_PLAYER:
@@ -171,7 +170,7 @@ void game_new_event(game_t* game, game_event_t* event, game_event_rsp_t* rsp)
 			api_ws_write(json);
 			free((char*)json);
 		} else {
-			printf("ERROR: game not implemented!\n");
+			LOG_ERROR("Game not implemented!");
 		}
 		break;
 	case GAME_EVENT_NEW_DART:
@@ -208,16 +207,16 @@ void game_new_event(game_t* game, game_event_t* event, game_event_rsp_t* rsp)
 				json = json_helper_winner(winner_player->p.name);
 				api_ws_write(json);
 				free((char*)json);
-				printf("Winner is %s with %d points\n", winner_player->p.name,
+				LOG_INFO("Winner is %s with %d points", winner_player->p.name,
 						winner_player->game_score);
 			}
 		} else {
-			printf("ERROR: game not implemented!\n");
+			LOG_ERROR("Game not implemented!");
 		}
 		break;
 	case GAME_EVENT_FINISH_GAME:
 		game_reset(game);
-		printf("Game finished!\n");
+		LOG_INFO("Game finished!");
 		break;
 	default:
 		break;
@@ -237,5 +236,5 @@ void game_reset(game_t* game)
 	game->running = false;
 	game->options = 0;
 	game->n_players = 0;
-	printf("Game with ID=%d reset!\n", game->id);
+	LOG_INFO("Game with ID=%d reset!", game->id);
 }

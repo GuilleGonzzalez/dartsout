@@ -7,6 +7,7 @@
 #include "json_helper.h"
 #include "cricket.h"
 #include "game.h"
+#include "log.h"
 #include "player.h"
 
 /* Global variables ***********************************************************/
@@ -289,13 +290,11 @@ int json_helper_new_game(const char* json_str, int* game, int* options,
 	}
 
 	*n_players = cJSON_GetArraySize(player_names);
-	printf("Van a jugar %d jugadores!\n", *n_players);
-
 	for (int i = 0; i < *n_players; i++) {
 		cJSON* player = cJSON_GetArrayItem(player_names, i);
 		if (cJSON_IsString(player)) {
-			players[i] = strdup(player->valuestring); // Copiar el nombre
-			printf("Player %d: %s\n", i + 1, players[i]);
+			players[i] = strdup(player->valuestring); // Copy name
+			LOG_TRACE("Player %d: %s", i + 1, players[i]);
 		}
 	}
 

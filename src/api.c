@@ -8,6 +8,7 @@
 #include "config.h"
 #include "json_helper.h"
 #include "game.h"
+#include "log.h"
 
 #define MAX_CONNECTIONS 10
 
@@ -45,7 +46,7 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			// Websocket connection, which will receive MG_EV_WS_MSG events.
 			mg_ws_upgrade(c, hm, NULL);
 			new_connection(c);
-			printf("Upgrading to websockets!\n");
+			LOG_DEBUG("Upgrading to websockets!");
 		} else if (mg_http_match_uri(hm, "/status")) {
 			int game_id = get_game_id(hm->query);
 			game_t* game = game_manager_get_by_id(game_id);
@@ -124,13 +125,13 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 		char msg[20];
 		int game_id = get_ws_info(wm->data, msg);
 		game_t* game = game_manager_get_by_id(game_id);
-		printf("Game ID: %d, msg: %s\n", game_id, msg);
+		LOG_TRACE("Game ID: %d, msg: %s", game_id, msg);
 		if (strcmp(msg, "status") == 0) {
 			game_event_t event;
 			event.type = GAME_EVENT_STATUS;
 			game_new_event(game, &event, &game_rsp);
 		}
-		printf("Websocket message received: %s\n", wm->data.ptr);
+		LOG_DEBUG("Websocket message received: %s", wm->data.ptr);
 	} else if (ev == MG_EV_CLOSE) {
 		del_connection(c);
 	}
@@ -141,26 +142,26 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 
 static void new_connection(struct mg_connection* c)
 {
-	printf("New conection with ID=%ld\n", c->id);
+	LOG_DEBUG("New conection with ID=%ld", c->id);
 	for (int i = 0; i < MAX_CONNECTIONS; i++) {
 		if (connections[i] == NULL) {
 			connections[i] = c;
 			return;
 		}
 	}
-	printf("WARNING: Max number of connections reached\n");
+	LOG_WARN("Max number of connections reached");
 }
 
 static void del_connection(struct mg_connection* c)
 {
-	printf("Closing connection %ld...\n", c->id);
+	LOG_DEBUG("Closing connection %ld...", c->id);
 	for (int i = 0; i < MAX_CONNECTIONS; i++) {
 		if (connections[i] == c) {
 			connections[i] = NULL;
 			return;
 		}
 	}
-	printf("WARNING: Connection %ld not found\n", c->id);
+	LOG_WARN("Connection %ld not found", c->id);
 }
 
 static int get_game_id(struct mg_str query)
@@ -170,7 +171,7 @@ static int get_game_id(struct mg_str query)
 	strncpy(game_id_str, param.ptr, param.len);
 	game_id_str[param.len] = '\0';
 	int game_id = atoi(game_id_str);
-	printf("Game ID from params: %d\n", game_id);
+	LOG_DEBUG("Game ID from params: %d", game_id);
 	return game_id;
 }
 
@@ -193,7 +194,7 @@ void api_init(void) {
 	char url[50];
 	snprintf(url, sizeof(url), "ws://%s:%d", API_IP, API_PORT);
 	mg_http_listen(&mgr, url, my_handler, NULL);
-	printf("API started!\n");
+	LOG_INFO("API started!");
 }
 
 void api_fire(void)

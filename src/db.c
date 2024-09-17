@@ -35,7 +35,6 @@ static bool file_exists(const char* filename);
 static int sql_cb(void* user_data, int argc, char** argv, char** az_col_name)
 {
 	(void) user_data;
-	printf("callback\n");
 	for (int i = 0; i < argc; i++){
 		printf("%s = %s\n", az_col_name[i], argv[i] ? argv[i] : "NULL");
 	}

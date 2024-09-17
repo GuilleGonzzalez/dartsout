@@ -16,6 +16,8 @@ CFLAGS+=-Werror
 CFLAGS+=-Wextra
 CFLAGS+=-pedantic
 
+CFLAGS+=-DLOG_USE_COLOR
+
 LIBS=-lsqlite3
 LIBS+=-lcjson
 
@@ -46,8 +48,10 @@ $(OUT_DIR):
 	$(MK) $(OUT_DIR)
 
 clean:
+	$(RM) $(PROJECT_NAME).out
 	$(RM) $(OUTPUT_FILE)
 	$(RM) $(OUT_DIR)
+	$(RM) compile_commands.json
 
 CLANG_ROOT := $(shell pwd)
 

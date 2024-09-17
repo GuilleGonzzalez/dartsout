@@ -2,6 +2,7 @@
 
 #include "game_manager.h"
 #include "game.h"
+#include "log.h"
 
 #define MAX_GAMES 10
 
@@ -22,7 +23,7 @@ void game_manager_init(void) {
 	}
 	games_running = 0;
 
-	printf("Game manager started!\n");
+	LOG_INFO("Game manager started!");
 }
 
 game_t* game_manager_new(void) {
@@ -31,7 +32,7 @@ game_t* game_manager_new(void) {
 			games[i].status = GAME_STATUS_PLAYING;
 			// games[i].running = true; // en el futuro habría que quitar esto
 			games_running++;
-			printf("New game with ID=%d\n", games[i].id);
+			LOG_INFO("New game with ID=%d", games[i].id);
 			return &games[i];
 		}
 	}

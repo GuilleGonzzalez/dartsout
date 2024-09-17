@@ -4,6 +4,7 @@
 #include "x01.h"
 #include "dartboard.h"
 #include "json_helper.h"
+#include "log.h"
 
 /* Global variables ***********************************************************/
 
@@ -57,7 +58,7 @@ static const char* zone_to_str(dartboard_zone_t zone)
 static bool valid_shot(dartboard_shot_t* ds)
 {
 	// NOTE: 0 is bull
-	printf("NUMBER: %d, ZONE: %d\n", ds->number, ds->zone);
+	LOG_DEBUG("NUMBER: %d, ZONE: %d", ds->number, ds->zone);
 	return ds->number >= 0 && ds->number <= 20 && ds->zone >= 0 && ds->zone <= 4;
 }
 
@@ -113,7 +114,7 @@ void x01_new_game(x01_t* self, x01_player_t* players, int n_players,
 		self->sectors[i].enabled = 1;
 	}
 	reset_darts(self);
-	printf("[%d] New game: %d players, %d rounds\n",
+	LOG_INFO("New %d game: %d players, %d rounds",
 				self->score, self->n_players, self->max_rounds);
 }
 
@@ -139,7 +140,7 @@ void x01_next_player(x01_t* self)
 	if (self->current_player == self->n_players) {
 		self->round++;
 		if (self->round > self->max_rounds) {
-			printf("No more rounds!\n");
+			LOG_WARN("No more rounds!");
 		}
 		self->current_player = 0;
 	}
@@ -154,11 +155,11 @@ bool x01_new_dart(x01_t* self, dartboard_shot_t* val)
 	bool valid = true;
 
 	if (!valid_shot(val)) {
-		printf("ERROR: Invalid shot!\n");
+		LOG_ERROR("Invalid shot!");
 		return false;
 	}
 	if (self->darts == MAX_DARTS) {
-		printf("No more darts!\n");
+		LOG_WARN("No more darts!");
 		return false;
 	}
 	self->dart_scores[self->darts].number = val->number;
@@ -166,7 +167,7 @@ bool x01_new_dart(x01_t* self, dartboard_shot_t* val)
 	self->darts++;
 
 	x01_player_t* player = &self->players[self->current_player];
-	printf("%s hit %s %d \n", player->p.name, zone_to_str(val->zone),
+	LOG_INFO("%s hit %s %d", player->p.name, zone_to_str(val->zone),
 			val->number);
 	int mult = 1;
 	if (val->zone == ZONE_TRIPLE) {
@@ -178,7 +179,7 @@ bool x01_new_dart(x01_t* self, dartboard_shot_t* val)
 	score -= (sector_values[val->number] * mult);
 	if (player->game_score == self->score) {
 		if ((self->options & double_in) && (val->zone != ZONE_DOUBLE)) {
-			printf("Not double in\n");
+			LOG_WARN("Not double in");
 			return false;
 		}
 	} else if (score < 0) {
@@ -188,19 +189,19 @@ bool x01_new_dart(x01_t* self, dartboard_shot_t* val)
 		score = self->prev_score;
 	} else if ((score == 1) && (self->options &= double_out)) {
 		valid = false;
-		printf("Not double out\n");
+		LOG_WARN("Not double out");
 		score = self->prev_score;
 		// TODO: this is a temp solution
 		fill_darts_null(self);
 	} else if (score == 0) {
 		if ((self->options & double_out) && (val->zone != ZONE_DOUBLE)) {
 			valid = false;
-			printf("Not double out\n");
+			LOG_WARN("Not double out");
 			score = self->prev_score;
 			// TODO: this is a temp solution
 			fill_darts_null(self);
 		} else {
-			printf("%s win! %d\n", player->p.name, val->number);
+			LOG_INFO("%s win! %d", player->p.name, val->number);
 		}
 	}
 	player->game_score = score;
