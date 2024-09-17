@@ -63,7 +63,7 @@ function api_post(url, json) {
 // function new_player2(name) {
 //   json = JSON.stringify({name});
 //   // TODO: change to websockets
-//   api_post(`/new-player?game_id=${gameId}`, json);
+//   api_post(`/new-player?id=${gameId}`, json);
 // }
 
 function new_game(game_ref, options, players) {
@@ -76,12 +76,12 @@ function new_game(game_ref, options, players) {
 
 function next_player() {
   // TODO: change to websockets
-  api_get(`/next-player?game_id=${gameId}`);
+  api_get(`/next-player?id=${gameId}`);
   soundsNextPlayer();
 }
 
 function finish_game() {
-  api_get(`/finish-game?game_id=${gameId}`);
+  api_get(`/finish-game?id=${gameId}`);
 }
 
 function home() {
@@ -99,5 +99,5 @@ function newDart(zone) {
   const num = parseInt(document.getElementById('num').value);
   json = JSON.stringify({board_id, num, zone});
   // TODO: change to websockets
-  api_post("/new-dart?game_id=0", json);
+  api_post(`/new-dart?id=${gameId}`, json);
 }

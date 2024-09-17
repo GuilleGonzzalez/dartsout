@@ -56,12 +56,6 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 					game_rsp.ret_str);
 			mg_http_reply(c, game_rsp.ret_code, "", json);
 			free((char*)json);
-		// } else if (mg_http_match_uri(hm, "/new-board")) {
-		// 	int next_board_id = 1;
-		// 	printf("New board request: asigning board_id=%d\n", next_board_id);
-		// 	const char* json = json_helper_simple_int("board_id", next_board_id);
-		// 	mg_http_reply(c, game_rsp.ret_code, "", json);
-		// 	free((char*)json);
 		} else if (mg_http_match_uri(hm, "/new-dart")) {
 			int game_id = get_game_id(hm->query);
 			game_t* game = game_manager_get_by_id(game_id);
@@ -71,19 +65,6 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			event.type = GAME_EVENT_NEW_DART;
 			event.dart.number = num;
 			event.dart.zone = zone;
-			game_new_event(game, &event, &game_rsp);
-			const char* json = json_helper_simple_str("result",
-					game_rsp.ret_str);
-			mg_http_reply(c, game_rsp.ret_code, "", json);
-			free((char*)json);
-		} else if (mg_http_match_uri(hm, "/new-player")) {
-			int game_id = get_game_id(hm->query);
-			game_t* game = game_manager_get_by_id(game_id);
-			char player_name[50];
-			json_helper_new_player(hm->body.ptr, player_name, sizeof(player_name));
-			game_event_t event;
-			event.type = GAME_EVENT_NEW_PLAYER;
-			event.player.name = player_name;
 			game_new_event(game, &event, &game_rsp);
 			const char* json = json_helper_simple_str("result",
 					game_rsp.ret_str);
@@ -132,31 +113,6 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 					game_rsp.ret_str);
 			mg_http_reply(c, game_rsp.ret_code, "", json);
 			free((char*)json);
-		// } else if (mg_http_match_uri(hm, "/register-player")) {
-		// 	char userid[50];
-		// 	char name[50];
-		// 	json_helper_register_player(hm->body.ptr, userid, sizeof(userid),
-		// 			name, sizeof(name));
-		// 	dartboard_event_t event;
-		// 	event.type = DARTBOARD_EVENT_REGISTER_PLAYER;
-		// 	event.player.userid = userid;
-		// 	event.player.name = name;
-		// 	dartboard_new_event(&event, &dartboard_rsp);
-		// 	const char* json = json_helper_simple_str("result",
-		// 			dartboard_rsp.ret_str);
-		// 	mg_http_reply(c, dartboard_rsp.ret_code, "", json);
-		// 	free((char*)json);
-		// } else if (mg_http_match_uri(hm, "/get-player")) {
-		// 	char userid[50];
-		// 	json_helper_get_player(hm->body.ptr, userid, sizeof(userid));
-		// 	dartboard_event_t event;
-		// 	event.type = DARTBOARD_EVENT_GET_PLAYER;
-		// 	event.userid = userid;
-		// 	dartboard_new_event(&event, &dartboard_rsp);
-		// 	const char* json = json_helper_simple_str("result",
-		// 			dartboard_rsp.ret_str);
-		// 	mg_http_reply(c, dartboard_rsp.ret_code, "", json);
-		// 	free((char*)json);
 		} else {
 			struct mg_http_serve_opts opts = {.root_dir = web_root};
 			mg_http_serve_dir(c, ev_data, &opts);
@@ -210,11 +166,11 @@ static void del_connection(struct mg_connection* c)
 static int get_game_id(struct mg_str query)
 {
 	char game_id_str[10];
-	struct mg_str param = mg_http_var(query, mg_str("game_id"));
+	struct mg_str param = mg_http_var(query, mg_str("id"));
 	strncpy(game_id_str, param.ptr, param.len);
 	game_id_str[param.len] = '\0';
 	int game_id = atoi(game_id_str);
-	printf("Game ID: %d\n", game_id);
+	printf("Game ID from params: %d\n", game_id);
 	return game_id;
 }
 

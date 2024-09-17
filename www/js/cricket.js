@@ -1,5 +1,6 @@
 
 function cricketCreateCanvas(gameCanvas, nPlayers, options) {
+  gameCanvas.replaceChildren();
   let titleStr = "Cricket";
   if (options & (1 << 0)) {
     titleStr += "";

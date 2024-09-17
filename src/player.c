@@ -8,7 +8,7 @@
 /* Function definitions *******************************************************/
 /* Public functions ***********************************************************/
 
-void player_init()
+void player_init(void)
 {
 
 }

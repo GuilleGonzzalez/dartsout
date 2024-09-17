@@ -6,6 +6,6 @@ typedef struct player_t {
 	const char* name;
 } player_t;
 
-void player_init();
+void player_init(void);
 
 #endif // __PLAYER_H

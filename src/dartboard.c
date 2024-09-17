@@ -12,7 +12,7 @@
 /* Function definitions *******************************************************/
 /* Public functions ***********************************************************/
 
-void dartboard_init()
+void dartboard_init(void)
 {
 }
 

@@ -62,7 +62,7 @@ function homeCreateCanvas(homeCanvas) {
   let spacer3 = createSpacer(30);
   homeCanvas.appendChild(spacer3);
 
-  let gameIdInput = createInputText("Input");
+  let gameIdInput = createInputText("gameId");
   let joinBtn = createButton("Join", "joinGame()");
   homeCanvas.appendChild(gameIdInput);
   homeCanvas.appendChild(joinBtn);
@@ -166,5 +166,5 @@ function joinGame() {
   }
   console.log(gameIdInput.value);
 
-  // joinGame(gameId.value);
+  window.location=`game.html?id=${gameIdInput.value}`;
 }

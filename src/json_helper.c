@@ -7,6 +7,7 @@
 #include "json_helper.h"
 #include "cricket.h"
 #include "game.h"
+#include "player.h"
 
 /* Global variables ***********************************************************/
 /* Function prototypes ********************************************************/
@@ -212,15 +213,15 @@ const char* json_helper_game_status(game_t* game)
 	cJSON* json = cJSON_CreateObject();
 	cJSON_AddNumberToObject(json, "msg_id", 0); //TODO:  (status msg)
 	cJSON_AddBoolToObject(json, "running", game->running);
-	cJSON_AddNumberToObject(json, "game_id", game->game);
+	cJSON_AddNumberToObject(json, "game_id", game->game_ref);
 	cJSON_AddNumberToObject(json, "options", game->options);
 	cJSON_AddNumberToObject(json, "n_players", game->n_players);
 	cJSON* players = cJSON_AddArrayToObject(json, "players");
 	for (int i = 0; i < game->n_players; i++) {
-		player_t p = game->players[i];
+		// player_t p = (player_t)(game->cricket_players[i]); // Only cricket players??? is this herencia o polimorfismo???
 		cJSON* player = cJSON_CreateObject();
-		cJSON_AddStringToObject(player, "userid", p.userid);
-		cJSON_AddStringToObject(player, "name", p.name);
+		cJSON_AddStringToObject(player, "userid", game->cricket_players[i].p.userid);
+		cJSON_AddStringToObject(player, "name", game->cricket_players[i].p.name);
 		cJSON_AddItemToArray(players, player);
 	}
 	out = cJSON_PrintUnformatted(json);

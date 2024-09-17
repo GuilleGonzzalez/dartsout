@@ -1,4 +1,4 @@
-# Dartsout!
+# The Dartsout! game
 
 A simple darts game.
 
@@ -44,6 +44,14 @@ A simple darts game.
 
 - Double in
 - Double out
+
+## Cómo funciona
+
+1. El usuario genera una lista de los nombres de los jugadores.
+2. El usuario decide el juego al que jugar.
+3. El pulsar 'Play Cricket', con sus opciones, el cliente debe enviar un mensaje de 'new_game' y recibir un identificador de juego.
+4. Cuando se recibe el identificador, el cliente redirige a '/game.html?id=XX'.
+5. Al cargarse '/game.html?id=XX' lo único que debe hacer es pedir el estado de la partida con ese ID.
 
 ## Messages
 

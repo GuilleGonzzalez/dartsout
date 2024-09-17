@@ -33,8 +33,15 @@ window.onload = init();
 function init() {
   if (window.location.pathname == "/") {
     homeCreateCanvas(homeCanvas);
+  } else if (window.location.pathname == "/game.html") {
+    const urlParams = new URLSearchParams(window.location.search);
+    let urlGameId = urlParams.get('id');
+    if (urlGameId == null || urlGameId == "") {
+      urlGameId = 0;
+    }
+    socket.onopen = () => socket.send(`${urlGameId},status`);
   } else {
-    socket.onopen = () => socket.send("0,status");
+    alert(`Invalid pathname (${window.location.pathname})`);
   }
 }
 

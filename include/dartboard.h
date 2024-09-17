@@ -44,7 +44,7 @@ typedef struct dartboard_event_rsp_t {
 	char* ret_str;
 } dartboard_event_rsp_t;
 
-void dartboard_init();
+void dartboard_init(void);
 void dartboard_new_event(dartboard_event_t* event, dartboard_event_rsp_t* rsp);
 
 #endif // __DARTBOARD_H
