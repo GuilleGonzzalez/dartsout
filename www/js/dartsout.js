@@ -35,11 +35,11 @@ function init() {
     homeCreateCanvas(homeCanvas);
   } else if (window.location.pathname == "/game.html") {
     const urlParams = new URLSearchParams(window.location.search);
-    let urlGameId = urlParams.get('id');
-    if (urlGameId == null || urlGameId == "") {
-      urlGameId = 0;
+    gameId = urlParams.get('id');
+    if (gameId == null || gameId == "") {
+      gameId = 0;
     }
-    socket.onopen = () => socket.send(`${urlGameId},status`);
+    socket.onopen = () => socket.send(`${gameId},status`);
   } else {
     alert(`Invalid pathname (${window.location.pathname})`);
   }
@@ -76,9 +76,10 @@ function proccessMessage(message) {
       let players = json["players"];
       let game_n_players = json["n_players"];
       if (running) {
+        // TODO: aquí puede estar el problema de crear varios canvas. Solo debería crearse si:
+        // se abre una sesión y hay una partida en juego (?)
+        // Solucionado borrando el canvas antes de actualizarlo
         if (game_id == GameId.Cricket) {
-          // TODO: aquí puede estar el problema de crear varios canvas. Solo debería crearse si:
-          // se abre una sesión y hay una partida en juego (?)
           console.log(`Creating cricket canvas... (${game_n_players} players)`);
           cricketCreateCanvas(gameCanvas, game_n_players, options);
         } else if (game_id == GameId.X01) {
@@ -87,11 +88,6 @@ function proccessMessage(message) {
           console.error("Game not implemented!");
         }
         addHomeModal(gameCanvas);
-      } else {
-        // window.location.href = "/";
-        // TODO: al crear un jugador, no devolver status, devolver un mensaje players con los jugadores.
-        // Esto es para poder redirigir a / si no hay juego y se entra en /game.html
-        // homeAddPlayer(json);
       }
       break;
     case MsgId.Cricket:
@@ -127,20 +123,11 @@ function proccessMessage(message) {
     case MsgId.GameId:
       gameId = json["game_id"];
       console.log("GameId", gameId);
+      window.location=`game.html?id=${gameId}`;
       break;
     default:
-      alert("Error");
+      alert(`Error, invalid message id (${msgId})`);
   }
-}
-
-function newCricketGame(options, players) {
-  window.location="game.html"; //TODO: not necessary?
-  new_game(GameId.Cricket, options, players);
-}
-
-function newX01Game(options, players) {
-  window.location="game.html"; //TODO: not necessary?
-  new_game(GameId.X01, options, players);
 }
 
 function addHomeModal(canvas) {
@@ -149,13 +136,15 @@ function addHomeModal(canvas) {
     addTitleModal("home-modal", "Exit");
     let homeModalContent = document.createElement("div");
     let homeModalTxt = document.createElement("h5");
-    homeModalTxt.innerHTML = "Are you sure you want to exit?";
+    homeModalTxt.innerHTML = "Do you want to finish game?";
     let homeModalTxt2 = document.createElement("p");
     homeModalTxt2.innerHTML = "Game will finish";
     homeModalContent.appendChild(homeModalTxt);
     homeModalContent.appendChild(homeModalTxt2);
-    let yesBtn = createButton("Yes", "homeCb()");
+    let yesBtn = createButton("Yes, finish game", "homeCb()");
+    let noBtn = createButton("Go home", "goHomeCb()");
     homeModalContent.appendChild(yesBtn);
+    homeModalContent.appendChild(noBtn);
     addContentModal("home-modal", homeModalContent);
 }
 
@@ -169,12 +158,12 @@ function addFinishModal(canvas, winnerPlayerId, mprs) {
     finishModalTxt.innerHTML = `TODO wins!`;
     finishModalContent.appendChild(finishModalTxt);
     // TODO: repeat game implementation
-    let repeatBtn = createButton("Repeat game", "HomeCb()");
-    let homeBtn = createButton("Home", "HomeCb()");
+    let repeatBtn = createButton("Play Again", "homeCb()");
+    let homeBtn = createButton("Home", "homeCb()");
     finishModalContent.appendChild(homeBtn);
     finishModalContent.appendChild(repeatBtn);
     addContentModal("finish-modal", finishModalContent);
-    // TODO: for now, only MPR, more stats in future
+    // TODO: for now, only MPR. More stats in future
     let tableHeader = ["Player", "Score", "MPR"];
     let table = createTable('finish-table', Object.keys(mprs).length,
         tableHeader.length);

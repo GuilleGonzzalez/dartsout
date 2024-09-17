@@ -107,8 +107,7 @@ function CricketGameCb() {
   
 
   console.log("Cricket Options: ", options);
-
-  newCricketGame(options, players);
+  newGame(GameId.Cricket, options, players);
 }
 
 function x01GameCb() {
@@ -137,8 +136,7 @@ function x01GameCb() {
   }
 
   console.log("X01 Options: ", options);
-
-  newX01Game(options, players);
+  newGame(GameId.X01, options, players);
 }
 
 function homeShowPlayers(players) {

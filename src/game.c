@@ -61,10 +61,10 @@ void game_new_event(game_t* game, game_event_t* event, game_event_rsp_t* rsp)
 	case GAME_EVENT_STATUS:
 		printf("Status event received!\n");
 		// TODO: mando aquí el game ID o en un json (?). Hay que mandarlo siempre antes de getStatus
-		json = json_helper_send_game_id(game->id);
-		api_ws_write(json);
-		free((char*)json);
-		printf("Game ID writed\n");
+		// json = json_helper_send_game_id(game->id);
+		// api_ws_write(json);
+		// free((char*)json);
+		// printf("Game ID writed\n");
 		json = game_status(game);
 		api_ws_write(json);
 		printf("Status writed\n");
@@ -101,9 +101,10 @@ void game_new_event(game_t* game, game_event_t* event, game_event_rsp_t* rsp)
 		game->game_ref = event->game_id;
 		game->options = event->options;
 		game->running = true;
-		json = game_status(game);
+		json = json_helper_send_game_id(game->id);
 		api_ws_write(json);
 		free((char*)json);
+		printf("Game ID writed\n");
 		if (game->game_ref == GAME_CRICKET) {
 			int max_points = 200; //TODO: event.max_points
 			int max_rounds = 25;  //TODO: event.max_rounds

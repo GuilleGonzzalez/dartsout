@@ -236,6 +236,7 @@ Implementación de la solución seleccionada:
 - Add player button
 - Si estoy en /game y no hay juego, redirigir a /; si estoy en / y hay juego, redirigir a /game
 - Arreglar status / new_player
+- Add logger [example](https://github.com/yksz/c-logger/tree/master)
 
 ### Mid-term issues
 

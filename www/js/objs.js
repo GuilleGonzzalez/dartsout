@@ -49,14 +49,24 @@ function createGameHeader(name) {
   title.appendChild(h1);
   let nextPlayer = document.createElement("div");
   nextPlayer.className = "col-3";
-  let nextPlayerBtn = createImgButton("next_player()", "res/next_player.svg",
+  let nextPlayerBtn = createImgButton("nextPlayer()", "res/next_player.svg",
       align="right");
   nextPlayer.appendChild(nextPlayerBtn);
-
+  
   row.appendChild(home);
   row.appendChild(title);
   row.appendChild(nextPlayer);
+  
+  let row2 = document.createElement("div");
+  row2.className = "row";
+  let h5 = document.createElement("h5");
+  h5.className = "fw-bolder text-center";
+  h5.id = "game_id";
+  h5.innerHTML = `Game ID: ${gameId}`;
+  row2.appendChild(h5);
+
   header.appendChild(row);
+  header.appendChild(row2);
 
   return header;
 }
