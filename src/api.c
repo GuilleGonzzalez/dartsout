@@ -100,10 +100,19 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			mg_http_reply(c, game_rsp.ret_code, "", json);
 			free((char*)json);
 		} else if (mg_http_match_uri(hm, "/new-game")) {
-			int game_ref; // TODO: ver como llamar al nombre/identificador de juego
+			int game_ref;
 			int options;
-			json_helper_new_game(hm->body.ptr, &game_ref, &options);
+			char* players[20];
+			int n_players;
+			json_helper_new_game(hm->body.ptr, &game_ref, &options, players,
+					&n_players);
 			game_t* game = game_manager_new();
+			for (int i = 0; i < n_players; i++) {
+				game_event_t event;
+				event.type = GAME_EVENT_NEW_PLAYER;
+				event.player.name = players[i];
+				game_new_event(game, &event, &game_rsp);
+			}
 			game_event_t event;
 			event.type = GAME_EVENT_NEW_GAME;
 			event.game_id = game_ref;

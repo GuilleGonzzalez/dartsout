@@ -84,7 +84,7 @@ function proccessMessage(message) {
         // window.location.href = "/";
         // TODO: al crear un jugador, no devolver status, devolver un mensaje players con los jugadores.
         // Esto es para poder redirigir a / si no hay juego y se entra en /game.html
-        homeAddPlayer(json);
+        // homeAddPlayer(json);
       }
       break;
     case MsgId.Cricket:
@@ -126,14 +126,14 @@ function proccessMessage(message) {
   }
 }
 
-function newCricketGame(options) {
+function newCricketGame(options, players) {
   window.location="game.html"; //TODO: not necessary?
-  new_game(GameId.Cricket, options);
+  new_game(GameId.Cricket, options, players);
 }
 
-function newX01Game(options) {
+function newX01Game(options, players) {
   window.location="game.html"; //TODO: not necessary?
-  new_game(GameId.X01, options);
+  new_game(GameId.X01, options, players);
 }
 
 function addHomeModal(canvas) {
@@ -155,11 +155,11 @@ function addHomeModal(canvas) {
 function addFinishModal(canvas, winnerPlayerId, mprs) {
     let finishModal = createModal("finish-modal");
     canvas.appendChild(finishModal);
-    addTitleModal("finish-modal", "The end");
+    addTitleModal("finish-modal", "Game finished");
     let finishModalContent = document.createElement("div");
     let finishModalTxt = document.createElement("h5");
     // TODO: define winner WS message
-    finishModalTxt.innerHTML = `${"Player 2"} wins!`;
+    finishModalTxt.innerHTML = `TODO wins!`;
     finishModalContent.appendChild(finishModalTxt);
     // TODO: repeat game implementation
     let repeatBtn = createButton("Repeat game", "HomeCb()");

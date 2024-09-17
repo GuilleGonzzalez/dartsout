@@ -41,7 +41,8 @@ function homeCreateCanvas(homeCanvas) {
   homeCanvas.appendChild(spacer);
 
   // Buttons
-  let newPlayerBtn = createButton("Add player", "new_player()");
+  let newPlayerBtn = createButton("Add player", "newPlayerCb()");
+  // let newPlayerBtn = createButton("Add player", "new_player()");
   homeCanvas.appendChild(newPlayerBtn);
   // let newPlayerBtn2 = createButton("Add player 2", 'launchModal("player-modal")');
   // homeCanvas.appendChild(newPlayerBtn2);
@@ -61,9 +62,9 @@ function homeCreateCanvas(homeCanvas) {
   let spacer3 = createSpacer(30);
   homeCanvas.appendChild(spacer3);
 
-  let gameId = createInputText("gameId");
+  let gameIdInput = createInputText("Input");
   let joinBtn = createButton("Join", "joinGame()");
-  homeCanvas.appendChild(gameId);
+  homeCanvas.appendChild(gameIdInput);
   homeCanvas.appendChild(joinBtn);
 }
 
@@ -74,6 +75,18 @@ function homeCreateCanvas(homeCanvas) {
 //   }
 //   new_player2(playerName);
 // }
+
+let players = [];
+
+function newPlayerCb() {
+  let name = prompt("Player name:", "Player 1");
+  if (name == null || name == "") {
+    alert("Invalid player");
+    return;
+  }
+  players.push(name);
+  homeShowPlayers(players);
+}
 
 function CricketGameCb() {
   let options = 0;
@@ -95,7 +108,7 @@ function CricketGameCb() {
 
   console.log("Cricket Options: ", options);
 
-  newCricketGame(options);
+  newCricketGame(options, players);
 }
 
 function x01GameCb() {
@@ -125,25 +138,33 @@ function x01GameCb() {
 
   console.log("X01 Options: ", options);
 
-  newX01Game(options);
+  newX01Game(options, players);
 }
 
-function homeAddPlayer(json) {
-  let players = json["players"];
+function homeShowPlayers(players) {
   let data = [];
   for (let i = 0; i < players.length; i++) {
-    data.push([i+1, players[i]["name"], "--"]);
+    data.push([i+1, players[i], "--"]);
   }
   updateTable("players-table", false, data);
 }
 
+// function homeAddPlayer(json) {
+//   let players = json["players"];
+//   let data = [];
+//   for (let i = 0; i < players.length; i++) {
+//     data.push([i+1, players[i]["name"], "--"]);
+//   }
+//   updateTable("players-table", false, data);
+// }
+
 function joinGame() {
-  let gameId = document.getElementById('gameId');
-  if (!gameId || gameId.value == "") {
+  let gameIdInput = document.getElementById('gameId');
+  if (!gameIdInput || gameIdInput.value == "") {
     console.error("No game ID");
     return;
   }
-  console.log(gameId.value);
+  console.log(gameIdInput.value);
 
   // joinGame(gameId.value);
 }

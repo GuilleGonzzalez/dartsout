@@ -45,6 +45,155 @@ A simple darts game.
 - Double in
 - Double out
 
+## Messages
+
+### 1. Status (msg_id=0)
+
+```json
+{
+  "msg_id": 0,
+  "running": false,
+  "game_id": 0,
+  "options": 0,
+  "n_players": 1,
+  "players": [
+    {
+      "user_id": "user1",
+      "name": "name1",
+    },
+    {
+      "user_id": "user2",
+      "name": "name2",
+    }
+  ]
+}
+```
+
+### 2. Cricket (msg_id=1)
+
+```json
+{
+  "msg_id": 1,
+  "n_players": 1,
+  "round": 0,
+  "max_rounds": 0,
+  "max_score": 0,
+  "current_player": 0,
+  "darts": 0,
+  "dart_scores": [
+    {
+      "num": 0,
+      "zone": 0,
+    },
+    {
+      "num": 0,
+      "zone": 0,
+    },
+    {
+      "num": 0,
+      "zone": 0,
+    },
+  ],
+  "enabled": [16, 17, 18],
+  "players": [
+    {
+      "name": "name1",
+      "game_score": 0,
+      "round_score": 0,
+      "mpr": 1,
+      "img_path": "res/user.svg",
+      "shots": [0, 0, 0, 0, 0, 0, 0]
+    }
+  ]
+}
+```
+
+### 3. X01 (msg_id=2)
+
+```json
+{
+  "msg_id": 2,
+  "score": 301,
+  "n_players": 1,
+  "round": 0,
+  "max_rounds": 0,
+  "current_player": 0,
+  "darts": 0,
+  "dart_scores": [
+    {
+      "num": 0,
+      "zone": 0,
+    },
+    {
+      "num": 0,
+      "zone": 0,
+    },
+    {
+      "num": 0,
+      "zone": 0,
+    },
+  ],
+  "players": [
+    {
+      "name": "name1",
+      "game_score": 0,
+      "round_score": 0,
+    }
+  ],
+}
+```
+
+### 4. Last dart (msg_id=3)
+
+```json
+{
+  "msg_id": 3,
+  "valid": true,
+  "num": 0,
+  "zone": 0,
+}
+```
+
+### 5a. Winner (msg_id=4)
+
+```json
+{
+  "msg_id": 4,
+  "name": "name1",
+}
+```
+
+### 5b. Cricket winner (msg_id=4)
+
+```json
+{
+  "msg_id": 4,
+  "game_id": 0,
+  "name": "name1",
+  "players": [
+    {
+      "name": "name1",
+      "game_score": 0,
+      "mpr": 1,
+    }
+    {
+      "name": "name2",
+      "game_score": 0,
+      "mpr": 1,
+    }
+  ],
+}
+```
+
+### 6. Game ID (msg_id=5)
+
+```json
+{
+  "msg_id": 5,
+  "game_id": 0,
+}
+```
+
 ## TODO list
 
 ### Dónde me he quedado

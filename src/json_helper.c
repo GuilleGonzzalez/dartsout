@@ -93,6 +93,7 @@ const char* json_helper_last_dart(bool valid, int num, int zone)
 	return out;
 }
 
+// Not cricket winner
 const char* json_helper_winner(const char* name)
 {
 	const char* out;
@@ -231,7 +232,7 @@ const char* json_helper_reg_player(player_t* player)
 {
 	const char* out;
 	cJSON* json = cJSON_CreateObject();
-	cJSON_AddNumberToObject(json, "msg_id", 2); //TODO:  (reg player msg)
+	cJSON_AddNumberToObject(json, "msg_id", -1); //TODO:  (reg player msg)
 	cJSON_AddStringToObject(json, "userid", player->userid);
 	cJSON_AddStringToObject(json, "name", player->name);
 	out = cJSON_PrintUnformatted(json);
@@ -268,7 +269,8 @@ int json_helper_new_player(const char* json_str, char* name, int name_len)
 	return err;
 }
 
-int json_helper_new_game(const char* json_str, int* game, int* options)
+int json_helper_new_game(const char* json_str, int* game, int* options,
+		char** players, int* n_players)
 {
 	cJSON* json = cJSON_Parse(json_str);
 	if (json == NULL) {
@@ -277,6 +279,25 @@ int json_helper_new_game(const char* json_str, int* game, int* options)
 	int err = 0;
 	err |= json_get_int((int*)(game), json, "game");
 	err |= json_get_int((int*)(options), json, "options");
+
+	// TODO: json_get_list
+	cJSON* player_names = cJSON_GetObjectItem(json, "players");
+	if (player_names == NULL || !cJSON_IsArray(player_names)) {
+		cJSON_Delete(json);
+		return 1;
+	}
+
+	*n_players = cJSON_GetArraySize(player_names);
+	printf("Van a jugar %d jugadores!\n", *n_players);
+
+	for (int i = 0; i < *n_players; i++) {
+		cJSON* player = cJSON_GetArrayItem(player_names, i);
+		if (cJSON_IsString(player)) {
+			players[i] = strdup(player->valuestring); // Copiar el nombre
+			printf("Player %d: %s\n", i + 1, players[i]);
+		}
+	}
+
 	cJSON_Delete(json);
 	return err;
 }

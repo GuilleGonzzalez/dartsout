@@ -51,16 +51,14 @@ function api_post(url, json) {
   });
 }
 
-function new_player() {
-  let name = prompt("Player name:", "Player 1");
-  if (name == null || name == "") {
-    alert("Invalid player");
-    return;
-  }
-  json = JSON.stringify({name});
-  // TODO: change to websockets
-  api_post(`/new-player?game_id=${gameId}`, json);
-}
+// function new_player() {
+//   let name = prompt("Player name:", "Player 1");
+//   if (name == null || name == "") {
+//     alert("Invalid player");
+//     return;
+//   }
+//   json = JSON.stringify({name});
+// }
 
 // function new_player2(name) {
 //   json = JSON.stringify({name});
@@ -68,13 +66,12 @@ function new_player() {
 //   api_post(`/new-player?game_id=${gameId}`, json);
 // }
 
-function new_game(game_ref, options) {
-  // TODO: esto no es el game_id, esto es el game_name/game_type/game_ref
+function new_game(game_ref, options, players) {
   const game = game_ref;
-  json = JSON.stringify({game, options});
-  console.log(`New game: ${game_ref} with options=${options}. json=${json}`);
+  json = JSON.stringify({game, options, players});
+  console.log(`New game: ${game_ref} with options=${options} and players=${players}. json=${json}`);
   // TODO: change to websockets
-  api_post(`/new-game?game_id=${gameId}`, json);
+  api_post(`/new-game`, json);
 }
 
 function next_player() {
