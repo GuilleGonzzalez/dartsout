@@ -64,5 +64,6 @@ game_t* game_manager_get_by_id(int id)
 
 void game_manager_finish(game_t* game)
 {
+	games[game->id] = NULL;
 	game_delete(game);
 }

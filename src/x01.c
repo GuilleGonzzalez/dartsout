@@ -22,6 +22,7 @@ static void next_player(game_t* game);
 static bool new_dart(game_t* game, dartboard_shot_t* val);
 static const char* check_finish(game_t* game, player_t** winner_player);
 static const char* status(game_t* self);
+static void delete(game_t* game);
 
 static game_cbs_t cbs = {
 	.start_cb = start,
@@ -29,6 +30,7 @@ static game_cbs_t cbs = {
 	.new_dart_cb = new_dart,
 	.check_finish_cb = check_finish,
 	.status_cb = status,
+	.delete_cb = delete,
 };
 
 static int get_score(int options);
@@ -150,6 +152,14 @@ static const char* check_finish(game_t* game, player_t** winner_player)
 static const char* status(game_t* self)
 {
 	return json_helper_x01_status((x01_t*)self);
+}
+
+static void delete(game_t* game)
+{
+	x01_t* self = (x01_t*)game;
+
+	free(self->players);
+	free(self);
 }
 
 /* Function definitions *******************************************************/

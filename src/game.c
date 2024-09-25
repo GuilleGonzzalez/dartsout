@@ -139,7 +139,6 @@ void game_new_event(game_t* game, game_event_t* event, game_event_rsp_t* rsp)
 		check_winner(game);
 		break;
 	case GAME_EVENT_FINISH_GAME:
-		game_finish(game);
 		LOG_INFO("Game with ID=%d finished!", game->id);
 		break;
 	default:
@@ -158,6 +157,8 @@ void game_finish(game_t* game)
 
 void game_delete(game_t* game)
 {
+	game->cbs->delete_cb(game);
+
 	for (int i = 0; i < game->n_players; i++) {
 		free((char*)game->players[i].name);
 	}

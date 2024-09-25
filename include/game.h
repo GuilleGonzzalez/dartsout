@@ -43,6 +43,7 @@ typedef void (*game_next_player_cb_t)(game_t*);
 typedef bool (*game_new_dart_cb_t)(game_t*, dartboard_shot_t*);
 typedef const char* (*game_check_finish_cb_t)(game_t*, player_t**);
 typedef const char* (*game_status_cb_t)(game_t*);
+typedef void (*game_delete_cb_t)(game_t*);
 
 typedef struct game_cbs_t {
 	game_start_cb_t start_cb;
@@ -50,6 +51,7 @@ typedef struct game_cbs_t {
 	game_next_player_cb_t next_player_cb;
 	game_check_finish_cb_t check_finish_cb;
 	game_status_cb_t status_cb;
+	game_delete_cb_t delete_cb;
 } game_cbs_t;
 
 struct game_t {

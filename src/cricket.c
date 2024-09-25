@@ -25,6 +25,7 @@ static void next_player(game_t* game);
 static bool new_dart(game_t* game, dartboard_shot_t* val);
 static const char* check_finish(game_t* game, player_t** winner_player);
 static const char* status(game_t* self);
+static void delete(game_t* game);
 
 static game_cbs_t cbs = {
 	.start_cb = start,
@@ -32,6 +33,7 @@ static game_cbs_t cbs = {
 	.new_dart_cb = new_dart,
 	.check_finish_cb = check_finish,
 	.status_cb = status,
+	.delete_cb = delete,
 };
 
 static bool player_all_closed(cricket_player_t* player);
@@ -153,6 +155,14 @@ static const char* check_finish(game_t* game, player_t** winner_player)
 static const char* status(game_t* self)
 {
 	return json_helper_cricket_status((cricket_t*)self);
+}
+
+static void delete(game_t* game)
+{
+	cricket_t* self = (cricket_t*)game;
+
+	free(self->players);
+	free(self);
 }
 
 /* Function definitions *******************************************************/
@@ -337,13 +347,6 @@ cricket_t* cricket_new_game(int id, cricket_options_t options, int max_score,
 	}
 
 	return self;
-}
-
-void cricket_delete(cricket_t* self)
-{
-	game_delete((game_t*)self);
-	free(self->players);
-	free(self);
 }
 
 player_t* cricket_get_player(cricket_t* self, cricket_player_t* cricket_player)
