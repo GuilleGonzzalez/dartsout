@@ -34,8 +34,9 @@ static void check_winner(game_t* game)
 
 /* Public functions ***********************************************************/
 
-void game_init(game_t* game, game_cbs_t* cbs)
+void game_init(game_t* game, int id, game_cbs_t* cbs)
 {
+	game->id = id;
 	game->running = false;
 	game->n_players = 0;
 	game->players = NULL;

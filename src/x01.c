@@ -202,12 +202,12 @@ static void fill_darts_null(x01_t* self)
 
 /* Public functions ***********************************************************/
 
-x01_t* x01_new_game(x01_options_t options, int max_rounds)
+x01_t* x01_new_game(int id, x01_options_t options, int max_rounds)
 {
 
 	x01_t* self = malloc(sizeof(x01_t));
 	assert(self);
-	game_init((game_t*)self, &cbs);
+	game_init((game_t*)self, id, &cbs);
 	self->players = NULL;
 	self->options = options;
 	self->round = 1;

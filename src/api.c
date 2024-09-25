@@ -95,6 +95,7 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			json_helper_new_game(hm->body.ptr, &game_ref, &options, players,
 					&n_players);
 			game_t* game = game_manager_new(game_ref, options);
+			assert(game);
 			for (int i = 0; i < n_players; i++) {
 				game_event_t event;
 				event.type = GAME_EVENT_NEW_PLAYER;
@@ -103,7 +104,7 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			}
 			game_event_t event;
 			event.type = GAME_EVENT_NEW_GAME;
-			event.game_id = game_ref;
+			event.game_id = game_ref; // TODO: game_id -> game_ref o quitarlo
 			event.options = options;
 			game_new_event(game, &event, &game_rsp);
 			// const char* json = json_helper_simple_str("result",

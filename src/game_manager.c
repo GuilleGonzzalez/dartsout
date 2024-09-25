@@ -40,12 +40,12 @@ game_t* game_manager_new(game_ref_t game_ref, int options)
 	if (game_ref == GAME_CRICKET) {
 		int max_points = 200; //TODO: event.max_points
 		int max_rounds = 25;  //TODO: event.max_rounds
-		games[game_id] = (game_t*)cricket_new_game(options, max_points,
+		games[game_id] = (game_t*)cricket_new_game(game_id, options, max_points,
 				max_rounds);
 		return games[game_id];
 	} else if (game_ref == GAME_X01) {
 		int max_rounds = 25;  //TODO: event.max_rounds
-		games[game_id] = (game_t*)x01_new_game(options, max_rounds);
+		games[game_id] = (game_t*)x01_new_game(game_id, options, max_rounds);
 		return games[game_id];
 	} else {
 		LOG_ERROR("Game not implemented!");

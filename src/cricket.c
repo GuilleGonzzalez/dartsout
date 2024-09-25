@@ -307,12 +307,12 @@ static int list_exists(int* list, int len, int val)
 
 /* Public functions ***********************************************************/
 
-cricket_t* cricket_new_game(cricket_options_t options, int max_score,
+cricket_t* cricket_new_game(int id, cricket_options_t options, int max_score,
 		int max_rounds)
 {
 	cricket_t* self = malloc(sizeof(cricket_t));
 	assert(self);
-	game_init((game_t*)self, &cbs);
+	game_init((game_t*)self, id, &cbs);
 	self->players = NULL;
 	self->options = options;
 	self->round = 1;

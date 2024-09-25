@@ -43,7 +43,7 @@ typedef struct x01_t {
 
 // } x01_state_t;
 
-x01_t* x01_new_game(x01_options_t options, int max_rounds);
+x01_t* x01_new_game(int id, x01_options_t options, int max_rounds);
 void x01_delete(x01_t* self);
 player_t* x01_get_player(x01_t* self, x01_player_t* x01_player);
 

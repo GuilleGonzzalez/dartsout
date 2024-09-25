@@ -40,10 +40,9 @@ typedef struct cricket_t {
 } cricket_t;
 
 // typedef struct cricket_state_t {
-
 // } cricket_state_t;
 
-cricket_t* cricket_new_game(cricket_options_t options, int max_score,
+cricket_t* cricket_new_game(int id, cricket_options_t options, int max_score,
 		int max_rounds);
 void cricket_delete(cricket_t* self);
 player_t* cricket_get_player(cricket_t* self, cricket_player_t* cricket_player);
