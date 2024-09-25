@@ -1,6 +1,7 @@
+#include "dartboard.h"
+#if 0
 #include <stdlib.h>
 
-#include "dartboard.h"
 #include "db.h"
 #include "api.h"
 #include "player.h"
@@ -44,3 +45,4 @@ void dartboard_new_event(dartboard_event_t* event, dartboard_event_rsp_t* rsp)
 	rsp->ret_code = 200;
 	rsp->ret_str = "Success";
 }
+#endif

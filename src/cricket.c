@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -5,22 +6,37 @@
 
 #include "cricket.h"
 #include "dartboard.h"
+#include "game.h"
 #include "json_helper.h"
 #include "log.h"
+#include "player.h"
+#include "utils.h"
 
 /* Global variables ***********************************************************/
 
 static const int sector_values[N_SECTORS] = {25, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
 		11, 12, 13, 14, 15, 16, 17, 18, 19, 20};
+static const int default_enabled[N_ENABLED] = {20, 19, 18, 17, 16, 15, 0};
 
 /* Function prototypes ********************************************************/
 
+static void start(game_t* game);
+static void next_player(game_t* game);
+static bool new_dart(game_t* game, dartboard_shot_t* val);
+static const char* check_finish(game_t* game, player_t** winner_player);
+static const char* status(game_t* self);
+
+static game_cbs_t cbs = {
+	.start_cb = start,
+	.next_player_cb = next_player,
+	.new_dart_cb = new_dart,
+	.check_finish_cb = check_finish,
+	.status_cb = status,
+};
+
 static bool player_all_closed(cricket_player_t* player);
-static cricket_player_t* get_max_score(cricket_t* self);
+static player_t* get_max_score(cricket_t* self);
 static bool has_max_score(cricket_t* self, cricket_player_t* player);
-static const char* zone_to_str(dartboard_zone_t zone);
-static int get_mult_from_zone(int zone);
-static bool valid_shot(dartboard_shot_t* ds);
 static void gen_random_targets(int* possible_targets, int possible_targets_len,
 		int* targets, int targets_len);
 static void find_targets_to_gen(cricket_t* self);
@@ -33,6 +49,112 @@ static void list_pop(int* list, int* len, int pos);
 static int list_exists(int* list, int len, int val);
 
 /* Callbacks ******************************************************************/
+
+static void start(game_t* game)
+{
+	cricket_t* self = (cricket_t*)game;
+	self->players = malloc(self->game.n_players * sizeof(cricket_player_t));
+	assert(self->players);
+	for (int i = 0; i < self->game.n_players; i++) {
+		self->players[i].game_score = 0;
+		self->players[i].round_score = 0;
+		self->players[i].marks = 0;
+		memset(self->players[i].shots, 0, N_ENABLED * sizeof(int));
+	}
+
+	LOG_INFO("New game: %d players, %d rounds, max %d points",
+			self->game.n_players, self->max_rounds, self->max_score);
+}
+
+static void next_player(game_t* game)
+{
+	cricket_t* self = (cricket_t*)game;
+	self->current_player++;
+	if (self->options & crazy) {
+		find_targets_to_gen(self);
+		gen_new_targets(self);
+	}
+	if (self->current_player == self->game.n_players) {
+		self->round++;
+		self->current_player = 0;
+	}
+
+	self->darts = 0;
+	self->players[self->current_player].round_score = 0;
+}
+
+static bool new_dart(game_t* game, dartboard_shot_t* val)
+{
+	cricket_t* self = (cricket_t*)game;
+	if (!utils_valid_shot(val)) {
+		return false;
+	}
+	if (self->darts == MAX_DARTS) {
+		LOG_WARN("No more darts!");
+		return false;
+	}
+	self->dart_scores[self->darts].number = val->number;
+	self->dart_scores[self->darts].zone = val->zone;
+	self->darts++;
+
+		
+	LOG_INFO("%s hit %s %d", self->game.players[self->current_player].name,
+			utils_zone_to_str(val->zone), val->number);
+	int pos = list_exists(self->enabled, N_ENABLED, val->number);
+	if (pos == -1 || number_closed(self, val->number)) {
+		return false;
+	}
+	int mult = utils_mult_from_zone(val->zone);
+	cricket_player_t* player = &self->players[self->current_player];
+	for (int i = 0; i < mult; i++) {
+		if (player->shots[pos] < 3) {
+			player->shots[pos]++;
+			player->marks++;
+			if (player->shots[pos] == 3) {
+				LOG_INFO("%s closed %d",
+						self->game.players[self->current_player].name,
+						val->number);
+				if (number_closed(self, val->number)) {
+					return true;
+				}
+			}
+		} else {
+			if (!(self->options & no_score)) {
+				player->game_score += sector_values[val->number];
+				player->round_score += sector_values[val->number];
+				player->marks++;
+			}
+		}
+	}
+	return true;
+}
+
+static const char* check_finish(game_t* game, player_t** winner_player)
+{
+	cricket_t* self = (cricket_t*)game;
+
+	for (int i = 0; i < self->game.n_players; i++) {
+		if (player_all_closed(&self->players[i]) &&
+				(has_max_score(self, &self->players[i]))) {
+			*winner_player = &self->game.players[i];
+			return json_helper_cricket_winner(self, (*winner_player)->name);
+		}
+	}
+	if ((self->round > self->max_rounds) ||
+			(self->round == self->max_rounds &&
+			self->darts == MAX_DARTS &&
+			self->current_player == self->game.n_players - 1)) {
+		*winner_player = get_max_score(self);
+		return json_helper_cricket_winner(self, (*winner_player)->name);
+	}
+	return NULL;
+}
+
+static const char* status(game_t* self)
+{
+	return json_helper_cricket_status((cricket_t*)self);
+}
+
 /* Function definitions *******************************************************/
 
 static bool player_all_closed(cricket_player_t* player)
@@ -45,60 +167,27 @@ static bool player_all_closed(cricket_player_t* player)
 	return true;
 }
 
-static cricket_player_t* get_max_score(cricket_t* self)
+static player_t* get_max_score(cricket_t* self)
 {
+	player_t* game_best_player = &self->game.players[0];
 	cricket_player_t* best_player = &self->players[0];
-	for (int i = 0; i < self->n_players; i++) {
+	for (int i = 0; i < self->game.n_players; i++) {
 		if (self->players[i].game_score >= best_player->game_score) {
 			best_player = &self->players[i];
+			game_best_player = &self->game.players[i];
 		}
 	}
-	return best_player;
+	return game_best_player;
 }
 
 static bool has_max_score(cricket_t* self, cricket_player_t* player)
 {
-	for (int i = 0; i < self->n_players; i++) {
+	for (int i = 0; i < self->game.n_players; i++) {
 		if (self->players[i].game_score > player->game_score) {
 			return false;
 		}
 	}
 	return true;
-}
-
-// TODO: to dartboard
-static const char* zone_to_str(dartboard_zone_t zone)
-{
-	const char* str_zone;
-	if (zone == 0) {
-		str_zone = "triple";
-	} else if (zone == 1) {
-		str_zone = "double";
-	} else {
-		str_zone = "single";
-	}
-	return str_zone;
-}
-
-// TODO: to dartboard
-static int get_mult_from_zone(int zone)
-{
-	if (zone == ZONE_TRIPLE) {
-		return 3;
-	} else if (zone == ZONE_DOUBLE) {
-		return 2;
-	}
-	return 1;
-}
-
-// TODO: to dartboard
-// This function check if a shot is valid. This is:
-// - Number must be between [0, 20]
-// - Zone must be between [0, 4]
-static bool valid_shot(dartboard_shot_t* ds)
-{
-	LOG_DEBUG("NUMBER: %d, ZONE: %d", ds->number, ds->zone);
-	return ds->number >= 0 && ds->number <= 20 && ds->zone >= 0 && ds->zone <= 4;
 }
 
 // This function generates random numbers for a list of targets passed as param.
@@ -122,7 +211,7 @@ static void find_targets_to_gen(cricket_t* self)
 	for (int i = 0; i < N_ENABLED; i++) {
 		bool change_closed = true;
 		bool change_opened = false;
-		for (int j = 0; j < self->n_players; j++) {
+		for (int j = 0; j < self->game.n_players; j++) {
 			if (self->players[j].shots[i] == 3) {
 				change_closed = false;
 			} else if (self->players[j].shots[i] != 0) {
@@ -176,7 +265,7 @@ static bool number_closed(cricket_t* self, int num)
 	if (pos == -1) {
 		return false;
 	}
-	for (int i = 0; i < self->n_players; i++) {
+	for (int i = 0; i < self->game.n_players; i++) {
 		if (self->players[i].shots[pos] != 3) {
 			return false;
 		}
@@ -218,19 +307,21 @@ static int list_exists(int* list, int len, int val)
 
 /* Public functions ***********************************************************/
 
-void cricket_new_game(cricket_t* self, cricket_player_t* players, int n_players,
-		cricket_options_t options, int max_score, int max_rounds)
+cricket_t* cricket_new_game(cricket_options_t options, int max_score,
+		int max_rounds)
 {
-	self->n_players = n_players;
+	cricket_t* self = malloc(sizeof(cricket_t));
+	assert(self);
+	game_init((game_t*)self, &cbs);
+	self->players = NULL;
+	self->options = options;
 	self->round = 1;
 	self->max_rounds = max_rounds;
 	self->max_score = max_score;
 	self->current_player = 0;
 	self->darts = 0;
-	self->options = options;
 
-	int en[N_ENABLED] = {20, 19, 18, 17, 16, 15, 0};
-	memcpy(self->enabled, en, sizeof(en));
+	memcpy(self->enabled, default_enabled, sizeof(default_enabled));
 
 	srand(time(NULL));
 	if (self->options & wild || self->options & crazy) {
@@ -240,97 +331,27 @@ void cricket_new_game(cricket_t* self, cricket_player_t* players, int n_players,
 		gen_random_targets(all_targets, all_targets_len, self->enabled,
 				N_ENABLED);
 	}
-	self->players = players;
-	for (int i = 0; i < n_players; i++) {
-		self->players[i].game_score = 0;
-		self->players[i].round_score = 0;
-		self->players[i].marks = 0;
-		memset(self->players[i].shots, 0, N_ENABLED * sizeof(int));
-	}
 	for (int i = 0; i < MAX_DARTS; i++) {
 		self->dart_scores[i].number = -1;
 		self->dart_scores[i].zone = -1;
 	}
-	LOG_INFO("New game: %d players, %d rounds, max %d points",
-				self->n_players, self->max_rounds, self->max_score);
+
+	return self;
 }
 
-cricket_player_t* cricket_check_finish(cricket_t* self)
+void cricket_delete(cricket_t* self)
 {
-	for (int i = 0; i < self->n_players; i++) {
-		cricket_player_t* p = &self->players[i];
-		if (player_all_closed(p) && (has_max_score(self, p))) {
-			return p;
+	game_delete((game_t*)self);
+	free(self->players);
+	free(self);
+}
+
+player_t* cricket_get_player(cricket_t* self, cricket_player_t* cricket_player)
+{
+	for (int i = 0; i < self->game.n_players; i++) {
+		if (cricket_player == &self->players[i]) {
+			return &self->game.players[i];
 		}
-	}
-	if ((self->round > self->max_rounds) ||
-			(self->round == self->max_rounds &&
-			self->darts == MAX_DARTS &&
-			self->current_player == self->n_players - 1)) {
-		return get_max_score(self);
 	}
 	return NULL;
-}
-
-void cricket_next_player(cricket_t* self)
-{
-	self->current_player++;
-	if (self->options & crazy) {
-		find_targets_to_gen(self);
-		gen_new_targets(self);
-	}
-	if (self->current_player == self->n_players) {
-		self->round++;
-		self->current_player = 0;
-	}
-	self->darts = 0;
-	self->players[self->current_player].round_score = 0;
-}
-
-bool cricket_new_dart(cricket_t* self, dartboard_shot_t* val)
-{
-	if (!valid_shot(val)) {
-		LOG_ERROR("ERROR: Invalid shot!");
-		return false;
-	}
-	if (self->darts == MAX_DARTS) {
-		LOG_WARN("No more darts!");
-		return false;
-	}
-	self->dart_scores[self->darts].number = val->number;
-	self->dart_scores[self->darts].zone = val->zone;
-	self->darts++;
-
-	cricket_player_t* player = &self->players[self->current_player];
-	LOG_INFO("%s hit %s %d", player->p.name, zone_to_str(val->zone),
-			val->number);
-	int pos = list_exists(self->enabled, N_ENABLED, val->number);
-	if (pos == -1 || number_closed(self, val->number)) {
-		return false;
-	}
-	int mult = get_mult_from_zone(val->zone);
-	for (int i = 0; i < mult; i++) {
-		if (player->shots[pos] < 3) {
-			player->shots[pos]++;
-			player->marks++;
-			if (player->shots[pos] == 3) {
-				LOG_INFO("%s closed %d", player->p.name, val->number);
-				if (number_closed(self, val->number)) {
-					return true;
-				}
-			}
-		} else {
-			if (!(self->options & no_score)) {
-				player->game_score += sector_values[val->number];
-				player->round_score += sector_values[val->number];
-				player->marks++;
-			}
-		}
-	}
-	return true;
-}
-
-const char* cricket_status(cricket_t* self)
-{
-	return json_helper_cricket_status(self);
 }

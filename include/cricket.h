@@ -3,12 +3,12 @@
 
 #include <stdbool.h>
 #include "dartboard.h"
-#include "player.h"
+#include "game.h"
 
 #define MAX_DARTS 3
 #define N_ENABLED 7
+
 typedef struct cricket_player_t {
-	player_t p;           // Player
 	int game_score;       // Number of "points" in the game
 	int round_score;      // Number of "points" in the round
 	int shots[N_ENABLED]; // Number of darts in each sector
@@ -27,11 +27,11 @@ enum {
 typedef int cricket_options_t;
 
 typedef struct cricket_t {
+	game_t game;
+	cricket_player_t* players;
 	dartboard_shot_t dart_scores[MAX_DARTS]; // Scores of each shot
-	cricket_player_t* players; // Pointer to an array of players
 	cricket_options_t options; // Cricket options
 	int enabled[N_ENABLED];    // Scoreables numbers
-	int n_players;             // Number of players
 	int round;                 // Round number
 	int max_rounds;            // Max rounds number
 	int max_score;             // Max score
@@ -39,11 +39,13 @@ typedef struct cricket_t {
 	int darts;                 // Number of darts thrown in this round
 } cricket_t;
 
-void cricket_new_game(cricket_t* self, cricket_player_t* players, int n_players,
-		cricket_options_t options, int max_score, int max_rounds);
-cricket_player_t* cricket_check_finish(cricket_t* self);
-void cricket_next_player(cricket_t* self);
-bool cricket_new_dart(cricket_t* self, dartboard_shot_t* val);
-const char* cricket_status(cricket_t* self);
+// typedef struct cricket_state_t {
+
+// } cricket_state_t;
+
+cricket_t* cricket_new_game(cricket_options_t options, int max_score,
+		int max_rounds);
+void cricket_delete(cricket_t* self);
+player_t* cricket_get_player(cricket_t* self, cricket_player_t* cricket_player);
 
 #endif // __CRICKET_H

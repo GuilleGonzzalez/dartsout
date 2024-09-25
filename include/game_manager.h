@@ -4,7 +4,7 @@
 #include "game.h"
 
 void game_manager_init(void);
-game_t* game_manager_new(void);
+game_t* game_manager_new(game_ref_t game_ref, int options);
 game_t* game_manager_get_by_id(int id);
 void game_manager_finish(game_t* game);
 

@@ -1,4 +1,3 @@
-#include <stdio.h>
 #include <unistd.h>
 #include "game_manager.h"
 #include "api.h"

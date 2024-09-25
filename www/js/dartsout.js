@@ -2,7 +2,7 @@ let ws_url = "ws://localhost:8000/websocket"
 // let ws_url = "ws://0.0.0.0:8000/websocket"
 // let ws_url = "ws://192.168.0.39:8000/websocket"
 
-let socket = new WebSocket(ws_url);
+let socket = null;
 
 let homeCanvas = document.getElementById("home");
 let gameCanvas = document.getElementById("game");
@@ -28,6 +28,12 @@ function sendWsMsg() {
   socket.send(msg);
 };
 
+document.addEventListener('keydown', function(event){
+  if (event.key === 'n') {
+    nextPlayer();
+  }
+});
+
 window.onload = init();
 
 function init() {
@@ -37,9 +43,11 @@ function init() {
     const urlParams = new URLSearchParams(window.location.search);
     gameId = urlParams.get('id');
     if (gameId == null || gameId == "") {
+      console.error("Invalid game ID, assigning 0");
       gameId = 0;
     }
-    socket.onopen = () => socket.send(`${gameId},status`);
+    socket = new WebSocket(ws_url + `?id=${gameId}`);
+    socket.onopen = () => socket.send(`${gameId};status`);
   } else {
     alert(`Invalid pathname (${window.location.pathname})`);
   }
@@ -63,13 +71,13 @@ function proccessMessage(message) {
   try {
     json = JSON.parse(message);
   } catch {
-    console.error("Invalid JSON");
+    // TODO: puede pasar, no es un err/warn
+    console.warn("Invalid JSON");
     return;
   }
   let msgId = json["msg_id"];
   switch (msgId) {
     case MsgId.GameStatus:
-      console.log("Status message!");
       let running = json["running"];
       let game_id = json["game_id"];
       let options = json["options"];

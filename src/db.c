@@ -1,4 +1,5 @@
 #include "db.h"
+#if 0
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -216,3 +217,4 @@ void db_cricket_get()
 	printf("USER: %s\n", data.userid);
 	printf("MPR: %f\n", data.mpr);
 }
+#endif

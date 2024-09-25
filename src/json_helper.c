@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <cjson/cJSON.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -9,6 +10,7 @@
 #include "game.h"
 #include "log.h"
 #include "player.h"
+#include "x01.h"
 
 /* Global variables ***********************************************************/
 /* Function prototypes ********************************************************/
@@ -115,12 +117,13 @@ const char* json_helper_cricket_winner(cricket_t* cricket, const char* name)
 	cJSON_AddNumberToObject(json, "game_id", GAME_CRICKET);
 	cJSON_AddStringToObject(json, "name", name);
 	cJSON* players = cJSON_AddArrayToObject(json, "players");
-	for (int i = 0; i < cricket->n_players; i++) {
-		cricket_player_t p = cricket->players[i];
-		int mpr = (int)((float)p.marks / cricket->round * 100.0);
+	for (int i = 0; i < cricket->game.n_players; i++) {
+		cricket_player_t* cricket_p = &cricket->players[i];
+		player_t* p = cricket_get_player(cricket, cricket_p);
+		int mpr = (int)((float)cricket_p->marks / cricket->round * 100.0);
 		cJSON* player = cJSON_CreateObject();
-		cJSON_AddStringToObject(player, "name", p.p.name);
-		cJSON_AddNumberToObject(player, "game_score", p.game_score);
+		cJSON_AddStringToObject(player, "name", p->name);
+		cJSON_AddNumberToObject(player, "game_score", cricket_p->game_score);
 		cJSON_AddNumberToObject(player, "mpr", mpr);
 		cJSON_AddItemToArray(players, player);
 	}
@@ -134,7 +137,7 @@ const char* json_helper_cricket_status(cricket_t* cricket)
 	const char* out;
 	cJSON* json = cJSON_CreateObject();
 	cJSON_AddNumberToObject(json, "msg_id", 1); //TODO: hardcoded (cricket msg)
-	cJSON_AddNumberToObject(json, "n_players", cricket->n_players);
+	cJSON_AddNumberToObject(json, "n_players", cricket->game.n_players);
 	cJSON_AddNumberToObject(json, "round", cricket->round);
 	cJSON_AddNumberToObject(json, "max_rounds", cricket->max_rounds);
 	cJSON_AddNumberToObject(json, "max_score", cricket->max_score);
@@ -154,18 +157,20 @@ const char* json_helper_cricket_status(cricket_t* cricket)
 	}
 	cJSON_AddItemToObject(json, "enabled", enabled);
 	cJSON* players = cJSON_AddArrayToObject(json, "players");
-	for (int i = 0; i < cricket->n_players; i++) {
-		cricket_player_t p = cricket->players[i];
-		int mpr = (int)((float)p.marks / cricket->round * 100.0);
+	for (int i = 0; i < cricket->game.n_players; i++) {
+		cricket_player_t* cricket_p = &cricket->players[i];
+		player_t* p = cricket_get_player(cricket, cricket_p);
+		assert(p);
+		int mpr = (int)((float)cricket_p->marks / cricket->round * 100.0);
 		cJSON* player = cJSON_CreateObject();
-		cJSON_AddStringToObject(player, "name", p.p.name);
-		cJSON_AddNumberToObject(player, "game_score", p.game_score);
-		cJSON_AddNumberToObject(player, "round_score", p.round_score);
+		cJSON_AddStringToObject(player, "name", p->name);
+		cJSON_AddNumberToObject(player, "game_score", cricket_p->game_score);
+		cJSON_AddNumberToObject(player, "round_score", cricket_p->round_score);
 		cJSON_AddNumberToObject(player, "mpr", mpr);
 		cJSON_AddStringToObject(player, "img_path", "res/user.svg");
 		cJSON* shots = cJSON_CreateArray();
 		for (int j = 0; j < N_ENABLED; j++) {
-			cJSON_AddItemToArray(shots, cJSON_CreateNumber(p.shots[j]));
+			cJSON_AddItemToArray(shots, cJSON_CreateNumber(cricket_p->shots[j]));
 		}
 		cJSON_AddItemToObject(player, "shots", shots);
 		cJSON_AddItemToArray(players, player);
@@ -181,7 +186,7 @@ const char* json_helper_x01_status(x01_t* x01)
 	cJSON* json = cJSON_CreateObject();
 	cJSON_AddNumberToObject(json, "msg_id", 2); //TODO: hardcoded (x01 msg)
 	cJSON_AddNumberToObject(json, "score", x01->score);
-	cJSON_AddNumberToObject(json, "n_players", x01->n_players);
+	cJSON_AddNumberToObject(json, "n_players", x01->game.n_players);
 	cJSON_AddNumberToObject(json, "round", x01->round);
 	cJSON_AddNumberToObject(json, "max_rounds", x01->max_rounds);
 	cJSON_AddNumberToObject(json, "current_player", x01->current_player);
@@ -195,12 +200,14 @@ const char* json_helper_x01_status(x01_t* x01)
 		cJSON_AddItemToArray(dart_scores, dart_score);
 	}
 	cJSON* players = cJSON_AddArrayToObject(json, "players");
-	for (int i = 0; i < x01->n_players; i++) {
-		x01_player_t p = x01->players[i];
+	for (int i = 0; i < x01->game.n_players; i++) {
+		x01_player_t* x01_p = &x01->players[i];
 		cJSON* player = cJSON_CreateObject();
-		cJSON_AddStringToObject(player, "name", p.p.name);
-		cJSON_AddNumberToObject(player, "game_score", p.game_score);
-		cJSON_AddNumberToObject(player, "round_score", p.round_score);
+		player_t* p = x01_get_player(x01, x01_p);
+		assert(p);
+		cJSON_AddStringToObject(player, "name", p->name);
+		cJSON_AddNumberToObject(player, "game_score", x01_p->game_score);
+		cJSON_AddNumberToObject(player, "round_score", x01_p->round_score);
 		cJSON_AddItemToArray(players, player);
 	}
 	out = cJSON_PrintUnformatted(json);
@@ -219,10 +226,9 @@ const char* json_helper_game_status(game_t* game)
 	cJSON_AddNumberToObject(json, "n_players", game->n_players);
 	cJSON* players = cJSON_AddArrayToObject(json, "players");
 	for (int i = 0; i < game->n_players; i++) {
-		// player_t p = (player_t)(game->cricket_players[i]); // Only cricket players??? is this herencia o polimorfismo???
 		cJSON* player = cJSON_CreateObject();
-		cJSON_AddStringToObject(player, "userid", game->cricket_players[i].p.userid);
-		cJSON_AddStringToObject(player, "name", game->cricket_players[i].p.name);
+		cJSON_AddStringToObject(player, "userid", game->players[i].userid);
+		cJSON_AddStringToObject(player, "name", game->players[i].name);
 		cJSON_AddItemToArray(players, player);
 	}
 	out = cJSON_PrintUnformatted(json);

@@ -2,8 +2,7 @@
 #define __GAME_H
 
 #include "dartboard.h"
-#include "cricket.h"
-#include "x01.h"
+#include "player.h"
 
 typedef enum {
 	GAME_CRICKET = 0,
@@ -11,11 +10,6 @@ typedef enum {
 	// GAME_100 = 2,
 	// GAME_ROUND_THE_WORLD = 3,
 } game_ref_t;
-
-typedef enum {
-	GAME_STATUS_DISABLED,
-	GAME_STATUS_PLAYING,
-} game_status_t;
 
 typedef enum {
 	GAME_EVENT_STATUS,
@@ -43,26 +37,34 @@ typedef struct game_event_rsp_t {
 	char* ret_str;
 } game_event_rsp_t;
 
-typedef struct game_t {
+typedef struct game_t game_t;
+typedef void (*game_start_cb_t)(game_t*);
+typedef void (*game_next_player_cb_t)(game_t*);
+typedef bool (*game_new_dart_cb_t)(game_t*, dartboard_shot_t*);
+typedef const char* (*game_check_finish_cb_t)(game_t*, player_t**);
+typedef const char* (*game_status_cb_t)(game_t*);
+
+typedef struct game_cbs_t {
+	game_start_cb_t start_cb;
+	game_new_dart_cb_t new_dart_cb;
+	game_next_player_cb_t next_player_cb;
+	game_check_finish_cb_t check_finish_cb;
+	game_status_cb_t status_cb;
+} game_cbs_t;
+
+struct game_t {
 	game_ref_t game_ref;
 	int id;
 	bool running; // TODO: remove
 	int options;
+	player_t* players;
 	int n_players;
-	game_status_t status;
-	union {
-		cricket_t cricket;
-		x01_t x01;
-	};
-	union {
-		cricket_player_t cricket_players[MAX_PLAYERS];
-		x01_player_t x01_players[MAX_PLAYERS];
-	};
-} game_t;
+	game_cbs_t* cbs;
+};
 
-void game_init(game_t* game);
+void game_init(game_t* game, game_cbs_t* cbs);
 void game_new_event(game_t* game, game_event_t* event, game_event_rsp_t* rsp);
-const char* game_status(game_t* game);
-void game_reset(game_t* game);
+void game_finish(game_t* game);
+void game_delete(game_t* game);
 
 #endif // __GAME_H

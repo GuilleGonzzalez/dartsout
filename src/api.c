@@ -15,7 +15,7 @@
 /* Global variables ***********************************************************/
 
 static struct mg_mgr mgr;
-static struct mg_connection* connections[MAX_CONNECTIONS];
+static api_conn_t connections[MAX_CONNECTIONS];
 static const char* web_root = "www";
 
 /* Function prototypes ********************************************************/
@@ -28,6 +28,8 @@ static void del_connection(struct mg_connection* c);
 
 static int get_game_id(struct mg_str query);
 static int get_ws_info(struct mg_str data, char* msg);
+
+static void set_game_id(unsigned long c_id, int game_id);
 
 /* Callbacks ******************************************************************/
 
@@ -44,8 +46,12 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 		if (mg_http_match_uri(hm, "/websocket")) {
 			// Upgrade to websocket. From now on, a connection is a full-duplex
 			// Websocket connection, which will receive MG_EV_WS_MSG events.
-			mg_ws_upgrade(c, hm, NULL);
 			new_connection(c);
+			int ws_game_id = get_game_id(hm->query);
+			LOG_INFO("WS game ID: %d", ws_game_id);
+			LOG_TRACE("SETTING CONN %d TO GAME_ID %d", c->id, ws_game_id);
+			set_game_id(c->id, ws_game_id);
+			mg_ws_upgrade(c, hm, NULL);
 			LOG_DEBUG("Upgrading to websockets!");
 		} else if (mg_http_match_uri(hm, "/status")) {
 			int game_id = get_game_id(hm->query);
@@ -88,7 +94,7 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			int n_players;
 			json_helper_new_game(hm->body.ptr, &game_ref, &options, players,
 					&n_players);
-			game_t* game = game_manager_new();
+			game_t* game = game_manager_new(game_ref, options);
 			for (int i = 0; i < n_players; i++) {
 				game_event_t event;
 				event.type = GAME_EVENT_NEW_PLAYER;
@@ -100,8 +106,10 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			event.game_id = game_ref;
 			event.options = options;
 			game_new_event(game, &event, &game_rsp);
-			const char* json = json_helper_simple_str("result",
-					game_rsp.ret_str);
+			// const char* json = json_helper_simple_str("result",
+			// 		game_rsp.ret_str);
+			const char* json = json_helper_simple_int("game_id",
+					game->id);
 			mg_http_reply(c, game_rsp.ret_code, "", json);
 			free((char*)json);
 		} else if (mg_http_match_uri(hm, "/finish-game")) {
@@ -122,7 +130,19 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 		// Got websocket frame. Received data is wm->data. Echo it back!
 		struct mg_ws_message* wm = (struct mg_ws_message*)ev_data;
 		mg_ws_send(c, wm->data.ptr, wm->data.len, WEBSOCKET_OP_TEXT);
+		LOG_DEBUG("Websocket message received: %s", wm->data.ptr);
+		if (strcmp(wm->data.ptr, "list") == 0) {
+			for (int i = 0; i < MAX_CONNECTIONS; i++) {
+				if (connections[i].c != NULL) {
+					LOG_INFO("[%d] Conn %d, game_id=%d", i,
+							connections[i].c->id, connections[i].game_id);
+				}
+			}
+			return;
+		}
+	
 		char msg[20];
+		// TODO: make it dinamic
 		int game_id = get_ws_info(wm->data, msg);
 		game_t* game = game_manager_get_by_id(game_id);
 		LOG_TRACE("Game ID: %d, msg: %s", game_id, msg);
@@ -131,7 +151,6 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			event.type = GAME_EVENT_STATUS;
 			game_new_event(game, &event, &game_rsp);
 		}
-		LOG_DEBUG("Websocket message received: %s", wm->data.ptr);
 	} else if (ev == MG_EV_CLOSE) {
 		del_connection(c);
 	}
@@ -142,10 +161,10 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 
 static void new_connection(struct mg_connection* c)
 {
-	LOG_DEBUG("New conection with ID=%ld", c->id);
 	for (int i = 0; i < MAX_CONNECTIONS; i++) {
-		if (connections[i] == NULL) {
-			connections[i] = c;
+		if (connections[i].c == NULL) {
+			connections[i].c = c;
+			LOG_INFO("New conection (i=%d, id=%ld)", i, c->id);
 			return;
 		}
 	}
@@ -154,10 +173,10 @@ static void new_connection(struct mg_connection* c)
 
 static void del_connection(struct mg_connection* c)
 {
-	LOG_DEBUG("Closing connection %ld...", c->id);
 	for (int i = 0; i < MAX_CONNECTIONS; i++) {
-		if (connections[i] == c) {
-			connections[i] = NULL;
+		if (connections[i].c->id == c->id) {
+			connections[i].c = NULL;
+			LOG_INFO("Conection closed (i=%d, id=%ld)", i, c->id);
 			return;
 		}
 	}
@@ -177,13 +196,31 @@ static int get_game_id(struct mg_str query)
 
 static int get_ws_info(struct mg_str data, char* msg)
 {
-	char* pt = strtok((char*)data.ptr, ",");
+	char* pt = strtok((char*)data.ptr, ";");
 	int game_id = atoi(pt);
-	pt = strtok(NULL, ",");
+	pt = strtok(NULL, ";");
+	if (pt == NULL) {
+		LOG_ERROR("No message");
+		return game_id;
+	}
 	strncpy(msg, pt, data.len);
 	msg[data.len] = '\0';
 
 	return game_id;
+}
+
+static void set_game_id(unsigned long c_id, int game_id)
+{
+	for (int i = 0; i < MAX_CONNECTIONS; i++) {
+		if (connections[i].c != NULL) {
+			LOG_TRACE("Cid=%ld", connections[i].c->id);
+			if (connections[i].c->id == c_id) {
+				connections[i].game_id = game_id;
+				LOG_TRACE("[i=%d] Set conn %ld to game_id=%d", i, c_id, game_id);
+				return;
+			}
+		}
+	}
 }
 
 /* Public functions ***********************************************************/
@@ -202,11 +239,17 @@ void api_fire(void)
 	mg_mgr_poll(&mgr, 1000);
 }
 
-void api_ws_write(const char* msg)
+void api_ws_write(const char* msg, int game_id)
 {
+	(void) game_id;
 	for (int i = 0; i < MAX_CONNECTIONS; i++) {
-		if (connections[i] != NULL) {
-			mg_ws_send(connections[i], msg, strlen(msg), WEBSOCKET_OP_TEXT);
+		// if (connections[i].c != NULL) {
+		// 	LOG_TRACE("WS send (i=%d, id=%ld, game_id=%d)", i,
+		// 			connections[i].c->id, connections[i].game_id);
+		// 	mg_ws_send(connections[i].c, msg, strlen(msg), WEBSOCKET_OP_TEXT);
+		// }
+		if (connections[i].c != NULL && connections[i].game_id == game_id) {
+			mg_ws_send(connections[i].c, msg, strlen(msg), WEBSOCKET_OP_TEXT);
 		}
 	}
 }
