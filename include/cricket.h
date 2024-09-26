@@ -40,6 +40,12 @@ typedef struct cricket_t {
 } cricket_t;
 
 // typedef struct cricket_state_t {
+// 	dartboard_shot_t dart_scores[MAX_DARTS];
+// 	cricket_player_t* players;
+// 	int enabled[N_ENABLED];
+// 	int round;
+// 	int current_player;        // Player which is playing
+// 	int darts;                 // Number of darts thrown in this round
 // } cricket_state_t;
 
 cricket_t* cricket_new_game(int id, cricket_options_t options, int max_score,

@@ -15,6 +15,8 @@ CFLAGS+=-Wall
 CFLAGS+=-Werror
 CFLAGS+=-Wextra
 CFLAGS+=-pedantic
+CFLAGS+=-DMG_ENABLE_ASSERT=1
+
 
 CFLAGS+=-DLOG_USE_COLOR
 

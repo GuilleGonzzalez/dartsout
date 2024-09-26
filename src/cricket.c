@@ -11,6 +11,7 @@
 #include "log.h"
 #include "player.h"
 #include "utils.h"
+#include "x01.h"
 
 /* Global variables ***********************************************************/
 
@@ -26,6 +27,8 @@ static bool new_dart(game_t* game, dartboard_shot_t* val);
 static const char* check_finish(game_t* game, player_t** winner_player);
 static const char* status(game_t* self);
 static void delete(game_t* game);
+static void* save_state(game_t* game);
+static bool restore_state(game_t* game, void* state);
 
 static game_cbs_t cbs = {
 	.start_cb = start,
@@ -34,6 +37,8 @@ static game_cbs_t cbs = {
 	.check_finish_cb = check_finish,
 	.status_cb = status,
 	.delete_cb = delete,
+	.save_state_cb = save_state,
+	.restore_state_cb = restore_state,
 };
 
 static bool player_all_closed(cricket_player_t* player);
@@ -163,6 +168,41 @@ static void delete(game_t* game)
 
 	free(self->players);
 	free(self);
+}
+
+static void* save_state(game_t* game)
+{
+	cricket_t* self = (cricket_t*)game;
+
+	cricket_t* current_state = malloc(sizeof(cricket_t));
+	assert(current_state);
+	memcpy(current_state, self, sizeof(cricket_t));
+	current_state->players =
+			malloc(sizeof(cricket_player_t) * self->game.n_players);
+	assert(current_state->players);
+	memcpy(current_state->players, self->players,
+			sizeof(cricket_player_t) * self->game.n_players);
+
+	return current_state;
+}
+
+static bool restore_state(game_t* game, void* state)
+{
+	cricket_t* self = (cricket_t*)game;
+	cricket_t* self_to_restore = (cricket_t*)state;
+	
+	memcpy(self->players, self_to_restore->players, sizeof(cricket_player_t));
+	memcpy(self->dart_scores, self_to_restore->dart_scores,
+			MAX_DARTS * sizeof(dartboard_shot_t));
+	memcpy(self->enabled, self_to_restore->enabled, N_ENABLED * sizeof(int));
+	self->round = self_to_restore->round;
+	self->current_player = self_to_restore->current_player;
+	self->darts = self_to_restore->darts;
+
+	free(self_to_restore->players);
+	free(self_to_restore);
+
+	return true;
 }
 
 /* Function definitions *******************************************************/

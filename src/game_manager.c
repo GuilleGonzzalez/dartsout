@@ -1,4 +1,6 @@
+#include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 #include "game_manager.h"
 #include "game.h"
@@ -6,11 +8,11 @@
 #include "x01.h"
 #include "log.h"
 
-#define MAX_GAMES 10
-
 /* Global variables ***********************************************************/
 
-static game_t* games[MAX_GAMES];
+static game_t** games;
+static int next_id = 0;
+static int n_games = 0;
 
 /* Function prototypes ********************************************************/
 /* Callbacks ******************************************************************/
@@ -19,51 +21,57 @@ static game_t* games[MAX_GAMES];
 
 void game_manager_init(void)
 {
-	for (int i = 0; i < MAX_GAMES; i++) {
-		games[i] = NULL;
-	}
-
 	LOG_INFO("Game manager started!");
 }
 
 game_t* game_manager_new(game_ref_t game_ref, int options)
 {
-	int game_id = 0;
-	for (int i = 0; i < MAX_GAMES; i++) {
-		if (games[i] == NULL) {
-			game_id = i;
-			LOG_INFO("New game with ID=%d", game_id);
-			break;
-		}
-	}
-
+	int game_id = next_id;
+	games = realloc(games, (n_games + 1) * sizeof(game_t*));
+	assert(games);
+	game_t* game = NULL;
 	if (game_ref == GAME_CRICKET) {
 		int max_points = 200; //TODO: event.max_points
 		int max_rounds = 25;  //TODO: event.max_rounds
-		games[game_id] = (game_t*)cricket_new_game(game_id, options, max_points,
+		game = (game_t*)cricket_new_game(game_id, options, max_points,
 				max_rounds);
-		return games[game_id];
+		games[n_games++] = game;
+		next_id++;
 	} else if (game_ref == GAME_X01) {
 		int max_rounds = 25;  //TODO: event.max_rounds
-		games[game_id] = (game_t*)x01_new_game(game_id, options, max_rounds);
-		return games[game_id];
+		game = (game_t*)x01_new_game(game_id, options, max_rounds);
+		games[n_games++] = game;
+		next_id++;
 	} else {
 		LOG_ERROR("Game not implemented!");
 	}
 
-	return NULL;
+	return game;
 }
 
 game_t* game_manager_get_by_id(int id)
 {
-	if (games[id] != NULL) {
-		return games[id];
+	for (int i = 0; i < n_games; i++) {
+		if (games[i]->id == id) {
+			return games[i];
+		}
 	}
 	return NULL;
 }
 
 void game_manager_finish(game_t* game)
 {
-	games[game->id] = NULL;
+	n_games--;
+	game_t** games_new = malloc(n_games * sizeof(game_t));
+	int i_new = 0;
+	for (int i = 0; i < n_games + 1; i++) {
+		if (games[i] == game) {
+			continue;
+		}
+		assert(i_new < n_games);
+		games_new[i_new++] = games[i];
+	}
+	free(games);
+	games = games_new;
 	game_delete(game);
 }

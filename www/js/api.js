@@ -72,6 +72,11 @@ function goHomeCb() {
   window.location.href = "/";
 }
 
+function back() {
+  json = JSON.stringify({});
+  apiPost(`/back?id=${gameId}`, json);
+}
+
 // For testing purposes
 function newDart(zone) {
   const board_id = 99;

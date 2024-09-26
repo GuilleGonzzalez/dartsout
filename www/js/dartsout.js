@@ -28,9 +28,23 @@ function sendWsMsg() {
   socket.send(msg);
 };
 
-document.addEventListener('keydown', function(event){
-  if (event.key === 'n') {
+document.addEventListener('keydown', function(event) {
+  switch(event.key) {
+  case 'n':
     nextPlayer();
+    break;
+  case 't':
+    newDart(0);
+    break;
+  case 'd':
+    newDart(1);
+    break;
+  case 's':
+    newDart(2);
+    break;
+  case 'b':
+    back();
+    break;
   }
 });
 

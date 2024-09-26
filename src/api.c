@@ -113,6 +113,16 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 					game->id);
 			mg_http_reply(c, game_rsp.ret_code, "", json);
 			free((char*)json);
+		} else if (mg_http_match_uri(hm, "/back")) {
+			int game_id = get_game_id(hm->query);
+			game_t* game = game_manager_get_by_id(game_id);
+			game_event_t event;
+			event.type = GAME_EVENT_BACK;
+			game_new_event(game, &event, &game_rsp);
+			const char* json = json_helper_simple_str("result",
+					game_rsp.ret_str);
+			mg_http_reply(c, game_rsp.ret_code, "", json);
+			free((char*)json);
 		} else if (mg_http_match_uri(hm, "/finish-game")) {
 			int game_id = get_game_id(hm->query);
 			game_t* game = game_manager_get_by_id(game_id);
@@ -143,10 +153,11 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			return;
 		}
 
-		char msg[20];
+		char msg[200];
 		// TODO: make it dinamic
 		int game_id = get_ws_info(wm->data, msg);
 		game_t* game = game_manager_get_by_id(game_id);
+		assert(game);
 		LOG_TRACE("Game ID: %d, msg: %s", game_id, msg);
 		if (strcmp(msg, "status") == 0) {
 			game_event_t event;
