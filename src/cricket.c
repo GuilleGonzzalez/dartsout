@@ -296,7 +296,13 @@ static void gen_new_targets(cricket_t* self)
 			list_remove(targets, &targets_len, self->enabled[i]);
 		}
 	}
-	gen_random_targets(targets, targets_len, self->enabled, N_ENABLED);
+	for (int i = 0; i < N_ENABLED; i++) {
+		if (self->enabled[i] == -1) {
+			int rand_num = rand() % targets_len;
+			self->enabled[i] = targets[rand_num];
+			list_remove(targets, &targets_len, targets[rand_num]);
+		}
+	}
 }
 
 // This function check if a given number is closed.
