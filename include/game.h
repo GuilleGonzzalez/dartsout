@@ -5,6 +5,8 @@
 #include "dartboard.h"
 #include "player.h"
 #include "array.h"
+#include "state.h"
+
 
 typedef enum {
 	GAME_CRICKET = 0,
@@ -47,8 +49,8 @@ typedef bool (*game_new_dart_cb_t)(game_t*, dartboard_shot_t*);
 typedef const char* (*game_check_finish_cb_t)(game_t*, player_t**);
 typedef const char* (*game_status_cb_t)(game_t*);
 typedef void (*game_delete_cb_t)(game_t*);
-typedef void* (*game_save_state_cb_t)(game_t*);
-typedef bool (*game_restore_state_cb_t)(game_t*, void*);
+typedef state_t* (*game_save_state_cb_t)(game_t*);
+typedef bool (*game_restore_state_cb_t)(game_t*, state_t*);
 
 typedef struct game_cbs_t {
 	game_start_cb_t start_cb;

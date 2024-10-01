@@ -13,6 +13,11 @@
 #include "utils.h"
 #include "x01.h"
 
+typedef struct cricket_state_t {
+	state_t state;
+	cricket_t game;
+} cricket_state_t;
+
 /* Global variables ***********************************************************/
 
 static const int sector_values[N_SECTORS] = {25, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
@@ -27,8 +32,9 @@ static bool new_dart(game_t* game, dartboard_shot_t* val);
 static const char* check_finish(game_t* game, player_t** winner_player);
 static const char* status(game_t* self);
 static void delete(game_t* game);
-static void* save_state(game_t* game);
-static bool restore_state(game_t* game, void* state);
+static state_t* save_state(game_t* game);
+static bool restore_state(game_t* game, state_t* state);
+static void delete_state(state_t* state);
 
 static game_cbs_t cbs = {
 	.start_cb = start,
@@ -170,37 +176,46 @@ static void delete(game_t* game)
 	free(self);
 }
 
-static void* save_state(game_t* game)
+static state_t* save_state(game_t* game)
 {
 	cricket_t* self = (cricket_t*)game;
 
-	cricket_t* current_state = malloc(sizeof(cricket_t));
+	cricket_state_t* current_state = malloc(sizeof(cricket_state_t));
 	assert(current_state);
-	memcpy(current_state, self, sizeof(cricket_t));
-	current_state->players =
+	current_state->state.delete_cb = delete_state;
+	memcpy(&current_state->game, self, sizeof(cricket_t));
+	current_state->game.players =
 			malloc(sizeof(cricket_player_t) * self->game.n_players);
-	assert(current_state->players);
-	memcpy(current_state->players, self->players,
+	assert(current_state->game.players);
+	memcpy(current_state->game.players, self->players,
 			sizeof(cricket_player_t) * self->game.n_players);
 
-	return current_state;
+	return (state_t*)current_state;
 }
 
-static bool restore_state(game_t* game, void* state)
+static void delete_state(state_t* state)
+{
+	cricket_state_t* state_restore = (cricket_state_t*)state;
+	LOG_INFO("Delete state");
+
+	free(state_restore->game.players);
+	free(state_restore);
+}
+
+static bool restore_state(game_t* game, state_t* state)
 {
 	cricket_t* self = (cricket_t*)game;
-	cricket_t* self_to_restore = (cricket_t*)state;
+	cricket_state_t* self_to_restore = (cricket_state_t*)state;
 	
-	memcpy(self->players, self_to_restore->players, sizeof(cricket_player_t));
-	memcpy(self->dart_scores, self_to_restore->dart_scores,
+	memcpy(self->players, self_to_restore->game.players, sizeof(cricket_player_t));
+	memcpy(self->dart_scores, self_to_restore->game.dart_scores,
 			MAX_DARTS * sizeof(dartboard_shot_t));
-	memcpy(self->enabled, self_to_restore->enabled, N_ENABLED * sizeof(int));
-	self->round = self_to_restore->round;
-	self->current_player = self_to_restore->current_player;
-	self->darts = self_to_restore->darts;
+	memcpy(self->enabled, self_to_restore->game.enabled, N_ENABLED * sizeof(int));
+	self->round = self_to_restore->game.round;
+	self->current_player = self_to_restore->game.current_player;
+	self->darts = self_to_restore->game.darts;
 
-	free(self_to_restore->players);
-	free(self_to_restore);
+	delete_state(state);
 
 	return true;
 }

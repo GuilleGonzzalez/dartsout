@@ -204,5 +204,9 @@ void game_delete(game_t* game)
 	free(game->players);
 
 	// TODO: free all states
+	state_t* state;
+	while ((state = (state_t*) array_pop(game->game_states)) != NULL) {
+		state->delete_cb(state);
+	}
 	array_free(game->game_states);
 }
