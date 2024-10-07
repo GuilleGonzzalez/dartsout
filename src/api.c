@@ -65,9 +65,18 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			free((char*)json);
 		} else if (mg_http_match_uri(hm, "/new-dart")) {
 			int game_id = get_game_id(hm->query);
-			game_t* game = game_manager_get_by_id(game_id);
 			int board_id, num, zone;
 			json_helper_new_dart(hm->body.ptr, &board_id, &num, &zone);
+			game_t* game = NULL;
+			if (game_id == -1) {
+				game = game_manager_get_by_dartboard(board_id);
+			} else {
+				game = game_manager_get_by_id(game_id);
+			}
+			if (!game) {
+				LOG_ERROR("Game not found");
+				return;
+			}
 			game_event_t event;
 			event.type = GAME_EVENT_NEW_DART;
 			event.dart.number = num;
@@ -202,6 +211,9 @@ static int get_game_id(struct mg_str query)
 {
 	char game_id_str[10];
 	struct mg_str param = mg_http_var(query, mg_str("id"));
+	if (param.ptr == NULL) {
+		return -1;
+	}
 	strncpy(game_id_str, param.ptr, param.len);
 	game_id_str[param.len] = '\0';
 	int game_id = atoi(game_id_str);

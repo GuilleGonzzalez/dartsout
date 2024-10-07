@@ -129,6 +129,7 @@ void game_new_event(game_t* game, game_event_t* event, game_event_rsp_t* rsp)
 		strcpy(name, event->player.name);
 		game->players[game->n_players].userid= "";
 		game->players[game->n_players].name = name;
+		game->players[game->n_players].dartboard_id = 0x9974A6;
 		game->n_players++;
 		break;
 	case GAME_EVENT_NEXT_PLAYER:
@@ -209,4 +210,14 @@ void game_delete(game_t* game)
 		state->delete_cb(state);
 	}
 	array_free(game->game_states);
+}
+
+bool game_has_dartboard(game_t* game, int dartboard_id)
+{
+	for (int i = 0; i < game->n_players; i++) {
+		if (game->players[i].dartboard_id == dartboard_id) {
+			return true;
+		}
+	}
+	return false;
 }

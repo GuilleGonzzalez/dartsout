@@ -78,5 +78,6 @@ void game_init(game_t* game, int id, game_cbs_t* cbs);
 void game_new_event(game_t* game, game_event_t* event, game_event_rsp_t* rsp);
 void game_finish(game_t* game);
 void game_delete(game_t* game);
+bool game_has_dartboard(game_t* game, int dartboard_id);
 
 #endif // __GAME_H

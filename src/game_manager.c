@@ -59,6 +59,16 @@ game_t* game_manager_get_by_id(int id)
 	return NULL;
 }
 
+game_t* game_manager_get_by_dartboard(int dartboard_id)
+{
+	for (int i = 0; i < n_games; i++) {
+		if (game_has_dartboard(games[i], dartboard_id)) {
+			return games[i];
+		}
+	}
+	return NULL;
+}
+
 void game_manager_finish(game_t* game)
 {
 	n_games--;
