@@ -10,6 +10,7 @@ RM=rm -rf
 
 CFLAGS=-I$(INC_DIR)
 CFLAGS+=-Ilib/mongoose
+CFLAGS+=-g
 CFLAGS+=-Os
 CFLAGS+=-Wall
 CFLAGS+=-Werror

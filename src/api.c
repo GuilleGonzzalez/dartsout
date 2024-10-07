@@ -10,7 +10,7 @@
 #include "game.h"
 #include "log.h"
 
-#define MAX_CONNECTIONS 10
+#define MAX_CONNECTIONS 50
 
 /* Global variables ***********************************************************/
 
@@ -174,6 +174,7 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 
 static void new_connection(struct mg_connection* c)
 {
+	LOG_INFO("New conn id: %ld", c->id);
 	for (int i = 0; i < MAX_CONNECTIONS; i++) {
 		if (connections[i].c == NULL) {
 			connections[i].c = c;
@@ -187,13 +188,14 @@ static void new_connection(struct mg_connection* c)
 static void del_connection(struct mg_connection* c)
 {
 	for (int i = 0; i < MAX_CONNECTIONS; i++) {
-		if (connections[i].c->id == c->id) {
+		if (connections[i].c && connections[i].c->id == c->id) {
 			connections[i].c = NULL;
 			LOG_INFO("Conection closed (i=%d, id=%ld)", i, c->id);
 			return;
 		}
 	}
-	LOG_WARN("Connection %ld not found", c->id);
+	// TODO: por qué se cierran las conexiones
+	//LOG_WARN("Connection %ld not found", c->id);
 }
 
 static int get_game_id(struct mg_str query)
