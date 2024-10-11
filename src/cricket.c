@@ -207,7 +207,8 @@ static bool restore_state(game_t* game, state_t* state)
 	cricket_t* self = (cricket_t*)game;
 	cricket_state_t* self_to_restore = (cricket_state_t*)state;
 	
-	memcpy(self->players, self_to_restore->game.players, sizeof(cricket_player_t));
+	memcpy(self->players, self_to_restore->game.players,
+			sizeof(cricket_player_t) * self->game.n_players);
 	memcpy(self->dart_scores, self_to_restore->game.dart_scores,
 			MAX_DARTS * sizeof(dartboard_shot_t));
 	memcpy(self->enabled, self_to_restore->game.enabled, N_ENABLED * sizeof(int));

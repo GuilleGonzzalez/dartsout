@@ -36,10 +36,10 @@ function createGameHeader(name) {
   header.className = "container-fluid";
   let row = document.createElement("div");
   row.className = "row";
-  let home = document.createElement("div");
-  home.className = "col-3";
+  let leftCol = document.createElement("div");
+  leftCol.className = "col-3 d-flex";
   let homeBtn = createImgButton("home()", "res/home.svg");
-  home.appendChild(homeBtn);
+  leftCol.appendChild(homeBtn);
   let title = document.createElement("col");
   title.className = "col";
   let h1 = document.createElement("h1");
@@ -47,15 +47,19 @@ function createGameHeader(name) {
   h1.id = "title";
   h1.innerHTML = name;
   title.appendChild(h1);
-  let nextPlayer = document.createElement("div");
-  nextPlayer.className = "col-3";
+  let rightCol = document.createElement("div");
+  rightCol.className = "col-3 d-flex";
+  // rightCol.style = "display: contents";
   let nextPlayerBtn = createImgButton("nextPlayer()", "res/next_player.svg",
       align="right");
-  nextPlayer.appendChild(nextPlayerBtn);
+  let backBtn = createImgButton("back()", "res/back.svg",
+      align="right");
+  rightCol.appendChild(backBtn);
+  rightCol.appendChild(nextPlayerBtn);
   
-  row.appendChild(home);
+  row.appendChild(leftCol);
   row.appendChild(title);
-  row.appendChild(nextPlayer);
+  row.appendChild(rightCol);
   
   let row2 = document.createElement("div");
   row2.className = "row";
@@ -404,6 +408,22 @@ function updateTitle(text) {
   title.innerHTML = text;
 }
 
+function addPlayerTable(tableId, name) {
+  let table = document.getElementById(tableId);
+  let row = table.insertRow(-1);
+  let idxCol = row.insertCell(-1);
+  // TODO: esto es una chapuza, estamos empezando por la fila 2 (nos saltamos la primera)
+  idxCol.innerHTML = row.rowIndex-1;
+  let nameCol = row.insertCell(-1);
+  nameCol.innerHTML = name;
+  let dartboardCol = row.insertCell(-1);
+  dartboardCol.className = "w-50";
+  let input = document.createElement("input");
+  input.type = "text";
+  input.placeholder = "Dartboard ID";
+  dartboardCol.appendChild(input);
+}
+
 function updateTable(tableId, header, data, closedNumbers) {
   let table = document.getElementById(tableId);
   if (header) {
@@ -416,6 +436,8 @@ function updateTable(tableId, header, data, closedNumbers) {
       th.innerHTML = header[i];
       if (closedNumbers && closedNumbers.includes(header[i])) {
         th.style.color = "#A0A0A0";
+      } else {
+        th.style.color = "";
       }
       i++;
     }

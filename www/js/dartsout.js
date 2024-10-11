@@ -1,6 +1,5 @@
 let ws_url = "ws://localhost:8000/websocket"
-// let ws_url = "ws://0.0.0.0:8000/websocket"
-// let ws_url = "ws://192.168.0.39:8000/websocket"
+// let ws_url = "https://dartsout.duckdns.org/websocket"
 
 let socket = null;
 

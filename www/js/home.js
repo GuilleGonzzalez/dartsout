@@ -56,9 +56,9 @@ function homeCreateCanvas(homeCanvas) {
   // Players-table
   let spacer2 = createSpacer(30);
   homeCanvas.appendChild(spacer2);
-  let table = createTable("players-table", 8, 3);
+  let table = createTable("players-table", 1, 3);
   homeCanvas.appendChild(table);
-  updateTable("players-table", ["#", "Name", "MPR"], false);
+  updateTable("players-table", ["#", "Name", "Dartboard"], false);
   let spacer3 = createSpacer(30);
   homeCanvas.appendChild(spacer3);
 
@@ -84,8 +84,12 @@ function newPlayerCb() {
     alert("Invalid player");
     return;
   }
+  // TODO: not player variable. Add player. When new game, get player_name and dartboard (checking before)
   players.push(name);
-  homeShowPlayers(players);
+
+  addPlayerTable("players-table", name);
+
+  // homeShowPlayers(players);
 }
 
 function CricketGameCb() {

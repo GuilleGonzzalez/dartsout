@@ -46,7 +46,10 @@ static void restore_game(game_t* game)
 {
 	// TODO: if first state, no back
 	void* game_state = array_pop(game->game_states);
-	assert(game_state);
+	if (!game_state) {
+		LOG_WARN("Game could not be restored");
+		return;
+	}
 	bool success = game->cbs->restore_state_cb(game, game_state);
 	if (!success) {
 		LOG_ERROR("Game could not be restored");
