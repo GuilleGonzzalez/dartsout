@@ -120,7 +120,7 @@ void game_new_event(game_t* game, game_event_t* event, game_event_rsp_t* rsp)
 			rsp->ret_str = "Max players reached";
 			return;
 		}
-		char* name = malloc(strlen(event->player.name));
+		char* name = malloc(strlen(event->player.name) + 1);
 		if (name == NULL) {
 			rsp->ret_code = 400;
 			rsp->ret_str = "Error adding player";
@@ -132,7 +132,8 @@ void game_new_event(game_t* game, game_event_t* event, game_event_rsp_t* rsp)
 		strcpy(name, event->player.name);
 		game->players[game->n_players].userid= "";
 		game->players[game->n_players].name = name;
-		game->players[game->n_players].dartboard_id = 0x9974A6;
+		game->players[game->n_players].dartboard_id = 0x5621A0;
+		// game->players[game->n_players].dartboard_id = 0x9974A6;
 		game->n_players++;
 		break;
 	case GAME_EVENT_NEXT_PLAYER:
