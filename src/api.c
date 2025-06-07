@@ -89,6 +89,8 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 		} else if (mg_http_match_uri(hm, "/next-player")) {
 			int game_id = get_game_id(hm->query);
 			game_t* game = game_manager_get_by_id(game_id);
+			// TODO: handle this NULL pointer exception. If no game running, game breaks when next_player API is called
+			assert(game);
 			game_event_t event;
 			event.type = GAME_EVENT_NEXT_PLAYER;
 			game_new_event(game, &event, &game_rsp);
