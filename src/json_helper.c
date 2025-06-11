@@ -278,7 +278,7 @@ int json_helper_new_player(const char* json_str, char* name, int name_len)
 }
 
 int json_helper_new_game(const char* json_str, int* game, int* options,
-		char** players, int* n_players)
+		player_t* players, int* n_players)
 {
 	cJSON* json = cJSON_Parse(json_str);
 	if (json == NULL) {
@@ -289,21 +289,36 @@ int json_helper_new_game(const char* json_str, int* game, int* options,
 	err |= json_get_int((int*)(options), json, "options");
 
 	// TODO: json_get_list
-	cJSON* player_names = cJSON_GetObjectItem(json, "players");
-	if (player_names == NULL || !cJSON_IsArray(player_names)) {
+	cJSON* players_obj = cJSON_GetObjectItem(json, "players");
+	if (players_obj == NULL || !cJSON_IsArray(players_obj)) {
 		cJSON_Delete(json);
 		return 1;
 	}
 
-	*n_players = cJSON_GetArraySize(player_names);
+	*n_players = cJSON_GetArraySize(players_obj);
 	for (int i = 0; i < *n_players; i++) {
-		cJSON* player = cJSON_GetArrayItem(player_names, i);
-		if (cJSON_IsString(player)) {
-			players[i] = strdup(player->valuestring); // Copy name
-			LOG_TRACE("Player %d: %s", i + 1, players[i]);
-		}
+		cJSON *player = cJSON_GetArrayItem(players_obj, i);
+		cJSON *name_item = cJSON_GetObjectItem(player, "name");
+		cJSON *board_id_item = cJSON_GetObjectItem(player, "board_id");
+		const char* name = name_item ? name_item->valuestring : "Desconocido";
+		int board_id = board_id_item ? board_id_item->valueint : -1;
+		players[i].name = strdup(name);
+		players[i].dartboard_id = board_id;
+		LOG_TRACE("Player %d: %s (0x%X)", i + 1, name, board_id);
 	}
 
+	cJSON_Delete(json);
+	return err;
+}
+
+int json_helper_next_player(const char* json_str, int* board_id)
+{
+	cJSON* json = cJSON_Parse(json_str);
+	if (json == NULL) {
+		return 1;
+	}
+	int err = 0;
+	err |= json_get_int((int*)(board_id), json, "board_id");
 	cJSON_Delete(json);
 	return err;
 }

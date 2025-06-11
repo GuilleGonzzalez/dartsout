@@ -26,10 +26,12 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 static void new_connection(struct mg_connection* c);
 static void del_connection(struct mg_connection* c);
 
+static game_t* get_game(int game_id, int board_id);
 static int get_game_id(struct mg_str query);
 static int get_ws_info(struct mg_str data, char* msg);
 
 static void set_game_id(unsigned long c_id, int game_id);
+static void error_response(struct mg_connection* c);
 
 /* Callbacks ******************************************************************/
 
@@ -54,6 +56,7 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			mg_ws_upgrade(c, hm, NULL);
 			LOG_DEBUG("Upgrading to websockets!");
 		} else if (mg_http_match_uri(hm, "/status")) {
+			LOG_DEBUG("Status");
 			int game_id = get_game_id(hm->query);
 			game_t* game = game_manager_get_by_id(game_id);
 			game_event_t event;
@@ -64,17 +67,14 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			mg_http_reply(c, game_rsp.ret_code, "", json);
 			free((char*)json);
 		} else if (mg_http_match_uri(hm, "/new-dart")) {
+			LOG_DEBUG("New dart");
 			int game_id = get_game_id(hm->query);
 			int board_id, num, zone;
 			json_helper_new_dart(hm->body.ptr, &board_id, &num, &zone);
-			game_t* game = NULL;
-			if (game_id == -1) {
-				game = game_manager_get_by_dartboard(board_id);
-			} else {
-				game = game_manager_get_by_id(game_id);
-			}
+			game_t* game = get_game(game_id, board_id);
 			if (!game) {
 				LOG_ERROR("Game not found");
+				error_response(c);
 				return;
 			}
 			game_event_t event;
@@ -87,30 +87,50 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			mg_http_reply(c, game_rsp.ret_code, "", json);
 			free((char*)json);
 		} else if (mg_http_match_uri(hm, "/next-player")) {
+			LOG_DEBUG("Next player");
 			int game_id = get_game_id(hm->query);
-			game_t* game = game_manager_get_by_id(game_id);
-			// TODO: handle this NULL pointer exception. If no game running, game breaks when next_player API is called
-			assert(game);
+			int board_id;
+			json_helper_next_player(hm->body.ptr, &board_id);
+			game_t* game = get_game(game_id, board_id);
+			if (!game) {
+				LOG_ERROR("Game not found");
+				error_response(c);
+				return;
+			}
 			game_event_t event;
 			event.type = GAME_EVENT_NEXT_PLAYER;
+			//TODO: event with board id?
 			game_new_event(game, &event, &game_rsp);
 			const char* json = json_helper_simple_str("result",
 					game_rsp.ret_str);
 			mg_http_reply(c, game_rsp.ret_code, "", json);
 			free((char*)json);
 		} else if (mg_http_match_uri(hm, "/new-game")) {
+			LOG_DEBUG("New game");
 			int game_ref;
 			int options;
-			char* players[20];
+			player_t players[20];
 			int n_players;
-			json_helper_new_game(hm->body.ptr, &game_ref, &options, players,
+			int err = json_helper_new_game(hm->body.ptr, &game_ref, &options, players,
 					&n_players);
+			//TODO: assert macro for json parsing
+			if (err != 0) {
+				LOG_ERROR("Error parsing JSON");
+				error_response(c);
+				return;
+			}
 			game_t* game = game_manager_new(game_ref, options);
-			assert(game);
+			if (game == NULL) {
+				LOG_ERROR("Invalid game. Aborting");
+				error_response(c);
+				return;
+			}
 			for (int i = 0; i < n_players; i++) {
 				game_event_t event;
 				event.type = GAME_EVENT_NEW_PLAYER;
-				event.player.name = players[i];
+				//TODO: se puede copiar?
+				event.player.name = players[i].name;
+				event.player.dartboard_id = players[i].dartboard_id;
 				game_new_event(game, &event, &game_rsp);
 			}
 			game_event_t event;
@@ -125,6 +145,7 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			mg_http_reply(c, game_rsp.ret_code, "", json);
 			free((char*)json);
 		} else if (mg_http_match_uri(hm, "/back")) {
+			LOG_DEBUG("Back");
 			int game_id = get_game_id(hm->query);
 			game_t* game = game_manager_get_by_id(game_id);
 			game_event_t event;
@@ -135,6 +156,7 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			mg_http_reply(c, game_rsp.ret_code, "", json);
 			free((char*)json);
 		} else if (mg_http_match_uri(hm, "/finish-game")) {
+			LOG_DEBUG("Finish game");
 			int game_id = get_game_id(hm->query);
 			game_t* game = game_manager_get_by_id(game_id);
 			game_event_t event;
@@ -209,6 +231,17 @@ static void del_connection(struct mg_connection* c)
 	//LOG_WARN("Connection %ld not found", c->id);
 }
 
+static game_t* get_game(int game_id, int board_id)
+{
+	if (game_id == -1) {
+		LOG_TRACE("Getting game by dartboard: 0x%X", board_id);
+		return game_manager_get_by_dartboard(board_id);
+	} else {
+		LOG_TRACE("Getting game by URL game_id: %d", game_id);
+		return game_manager_get_by_id(game_id);
+	}
+}
+
 static int get_game_id(struct mg_str query)
 {
 	char game_id_str[10];
@@ -250,6 +283,13 @@ static void set_game_id(unsigned long c_id, int game_id)
 			}
 		}
 	}
+}
+
+static void error_response(struct mg_connection* c)
+{
+	const char* json = json_helper_simple_str("result", "ERROR");
+	mg_http_reply(c, 400, "", json);
+	free((char*)json);
 }
 
 /* Public functions ***********************************************************/
