@@ -108,11 +108,15 @@ function proccessMessage(message) {
         } else {
           console.error("Game not implemented!");
         }
+        //TODO: llamar a sondsNewGame()
+        // soundsNewGame();
         addHomeModal(gameCanvas);
       }
+      //TODO: temp
+      soundsNextPlayer();
       break;
-    case MsgId.Cricket:
-      cricketProccess(json);
+      case MsgId.Cricket:
+        cricketProccess(json);
       break;
     case MsgId.X01:
       x01Proccess(json);
@@ -125,7 +129,6 @@ function proccessMessage(message) {
     case MsgId.Winner:
       let game_id2 = json["game_id"];
       let winnerName = json["name"];
-      soundsWinner();
       updateTitle(`${winnerName} wins!`);
       if (game_id2 == GameId.Cricket) {
         let nPlayers = json["players"].length;

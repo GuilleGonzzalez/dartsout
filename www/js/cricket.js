@@ -27,14 +27,20 @@ function cricketCreateCanvas(gameCanvas, nPlayers, options) {
   let spacer2 = createSpacer(30);
   gameCanvas.appendChild(spacer2);
 
+  //TODO: audios in other files?
+  let newGameAudio = createAudio("new_game_audio", "audio/winner.oga"); //TODO: change
   let winnerAudio = createAudio("winner_audio", "audio/winner.oga");
   let nextPlayerAudio = createAudio("next_player_audio", "audio/next_player.oga");
+  let backAudio = createAudio("back_audio", "audio/winner.oga");
   let noAudio = createAudio("no_audio", "audio/no.oga");
   let tripleAudio = createAudio("triple_audio", "audio/triple.oga");
   let doubleAudio = createAudio("double_audio", "audio/double.oga");
   let simpleAudio = createAudio("simple_audio", "audio/simple.oga");
+
+  gameCanvas.appendChild(newGameAudio);
   gameCanvas.appendChild(winnerAudio);
   gameCanvas.appendChild(nextPlayerAudio);
+  gameCanvas.appendChild(backAudio);
   gameCanvas.appendChild(noAudio);
   gameCanvas.appendChild(tripleAudio);
   gameCanvas.appendChild(doubleAudio);
@@ -70,12 +76,16 @@ function cricketCreateGrid(nPlayers) {
 }
 
 function cricketProccess(json) {
+  //TODO: temp
   let nPlayers = json["n_players"];
   let nDarts = json["darts"];
   let dartScores = json["dart_scores"];
   let enabled = json["enabled"];
   let currPlayerIdx = json["current_player"];
   let currPlayer = json["players"][currPlayerIdx];
+  if (nDarts == 0) {
+    soundsNextPlayer();
+  }
 
   let roundStr = `Round: ${json["round"]}/${json["max_rounds"]}`;
   let scoreStr = `Round score: ${currPlayer["round_score"]}`

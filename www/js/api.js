@@ -52,11 +52,12 @@ async function newGame(game_ref, options, players) {
 
 function nextPlayer() {
   apiGet(`/next-player?id=${gameId}`);
-  soundsNextPlayer();
+  // soundsNextPlayer();
 }
 
 function finishGame() {
   apiGet(`/finish-game?id=${gameId}`);
+  soundsWinner();
 }
 
 function home() {
@@ -75,6 +76,7 @@ function goHomeCb() {
 function back() {
   json = JSON.stringify({});
   apiPost(`/back?id=${gameId}`, json);
+  soundsBack();
 }
 
 // For testing purposes

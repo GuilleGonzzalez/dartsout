@@ -1,3 +1,6 @@
+function soundsNewGame() {
+  document.getElementById("new_game_audio").play();
+}
 
 function soundsNewDart(last_dart_valid, last_dart_zone) {
   if (last_dart_valid) {
@@ -20,4 +23,8 @@ function soundsWinner() {
 
 function soundsNextPlayer() {
   document.getElementById("next_player_audio").play();
+}
+
+function soundsBack() {
+  document.getElementById("back_audio").play();
 }

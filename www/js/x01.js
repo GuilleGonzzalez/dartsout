@@ -30,14 +30,19 @@ function x01CreateCanvas(gameCanvas, nPlayers, options) {
   let spacer2 = createSpacer(30);
   gameCanvas.appendChild(spacer2);
 
+  let newGameAudio = createAudio("new_game_audio", "audio/winner.oga"); //TODO: change
   let winnerAudio = createAudio("winner_audio", "audio/winner.oga");
   let nextPlayerAudio = createAudio("next_player_audio", "audio/next_player.oga");
+  let backAudio = createAudio("back_audio", "audio/winner.oga");
   let tripleAudio = createAudio("triple_audio", "audio/triple.oga");
   let doubleAudio = createAudio("double_audio", "audio/double.oga");
   let simpleAudio = createAudio("simple_audio", "audio/simple.oga");
   let noAudio = createAudio("no_audio", "audio/no.oga");
+
+  gameCanvas.appendChild(newGameAudio);
   gameCanvas.appendChild(winnerAudio);
   gameCanvas.appendChild(nextPlayerAudio);
+  gameCanvas.appendChild(backAudio);
   gameCanvas.appendChild(tripleAudio);
   gameCanvas.appendChild(doubleAudio);
   gameCanvas.appendChild(simpleAudio);
