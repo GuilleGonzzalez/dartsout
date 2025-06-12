@@ -31,7 +31,7 @@ static int get_game_id(struct mg_str query);
 static int get_ws_info(struct mg_str data, char* msg);
 
 static void set_game_id(unsigned long c_id, int game_id);
-static void error_response(struct mg_connection* c);
+static void send_response(struct mg_connection* c, int code, const char* message);
 
 /* Callbacks ******************************************************************/
 
@@ -74,7 +74,7 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			game_t* game = get_game(game_id, board_id);
 			if (!game) {
 				LOG_ERROR("Game not found");
-				error_response(c);
+				send_response(c, 404, "ERROR: Game not found");
 				return;
 			}
 			game_event_t event;
@@ -94,7 +94,7 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			game_t* game = get_game(game_id, board_id);
 			if (!game) {
 				LOG_ERROR("Game not found");
-				error_response(c);
+				send_response(c, 404, "ERROR: Game not found");
 				return;
 			}
 			game_event_t event;
@@ -116,13 +116,13 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			//TODO: assert macro for json parsing
 			if (err != 0) {
 				LOG_ERROR("Error parsing JSON");
-				error_response(c);
+				send_response(c, 400, "ERROR: Could not parse JSON");
 				return;
 			}
 			game_t* game = game_manager_new(game_ref, options);
 			if (game == NULL) {
 				LOG_ERROR("Invalid game. Aborting");
-				error_response(c);
+				send_response(c, 400, "ERROR: Invalid game");
 				return;
 			}
 			for (int i = 0; i < n_players; i++) {
@@ -285,10 +285,10 @@ static void set_game_id(unsigned long c_id, int game_id)
 	}
 }
 
-static void error_response(struct mg_connection* c)
+static void send_response(struct mg_connection* c, int code, const char* message)
 {
-	const char* json = json_helper_simple_str("result", "ERROR");
-	mg_http_reply(c, 400, "", json);
+	const char* json = json_helper_simple_str("result", message);
+	mg_http_reply(c, code, "", json);
 	free((char*)json);
 }
 
