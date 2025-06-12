@@ -50,6 +50,7 @@ A simple darts game.
 si no se juega durante un tiempo, llamar a finish-game
 tiempo de partida
 llamar a game_manager_finish
+añadir game_id en el log
 
 
 ### Múltiples juegos 1

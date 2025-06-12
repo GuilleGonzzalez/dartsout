@@ -44,14 +44,15 @@ static void save_game(game_t* game)
 
 static void restore_game(game_t* game)
 {
-	// TODO: if first state, no back
 	void* game_state = array_pop(game->game_states);
 	if (!game_state) {
 		LOG_WARN("Game could not be restored");
 		return;
 	}
 	bool success = game->cbs->restore_state_cb(game, game_state);
-	if (!success) {
+	if (success) {
+		LOG_INFO("Back action performed!");
+	} else {
 		LOG_ERROR("Game could not be restored");
 	}
 }
@@ -186,7 +187,6 @@ void game_new_event(game_t* game, game_event_t* event, game_event_rsp_t* rsp)
 		json = game->cbs->status_cb(game);
 		api_ws_write(json, game->id);
 		free((char*)json);
-		LOG_INFO("Back action performed!");
 		break;
 	case GAME_EVENT_FINISH_GAME:
 		LOG_INFO("Game with ID=%d finished!", game->id);
