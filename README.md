@@ -47,6 +47,8 @@ A simple darts game.
 
 ## TODOs rapidos
 
+si no se juega durante un tiempo, llamar a finish-game
+tiempo de partida
 llamar a game_manager_finish
 
 

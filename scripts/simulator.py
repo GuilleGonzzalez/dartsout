@@ -67,6 +67,7 @@ def main():
     subparsers = parser.add_subparsers(dest="command", required=True, help="Command to execute")
 
     parser_new_game = subparsers.add_parser("new-game", help="Create a new game")
+    parser_new_game.add_argument("-n", "--number", type=int, default=1, help="Number of games to create, for test purposes")
     parser_new_game.add_argument("-g", "--game", type=str, required=True, choices=["cricket", "x01"], help="Game type")
     parser_new_game.add_argument("-p", "--players", type=str, default=["P1", "P2"], nargs='+', help="List of players (player1_name player2_name ...)")
     parser_new_game.add_argument("-b", "--boards", type=int, nargs='+', help="List of players boards (player1_board player2_board ...)")
@@ -77,6 +78,9 @@ def main():
 
     parser_back = subparsers.add_parser("back", help="Back action")
     parser_back.add_argument("-b", "--board", type=int, default=DARTBOARD_ID, help="Dartboard ID")
+
+    parser_finish = subparsers.add_parser("finish", help="Finish game")
+    parser_finish.add_argument("-b", "--board", type=int, default=DARTBOARD_ID, help="Dartboard ID")
 
     parser_new_dart = subparsers.add_parser("new-dart", help="Throw a dart")
     parser_new_dart.add_argument("-b", "--board", type=int, default=DARTBOARD_ID, help="Dartboard ID")
@@ -97,11 +101,24 @@ def main():
         for i, p in enumerate(args.players):
             players.append({"name": p, "board_id": args.boards[i]})
         options = args.options
-        new_game(args.url, args.game, players, options)
+        for i in range(args.number):
+            new_game(args.url, args.game, players, options)
     elif args.command == "next":
         next_player(args.url, args.board)
     elif args.command == "back":
         back(args.url, args.board)
+    elif args.command == "finish":
+        new_dart(args.url, args.board, 20, 't')
+        new_dart(args.url, args.board, 19, 't')
+        new_dart(args.url, args.board, 18, 't')
+        next_player(args.url, args.board)
+        next_player(args.url, args.board)
+        new_dart(args.url, args.board, 17, 't')
+        new_dart(args.url, args.board, 16, 't')
+        new_dart(args.url, args.board, 15, 't')
+        next_player(args.url, args.board)
+        next_player(args.url, args.board)
+        new_dart(args.url, args.board, 0, 't')
     elif args.command == "new-dart":
         new_dart(args.url, args.board, args.number, args.zone)
     else:

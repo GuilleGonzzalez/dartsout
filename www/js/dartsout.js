@@ -1,5 +1,5 @@
-let ws_url = "ws://localhost:8000/websocket"
-// let ws_url = "https://dartsout.duckdns.org/websocket"
+const DEFAULT_WS_URL = "ws://localhost:8000/websocket"
+// const DEFAULT_WS_URL = "https://dartsout.ggonzalezm.es/websocket"
 
 let socket = null;
 
@@ -47,9 +47,9 @@ document.addEventListener('keydown', function(event) {
   }
 });
 
-window.onload = init();
+window.onload = init(DEFAULT_WS_URL);
 
-function init() {
+function init(ws_url) {
   if (window.location.pathname == "/") {
     homeCreateCanvas(homeCanvas);
   } else if (window.location.pathname == "/game.html") {

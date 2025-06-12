@@ -71,6 +71,13 @@ void game_init(game_t* game, int id, game_cbs_t* cbs)
 
 void game_new_event(game_t* game, game_event_t* event, game_event_rsp_t* rsp)
 {
+	if (game == NULL) {
+		LOG_ERROR("Game not found");
+		rsp->ret_code = 404;
+		rsp->ret_str = "ERROR: Game not found";
+		return;
+	}
+
 	dartboard_shot_t val;
 	const char* json;
 
@@ -81,7 +88,7 @@ void game_new_event(game_t* game, game_event_t* event, game_event_rsp_t* rsp)
 		api_ws_write(json, game->id);
 		if (!game->running) {
 			rsp->ret_code = 400;
-			rsp->ret_str = "No game running";
+			rsp->ret_str = "ERROR: No game running";
 			return;
 		}
 		json = game->cbs->status_cb(game);
@@ -92,12 +99,12 @@ void game_new_event(game_t* game, game_event_t* event, game_event_rsp_t* rsp)
 	case GAME_EVENT_NEW_GAME:
 		if (game->running) {
 			rsp->ret_code = 400;
-			rsp->ret_str = "A game is running";
+			rsp->ret_str = "ERROR: A game is running";
 			return;
 		}
 		if (game->n_players == 0) {
 			rsp->ret_code = 400;
-			rsp->ret_str = "No players added";
+			rsp->ret_str = "ERROR: No players added";
 			return;
 		}
 		game->game_ref = event->game_id;
@@ -112,18 +119,18 @@ void game_new_event(game_t* game, game_event_t* event, game_event_rsp_t* rsp)
 	case GAME_EVENT_NEW_PLAYER:
 		if (game->running) {
 			rsp->ret_code = 400;
-			rsp->ret_str = "A game is running";
+			rsp->ret_str = "ERROR: A game is running";
 			return;
 		}
 		if (game->n_players == MAX_PLAYERS) {
 			rsp->ret_code = 400;
-			rsp->ret_str = "Max players reached";
+			rsp->ret_str = "ERROR: Max players reached";
 			return;
 		}
 		char* name = malloc(strlen(event->player.name) + 1);
 		if (name == NULL) {
 			rsp->ret_code = 400;
-			rsp->ret_str = "Error adding player";
+			rsp->ret_str = "ERROR: Internal error";
 			return;
 		}
 		game->players = realloc(game->players,
@@ -132,14 +139,14 @@ void game_new_event(game_t* game, game_event_t* event, game_event_rsp_t* rsp)
 		strcpy(name, event->player.name);
 		game->players[game->n_players].userid= "";
 		game->players[game->n_players].name = name;
+		//TODO: check if this dartboard is being used in other game
 		game->players[game->n_players].dartboard_id = event->player.dartboard_id;
-		// game->players[game->n_players].dartboard_id = 0x9974A6;
 		game->n_players++;
 		break;
 	case GAME_EVENT_NEXT_PLAYER:
 		if (!game->running) {
 			rsp->ret_code = 400;
-			rsp->ret_str = "No game running";
+			rsp->ret_str = "ERROR: No game running";
 			return;
 		}
 		save_game(game);
@@ -152,12 +159,11 @@ void game_new_event(game_t* game, game_event_t* event, game_event_rsp_t* rsp)
 	case GAME_EVENT_NEW_DART:
 		if (!game->running) {
 			rsp->ret_code = 400;
-			rsp->ret_str = "No game running";
+			rsp->ret_str = "ERROR: No game running";
 			return;
 		}
-		//TODO: si no se pueden tirar mas dardos, no guardar
 		//TODO: sonidito de atrás
-		//TODO: free de todos los estados
+		//TODO: free de todos los estados. Ya se hace (?)
 		save_game(game);
 		val.number = event->dart.number;
 		val.zone = event->dart.zone;

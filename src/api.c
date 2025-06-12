@@ -72,11 +72,6 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			int board_id, num, zone;
 			json_helper_new_dart(hm->body.ptr, &board_id, &num, &zone);
 			game_t* game = get_game(game_id, board_id);
-			if (!game) {
-				LOG_ERROR("Game not found");
-				send_response(c, 404, "ERROR: Game not found");
-				return;
-			}
 			game_event_t event;
 			event.type = GAME_EVENT_NEW_DART;
 			event.dart.number = num;
@@ -92,11 +87,6 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			int board_id;
 			json_helper_next_player(hm->body.ptr, &board_id);
 			game_t* game = get_game(game_id, board_id);
-			if (!game) {
-				LOG_ERROR("Game not found");
-				send_response(c, 404, "ERROR: Game not found");
-				return;
-			}
 			game_event_t event;
 			event.type = GAME_EVENT_NEXT_PLAYER;
 			//TODO: event with board id?
@@ -128,20 +118,16 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			for (int i = 0; i < n_players; i++) {
 				game_event_t event;
 				event.type = GAME_EVENT_NEW_PLAYER;
-				//TODO: se puede copiar?
 				event.player.name = players[i].name;
 				event.player.dartboard_id = players[i].dartboard_id;
 				game_new_event(game, &event, &game_rsp);
 			}
 			game_event_t event;
 			event.type = GAME_EVENT_NEW_GAME;
-			event.game_id = game_ref; // TODO: game_id -> game_ref o quitarlo
+			event.game_id = game_ref;
 			event.options = options;
 			game_new_event(game, &event, &game_rsp);
-			// const char* json = json_helper_simple_str("result",
-			// 		game_rsp.ret_str);
-			const char* json = json_helper_simple_int("game_id",
-					game->id);
+			const char* json = json_helper_simple_int("game_id", game->id);
 			mg_http_reply(c, game_rsp.ret_code, "", json);
 			free((char*)json);
 		} else if (mg_http_match_uri(hm, "/back")) {
@@ -190,7 +176,6 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 		// TODO: make it dinamic
 		int game_id = get_ws_info(wm->data, msg);
 		game_t* game = game_manager_get_by_id(game_id);
-		assert(game);
 		LOG_TRACE("Game ID: %d, msg: %s", game_id, msg);
 		if (strcmp(msg, "status") == 0) {
 			game_event_t event;
