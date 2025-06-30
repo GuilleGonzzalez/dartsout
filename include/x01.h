@@ -39,10 +39,6 @@ typedef struct x01_t {
 	int darts;                               // Number of darts thrown in this round
 } x01_t;
 
-// typedef struct x01_state_t {
-
-// } x01_state_t;
-
 x01_t* x01_new_game(int id, x01_options_t options, int max_rounds);
 player_t* x01_get_player(x01_t* self, x01_player_t* x01_player);
 

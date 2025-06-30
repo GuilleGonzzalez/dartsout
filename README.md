@@ -51,6 +51,7 @@ si no se juega durante un tiempo, llamar a finish-game
 tiempo de partida
 llamar a game_manager_finish
 añadir game_id en el log
+si no players y new_game, se crea. Debería devolver error y manejarse
 
 
 ### Múltiples juegos 1

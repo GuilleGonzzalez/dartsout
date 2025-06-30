@@ -51,7 +51,6 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			new_connection(c);
 			int ws_game_id = get_game_id(hm->query);
 			LOG_INFO("WS game ID: %d", ws_game_id);
-			LOG_TRACE("SETTING CONN %d TO GAME_ID %d", c->id, ws_game_id);
 			set_game_id(c->id, ws_game_id);
 			mg_ws_upgrade(c, hm, NULL);
 			LOG_DEBUG("Upgrading to websockets!");
@@ -65,7 +64,6 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			const char* json = json_helper_simple_str("result",
 					game_rsp.ret_str);
 			mg_http_reply(c, game_rsp.ret_code, "", json);
-			free((char*)json);
 		} else if (mg_http_match_uri(hm, "/new-dart")) {
 			LOG_DEBUG("New dart");
 			int game_id = get_game_id(hm->query);
@@ -80,7 +78,6 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			const char* json = json_helper_simple_str("result",
 					game_rsp.ret_str);
 			mg_http_reply(c, game_rsp.ret_code, "", json);
-			free((char*)json);
 		} else if (mg_http_match_uri(hm, "/next-player")) {
 			LOG_DEBUG("Next player");
 			int game_id = get_game_id(hm->query);
@@ -94,7 +91,6 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			const char* json = json_helper_simple_str("result",
 					game_rsp.ret_str);
 			mg_http_reply(c, game_rsp.ret_code, "", json);
-			free((char*)json);
 		} else if (mg_http_match_uri(hm, "/new-game")) {
 			LOG_DEBUG("New game");
 			int game_ref;
@@ -129,7 +125,6 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			game_new_event(game, &event, &game_rsp);
 			const char* json = json_helper_simple_int("game_id", game->id);
 			mg_http_reply(c, game_rsp.ret_code, "", json);
-			free((char*)json);
 		} else if (mg_http_match_uri(hm, "/back")) {
 			LOG_DEBUG("Back");
 			int game_id = get_game_id(hm->query);
@@ -140,7 +135,6 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			const char* json = json_helper_simple_str("result",
 					game_rsp.ret_str);
 			mg_http_reply(c, game_rsp.ret_code, "", json);
-			free((char*)json);
 		} else if (mg_http_match_uri(hm, "/finish-game")) {
 			LOG_DEBUG("Finish game");
 			int game_id = get_game_id(hm->query);
@@ -152,7 +146,6 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			const char* json = json_helper_simple_str("result",
 					game_rsp.ret_str);
 			mg_http_reply(c, game_rsp.ret_code, "", json);
-			free((char*)json);
 		} else {
 			struct mg_http_serve_opts opts = {.root_dir = web_root};
 			mg_http_serve_dir(c, ev_data, &opts);
@@ -192,7 +185,6 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 
 static void new_connection(struct mg_connection* c)
 {
-	LOG_INFO("New conn id: %ld", c->id);
 	for (int i = 0; i < MAX_CONNECTIONS; i++) {
 		if (connections[i].c == NULL) {
 			connections[i].c = c;
@@ -260,10 +252,8 @@ static void set_game_id(unsigned long c_id, int game_id)
 {
 	for (int i = 0; i < MAX_CONNECTIONS; i++) {
 		if (connections[i].c != NULL) {
-			LOG_TRACE("Cid=%ld", connections[i].c->id);
 			if (connections[i].c->id == c_id) {
 				connections[i].game_id = game_id;
-				LOG_TRACE("[i=%d] Set conn %ld to game_id=%d", i, c_id, game_id);
 				return;
 			}
 		}
@@ -274,7 +264,6 @@ static void send_response(struct mg_connection* c, int code, const char* message
 {
 	const char* json = json_helper_simple_str("result", message);
 	mg_http_reply(c, code, "", json);
-	free((char*)json);
 }
 
 /* Public functions ***********************************************************/
