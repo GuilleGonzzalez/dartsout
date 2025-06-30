@@ -53,7 +53,7 @@ void* array_remove(array_t* self, unsigned long idx)
 	}
 	
 	void* removed_item = self->array[idx];
-	for (unsigned long i = idx; i < self->used_size; i++) {
+	for (unsigned long i = idx; i < self->used_size - 1; i++) {
 		self->array[idx] = self->array[idx+1];
 	}
 	self->used_size--;
