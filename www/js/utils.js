@@ -12,6 +12,10 @@ function getSymbol(num) {
   }
 }
 
+function getSymbolSVG(num) {
+  return `<img src="../res/${num}.svg" alt="">`;
+}
+
 function getNumStr(num) {
   if (num == 0) {
     return "◎";

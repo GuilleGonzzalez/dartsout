@@ -68,14 +68,6 @@ function homeCreateCanvas(homeCanvas) {
   homeCanvas.appendChild(joinBtn);
 }
 
-// function playerCb(alert) {
-//   let playerName = document.getElementById("playerName").value;
-//   if (playerName == "") {
-//     return;
-//   }
-//   new_player2(playerName);
-// }
-
 let players = [];
 
 function newPlayerCb() {

@@ -6,6 +6,7 @@
 #include "game.h"
 
 #define MAX_DARTS 3
+#define SHOTS_TO_CLOSE 3
 #define N_ENABLED 7
 
 typedef struct cricket_player_t {

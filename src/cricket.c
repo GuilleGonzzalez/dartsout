@@ -230,7 +230,7 @@ static bool restore_state(game_t* game, state_t* state)
 static bool player_all_closed(cricket_player_t* player)
 {
 	for (int i = 0; i < N_ENABLED; i++) {
-		if (player->shots[i] < 3) {
+		if (player->shots[i] < SHOTS_TO_CLOSE) {
 			return false;
 		}
 	}

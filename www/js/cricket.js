@@ -116,7 +116,8 @@ function cricketProccess(json) {
     data[i][0] = json["players"][i]["name"];
     for (let j = 0; j < enabled.length; j++) {
       let shots = json["players"][i]["shots"]
-      data[i][j+1] = getSymbol(shots[j]);
+      // data[i][j+1] = getSymbol(shots[j]);
+      data[i][j+1] = getSymbolSVG(shots[j]);
     }
     players_names[i] = json["players"][i]["name"];
     players_scores[i] = json["players"][i]["game_score"];
