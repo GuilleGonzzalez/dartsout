@@ -84,8 +84,21 @@ function newPlayerCb() {
     alert("Invalid player");
     return;
   }
-  // TODO: not player variable. Add player. When new game, get player_name and dartboard (checking before)
-  players.push(name);
+  let dartboard_id = prompt("Dartboard ID:", "0x5621A");
+  if (dartboard_id == null || dartboard_id == "") {
+    alert("Invalid dartboard");
+    return;
+  }
+  // Check if this dartboard is on another game
+  if (dartboard_id.startsWith("0x")) {
+    dartboard_id = dartboard_id.substring(2);
+  }
+  dartboard_id = parseInt(dartboard_id, 16);
+  if (isNaN(dartboard_id)) {
+    alert("Invalid dartboard ID. Must be an hexadecimal identifier");
+    return;
+  }
+  players.push({"name": name, "board_id": dartboard_id});
 
   addPlayerTable("players-table", name);
 

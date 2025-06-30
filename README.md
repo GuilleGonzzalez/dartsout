@@ -262,18 +262,13 @@ Posibles soluciones:
 - When there is a game running if someone enters in dartsout server, msg to go there o directly redirect
 - Add player button
 - Si estoy en /game y no hay juego, redirigir a /; si estoy en / y hay juego, redirigir a /game
-- Arreglar status / new_player
-- Add logger [example](https://github.com/yksz/c-logger/tree/master)
+- Ahora se filtra mirando si la diana forma parte del juego. Habría que filtrar eso y si la diana es del jugador actual, si no, cualquier diana del juego vale para cualquier jugador
 
 ### Mid-term issues
 
-- fw-dartsout IP and WiFi config
-- Back button
 - New games
-- Multiple dartboards (board_id)
 
 ### Future features
 
 - DB integration
 - Stats button
-- Configurable IP/port
