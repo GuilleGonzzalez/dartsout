@@ -172,12 +172,21 @@ static void delete(game_t* game)
 {
 	cricket_t* self = (cricket_t*)game;
 
+<<<<<<< HEAD
 	for (int i = 0; i < game->n_players; i++) {
 		free((char*)game->players[i].name);
 	}
 
 	free(self->players);
 	free(self);
+=======
+	(void) self;
+
+	// Only free cricket resources!
+
+	// free(self->players);
+	// free(self);
+>>>>>>> a368f28 (Fix memory issues)
 }
 
 static state_t* save_state(game_t* game)

@@ -203,14 +203,17 @@ void game_delete(game_t* game)
 		return;
 	}
 
-	// TODO: free all states
 	state_t* state;
 	while ((state = (state_t*) array_pop(game->game_states)) != NULL) {
 		state->delete_cb(state);
 	}
 	array_free(game->game_states);
 
+<<<<<<< HEAD
 	game->cbs->delete_cb(game);
+=======
+	free(game);
+>>>>>>> a368f28 (Fix memory issues)
 }
 
 bool game_has_dartboard(game_t* game, int dartboard_id)
