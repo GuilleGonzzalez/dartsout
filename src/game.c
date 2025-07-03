@@ -1,6 +1,5 @@
 #include <assert.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 
 #include "game.h"
@@ -29,6 +28,8 @@ static void check_winner(game_t* game)
 		const char* json = json_helper_game_status(game);
 		api_ws_write(json, game->id);
 		api_ws_write(winner_json, game->id);
+		free((char*)winner_json);
+		free((char*)json);
 		LOG_INFO("Winner is %s", winner_player->name);
 	}
 }
@@ -78,13 +79,13 @@ void game_new_event(game_t* game, game_event_t* event, game_event_rsp_t* rsp)
 	}
 
 	dartboard_shot_t val;
-	const char* json;
-
+	const char* json = NULL;
 	switch (event->type) {
 	case GAME_EVENT_STATUS:
 		LOG_DEBUG("Status event received!");
 		json = json_helper_game_status(game);
 		api_ws_write(json, game->id);
+		free((char*)json);
 		if (!game->running) {
 			rsp->ret_code = 400;
 			rsp->ret_str = "ERROR: No game running";
@@ -92,6 +93,7 @@ void game_new_event(game_t* game, game_event_t* event, game_event_rsp_t* rsp)
 		}
 		json = game->cbs->status_cb(game);
 		api_ws_write(json, game->id);
+		free((char*)json);
 		LOG_DEBUG("Game status sent via WS");
 		break;
 	case GAME_EVENT_NEW_GAME:
@@ -111,6 +113,7 @@ void game_new_event(game_t* game, game_event_t* event, game_event_rsp_t* rsp)
 		game->cbs->start_cb(game);
 		json = json_helper_send_game_id(game->id);
 		api_ws_write(json, game->id);
+		free((char*)json);
 		LOG_INFO("Game with ID=%d started!", game->id);
 		break;
 	case GAME_EVENT_NEW_PLAYER:
@@ -150,6 +153,7 @@ void game_new_event(game_t* game, game_event_t* event, game_event_rsp_t* rsp)
 		game->cbs->next_player_cb(game);
 		json = game->cbs->status_cb(game);
 		api_ws_write(json, game->id);
+		free((char*)json);
 		check_winner(game);
 		break;
 	case GAME_EVENT_NEW_DART:
@@ -166,8 +170,10 @@ void game_new_event(game_t* game, game_event_t* event, game_event_rsp_t* rsp)
 		bool scoreable = game->cbs->new_dart_cb(game, &val);
 		json = game->cbs->status_cb(game);
 		api_ws_write(json, game->id);
+		free((char*)json);
 		json = json_helper_last_dart(scoreable, val.number, val.zone);
 		api_ws_write(json, game->id);
+		free((char*)json);
 		check_winner(game);
 		break;
 	case GAME_EVENT_BACK:
@@ -179,6 +185,7 @@ void game_new_event(game_t* game, game_event_t* event, game_event_rsp_t* rsp)
 		restore_game(game);
 		json = game->cbs->status_cb(game);
 		api_ws_write(json, game->id);
+		free((char*)json);
 		break;
 	case GAME_EVENT_FINISH_GAME:
 		LOG_INFO("Game with ID=%d finished!", game->id);
@@ -203,17 +210,22 @@ void game_delete(game_t* game)
 		return;
 	}
 
+	game->cbs->delete_cb(game);
+
+	for (int i = 0; i < game->n_players; i++) {
+		free((char*)game->players[i].name);
+	}
+	free(game->players);
+
 	state_t* state;
 	while ((state = (state_t*) array_pop(game->game_states)) != NULL) {
 		state->delete_cb(state);
 	}
 	array_free(game->game_states);
 
-<<<<<<< HEAD
-	game->cbs->delete_cb(game);
-=======
 	free(game);
->>>>>>> a368f28 (Fix memory issues)
+
+	LOG_INFO("Game deleted!");
 }
 
 bool game_has_dartboard(game_t* game, int dartboard_id)

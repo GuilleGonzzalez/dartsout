@@ -1,7 +1,5 @@
 #include <assert.h>
 #include <cjson/cJSON.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
 
@@ -11,6 +9,13 @@
 #include "log.h"
 #include "player.h"
 #include "x01.h"
+
+#define MSG_ID_STATUS    0
+#define MSG_ID_CRICKET   1
+#define MSG_ID_X01       2
+#define MSG_ID_LAST_DART 3
+#define MSG_ID_WINNER    4
+#define MSG_ID_GAME_ID   5
 
 /* Global variables ***********************************************************/
 /* Function prototypes ********************************************************/
@@ -88,7 +93,7 @@ const char* json_helper_last_dart(bool valid, int num, int zone)
 {
 	const char* out;
 	cJSON* json = cJSON_CreateObject();
-	cJSON_AddNumberToObject(json, "msg_id", 3); //TODO: hardcoded (Last dart msg)
+	cJSON_AddNumberToObject(json, "msg_id", MSG_ID_LAST_DART);
 	cJSON_AddBoolToObject(json, "valid", valid);
 	cJSON_AddNumberToObject(json, "num", num);
 	cJSON_AddNumberToObject(json, "zone", zone);
@@ -102,7 +107,7 @@ const char* json_helper_winner(const char* name)
 {
 	const char* out;
 	cJSON* json = cJSON_CreateObject();
-	cJSON_AddNumberToObject(json, "msg_id", 4); //TODO: hardcoded (Last dart msg)
+	cJSON_AddNumberToObject(json, "msg_id", MSG_ID_WINNER);
 	cJSON_AddStringToObject(json, "name", name);
 	out = cJSON_PrintUnformatted(json);
 	cJSON_Delete(json);
@@ -113,7 +118,7 @@ const char* json_helper_cricket_winner(cricket_t* cricket, const char* name)
 {
 	const char* out;
 	cJSON* json = cJSON_CreateObject();
-	cJSON_AddNumberToObject(json, "msg_id", 4); //TODO: hardcoded (Last dart msg)
+	cJSON_AddNumberToObject(json, "msg_id", MSG_ID_WINNER);
 	cJSON_AddNumberToObject(json, "game_id", GAME_CRICKET);
 	cJSON_AddStringToObject(json, "name", name);
 	cJSON* players = cJSON_AddArrayToObject(json, "players");
@@ -136,7 +141,7 @@ const char* json_helper_cricket_status(cricket_t* cricket)
 {
 	const char* out;
 	cJSON* json = cJSON_CreateObject();
-	cJSON_AddNumberToObject(json, "msg_id", 1); //TODO: hardcoded (cricket msg)
+	cJSON_AddNumberToObject(json, "msg_id", MSG_ID_CRICKET);
 	cJSON_AddNumberToObject(json, "n_players", cricket->game.n_players);
 	cJSON_AddNumberToObject(json, "round", cricket->round);
 	cJSON_AddNumberToObject(json, "max_rounds", cricket->max_rounds);
@@ -184,7 +189,7 @@ const char* json_helper_x01_status(x01_t* x01)
 {
 	const char* out;
 	cJSON* json = cJSON_CreateObject();
-	cJSON_AddNumberToObject(json, "msg_id", 2); //TODO: hardcoded (x01 msg)
+	cJSON_AddNumberToObject(json, "msg_id", MSG_ID_X01);
 	cJSON_AddNumberToObject(json, "score", x01->score);
 	cJSON_AddNumberToObject(json, "n_players", x01->game.n_players);
 	cJSON_AddNumberToObject(json, "round", x01->round);
@@ -219,7 +224,7 @@ const char* json_helper_game_status(game_t* game)
 {
 	const char* out;
 	cJSON* json = cJSON_CreateObject();
-	cJSON_AddNumberToObject(json, "msg_id", 0); //TODO:  (status msg)
+	cJSON_AddNumberToObject(json, "msg_id", MSG_ID_STATUS);
 	cJSON_AddBoolToObject(json, "running", game->running);
 	cJSON_AddNumberToObject(json, "game_id", game->game_ref);
 	cJSON_AddNumberToObject(json, "options", game->options);
@@ -236,23 +241,11 @@ const char* json_helper_game_status(game_t* game)
 	return out;
 }
 
-const char* json_helper_reg_player(player_t* player)
-{
-	const char* out;
-	cJSON* json = cJSON_CreateObject();
-	cJSON_AddNumberToObject(json, "msg_id", -1); //TODO:  (reg player msg)
-	cJSON_AddStringToObject(json, "userid", player->userid);
-	cJSON_AddStringToObject(json, "name", player->name);
-	out = cJSON_PrintUnformatted(json);
-	cJSON_Delete(json);
-	return out;
-}
-
 const char* json_helper_send_game_id(int game_id)
 {
 	const char* out;
 	cJSON* json = cJSON_CreateObject();
-	cJSON_AddNumberToObject(json, "msg_id", 5);
+	cJSON_AddNumberToObject(json, "msg_id", MSG_ID_GAME_ID);
 	cJSON_AddNumberToObject(json, "game_id", game_id);
 	out = cJSON_PrintUnformatted(json);
 	cJSON_Delete(json);

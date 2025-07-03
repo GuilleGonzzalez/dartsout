@@ -16,6 +16,7 @@ CFLAGS+=-Wall
 CFLAGS+=-Werror
 CFLAGS+=-Wextra
 CFLAGS+=-pedantic
+CFLAGS+=-fsanitize=address
 CFLAGS+=-DMG_ENABLE_ASSERT=1
 
 

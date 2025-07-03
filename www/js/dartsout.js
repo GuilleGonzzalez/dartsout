@@ -140,7 +140,7 @@ function proccessMessage(message) {
         console.log(stats);
         // TODO: modal add class modal-lg
         // TODO: highlight winner player
-        addFinishModal(gameCanvas, 0, stats);
+        addFinishModal(gameCanvas, winnerName, stats);
         launchModal("finish-modal");
       }
       break;
@@ -172,14 +172,14 @@ function addHomeModal(canvas) {
     addContentModal("home-modal", homeModalContent);
 }
 
-function addFinishModal(canvas, winnerPlayerId, mprs) {
+function addFinishModal(canvas, winnerPlayer, mprs) {
     let finishModal = createModal("finish-modal");
     canvas.appendChild(finishModal);
     addTitleModal("finish-modal", "Game finished");
     let finishModalContent = document.createElement("div");
     let finishModalTxt = document.createElement("h5");
     // TODO: define winner WS message
-    finishModalTxt.innerHTML = `TODO wins!`;
+    finishModalTxt.innerHTML = `${winnerPlayer} wins!`;
     finishModalContent.appendChild(finishModalTxt);
     // TODO: repeat game implementation
     let repeatBtn = createButton("Play Again", "homeCb()");

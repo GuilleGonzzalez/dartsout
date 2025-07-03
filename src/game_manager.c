@@ -1,5 +1,4 @@
 #include <assert.h>
-#include <stdio.h>
 #include <stdlib.h>
 
 #include "game_manager.h"
@@ -73,6 +72,7 @@ void game_manager_finish(game_t* game)
 {
 	n_games--;
 	game_t** games_new = malloc(n_games * sizeof(game_t));
+
 	int i_new = 0;
 	for (int i = 0; i < n_games + 1; i++) {
 		if (games[i] == game) {
@@ -81,7 +81,9 @@ void game_manager_finish(game_t* game)
 		assert(i_new < n_games);
 		games_new[i_new++] = games[i];
 	}
+
 	free(games);
 	games = games_new;
+
 	game_delete(game);
 }

@@ -64,6 +64,7 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			const char* json = json_helper_simple_str("result",
 					game_rsp.ret_str);
 			mg_http_reply(c, game_rsp.ret_code, "", json);
+			free((char*)json);
 		} else if (mg_http_match_uri(hm, "/new-dart")) {
 			LOG_DEBUG("New dart");
 			int game_id = get_game_id(hm->query);
@@ -78,6 +79,7 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			const char* json = json_helper_simple_str("result",
 					game_rsp.ret_str);
 			mg_http_reply(c, game_rsp.ret_code, "", json);
+			free((char*)json);
 		} else if (mg_http_match_uri(hm, "/next-player")) {
 			LOG_DEBUG("Next player");
 			int game_id = get_game_id(hm->query);
@@ -90,7 +92,8 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			game_new_event(game, &event, &game_rsp);
 			const char* json = json_helper_simple_str("result",
 					game_rsp.ret_str);
-			mg_http_reply(c, game_rsp.ret_code, "", json);
+					mg_http_reply(c, game_rsp.ret_code, "", json);
+			free((char*)json);
 		} else if (mg_http_match_uri(hm, "/new-game")) {
 			LOG_DEBUG("New game");
 			int game_ref;
@@ -117,6 +120,7 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 				event.player.name = players[i].name;
 				event.player.dartboard_id = players[i].dartboard_id;
 				game_new_event(game, &event, &game_rsp);
+				// free((char*)players[i].name);
 			}
 			game_event_t event;
 			event.type = GAME_EVENT_NEW_GAME;
@@ -125,6 +129,7 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			game_new_event(game, &event, &game_rsp);
 			const char* json = json_helper_simple_int("game_id", game->id);
 			mg_http_reply(c, game_rsp.ret_code, "", json);
+			free((char*)json);
 		} else if (mg_http_match_uri(hm, "/back")) {
 			LOG_DEBUG("Back");
 			int game_id = get_game_id(hm->query);
@@ -135,6 +140,7 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			const char* json = json_helper_simple_str("result",
 					game_rsp.ret_str);
 			mg_http_reply(c, game_rsp.ret_code, "", json);
+			free((char*)json);
 		} else if (mg_http_match_uri(hm, "/finish-game")) {
 			LOG_DEBUG("Finish game");
 			int game_id = get_game_id(hm->query);
@@ -146,6 +152,7 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			const char* json = json_helper_simple_str("result",
 					game_rsp.ret_str);
 			mg_http_reply(c, game_rsp.ret_code, "", json);
+			free((char*)json);
 		} else {
 			struct mg_http_serve_opts opts = {.root_dir = web_root};
 			mg_http_serve_dir(c, ev_data, &opts);
@@ -264,6 +271,7 @@ static void send_response(struct mg_connection* c, int code, const char* message
 {
 	const char* json = json_helper_simple_str("result", message);
 	mg_http_reply(c, code, "", json);
+	free((char*)json);
 }
 
 /* Public functions ***********************************************************/
@@ -287,7 +295,7 @@ void api_ws_write(const char* msg, int game_id)
 	(void) game_id;
 	for (int i = 0; i < MAX_CONNECTIONS; i++) {
 		// if (connections[i].c != NULL) {
-		// 	LOG_TRACE("WS send (i=%d, id=%ld, game_id=%d)", i,
+			// 	LOG_TRACE("WS send (i=%d, id=%ld, game_id=%d)", i,
 		// 			connections[i].c->id, connections[i].game_id);
 		// 	mg_ws_send(connections[i].c, msg, strlen(msg), WEBSOCKET_OP_TEXT);
 		// }
@@ -295,4 +303,9 @@ void api_ws_write(const char* msg, int game_id)
 			mg_ws_send(connections[i].c, msg, strlen(msg), WEBSOCKET_OP_TEXT);
 		}
 	}
+}
+
+void api_free(void)
+{
+	mg_mgr_free(&mgr);
 }

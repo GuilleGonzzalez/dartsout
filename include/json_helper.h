@@ -17,7 +17,6 @@ const char* json_helper_cricket_winner(cricket_t* cricket, const char* name);
 const char* json_helper_cricket_status(cricket_t* cricket);
 const char* json_helper_x01_status(x01_t* x01);
 const char* json_helper_game_status(game_t* game);
-const char* json_helper_reg_player(player_t* player);
 const char* json_helper_send_game_id(int game_id);
 
 int json_helper_new_player(const char* json_str, char* name, int name_len);
