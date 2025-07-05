@@ -7,6 +7,8 @@
 #include "x01.h"
 #include "log.h"
 
+#define INACTIVITY_LIMIT (2*60*60)   // 2 horas
+
 /* Global variables ***********************************************************/
 
 static game_t** games;
@@ -15,6 +17,31 @@ static int n_games = 0;
 
 /* Function prototypes ********************************************************/
 /* Callbacks ******************************************************************/
+
+void game_manager_timer_cb(void* args)
+{
+	(void)args; // Unused parameter
+
+	time_t now = time(NULL);
+
+	for (int i = 0; i < n_games; i++) {
+		if (games[i]->running && now - games[i]->last_activity > INACTIVITY_LIMIT) {
+			//TODO: finish game
+			LOG_INFO("Game %d has been inactive for %ld seconds. Finishing it.",
+					games[i]->id, now - games[i]->last_activity);
+			continue;
+		}
+
+		// if (games[i]->running) {
+			// int elapsed = (int)(now - games[i]->started_at);
+			// if (elapsed / TIMER_PUSH_PERIOD_S != g->last_timer_push) {
+			// 	g->last_timer_push = elapsed / TIMER_PUSH_PERIOD_S;
+			// 	//PUSH por ws
+			// }
+		// }
+	}
+}
+
 /* Function definitions *******************************************************/
 /* Public functions ***********************************************************/
 
@@ -70,6 +97,8 @@ game_t* game_manager_get_by_dartboard(int dartboard_id)
 
 void game_manager_finish(game_t* game)
 {
+	LOG_INFO("Finishing game %d", game->id);
+
 	n_games--;
 	game_t** games_new = malloc(n_games * sizeof(game_t));
 

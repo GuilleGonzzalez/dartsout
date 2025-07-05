@@ -10,7 +10,8 @@
 #include "game.h"
 #include "log.h"
 
-#define MAX_CONNECTIONS 50
+#define MAX_CONNECTIONS  50
+#define TIMER_PERIOD     10000 // 10 s
 
 /* Global variables ***********************************************************/
 
@@ -276,12 +277,17 @@ static void send_response(struct mg_connection* c, int code, const char* message
 
 /* Public functions ***********************************************************/
 
-void api_init(void) {
+void api_init(void)
+{
 	// mg_log_set(MG_LL_DEBUG);
 	mg_mgr_init(&mgr);
+
 	char url[50];
 	snprintf(url, sizeof(url), "ws://%s:%d", API_IP, API_PORT);
 	mg_http_listen(&mgr, url, my_handler, NULL);
+
+	mg_timer_add(&mgr, TIMER_PERIOD, MG_TIMER_REPEAT, game_manager_timer_cb, NULL);
+
 	LOG_INFO("API started!");
 }
 

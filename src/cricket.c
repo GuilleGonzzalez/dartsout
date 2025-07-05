@@ -170,14 +170,11 @@ static const char* status(game_t* self)
 
 static void delete(game_t* game)
 {
+	// Only free cricket resources!
 	cricket_t* self = (cricket_t*)game;
 
-	(void) self;
-
-	// Only free cricket resources!
-
-	// free(self->players);
-	// free(self);
+	free(self->players);
+	self->players = NULL;
 }
 
 static state_t* save_state(game_t* game)

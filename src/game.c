@@ -24,12 +24,7 @@ static void check_winner(game_t* game)
 	player_t* winner_player;
 	const char* winner_json = game->cbs->check_finish_cb(game, &winner_player);
 	if (winner_json != NULL) {
-		game->running = false;
-		const char* json = json_helper_game_status(game);
-		api_ws_write(json, game->id);
-		api_ws_write(winner_json, game->id);
-		free((char*)winner_json);
-		free((char*)json);
+		game_finish(game, winner_json);
 		LOG_INFO("Winner is %s", winner_player->name);
 	}
 }
@@ -78,6 +73,9 @@ void game_new_event(game_t* game, game_event_t* event, game_event_rsp_t* rsp)
 		return;
 	}
 
+	game->last_activity = time(NULL);
+	LOG_TRACE("Last activity of game %d updated to %ld", game->id, game->last_activity);
+
 	dartboard_shot_t val;
 	const char* json = NULL;
 	switch (event->type) {
@@ -111,6 +109,8 @@ void game_new_event(game_t* game, game_event_t* event, game_event_rsp_t* rsp)
 		game->options = event->options;
 		game->running = true;
 		game->cbs->start_cb(game);
+		game->started_at = time(NULL);
+		game->last_activity = time(NULL);
 		json = json_helper_send_game_id(game->id);
 		api_ws_write(json, game->id);
 		free((char*)json);
@@ -197,11 +197,24 @@ void game_new_event(game_t* game, game_event_t* event, game_event_rsp_t* rsp)
 	rsp->ret_str = "Success";
 }
 
-void game_finish(game_t* game)
+void game_finish(game_t* game, const char* winner_json)
 {
+	if (!game->running) {
+		LOG_WARN("Game %d is not running", game->id);
+		return;
+	}
+
 	game->running = false;
-	game->options = 0;
-	game->n_players = 0;
+	game->ended_at = time(NULL);
+	game->last_activity = time(NULL);
+
+	const char* json = json_helper_game_status(game);
+	api_ws_write(json, game->id);
+	api_ws_write(winner_json, game->id);
+	free((char*)winner_json);
+	free((char*)json);
+
+	LOG_INFO("Game %d finished!", game->id);
 }
 
 void game_delete(game_t* game)

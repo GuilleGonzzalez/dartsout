@@ -51,6 +51,7 @@ typedef const char* (*game_status_cb_t)(game_t*);
 typedef void (*game_delete_cb_t)(game_t*);
 typedef state_t* (*game_save_state_cb_t)(game_t*);
 typedef bool (*game_restore_state_cb_t)(game_t*, state_t*);
+// typedef void (*game_timer_cb_t)(game_t*);
 
 typedef struct game_cbs_t {
 	game_start_cb_t start_cb;
@@ -66,17 +67,20 @@ typedef struct game_cbs_t {
 struct game_t {
 	game_ref_t game_ref;
 	int id;
-	bool running; // TODO: remove
+	bool running;
 	int options;
 	player_t* players;
 	int n_players;
 	game_cbs_t* cbs;
 	array_t* game_states;
+	time_t started_at;
+	time_t ended_at;
+	time_t last_activity;
 };
 
 void game_init(game_t* game, int id, game_cbs_t* cbs);
 void game_new_event(game_t* game, game_event_t* event, game_event_rsp_t* rsp);
-void game_finish(game_t* game);
+void game_finish(game_t* game, const char* winner_json);
 void game_delete(game_t* game);
 bool game_has_dartboard(game_t* game, int dartboard_id);
 
