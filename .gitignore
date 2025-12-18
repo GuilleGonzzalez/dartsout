@@ -7,3 +7,4 @@ build/*
 .cache/
 .codechecker/
 compile_commands.json
+__pycache__/

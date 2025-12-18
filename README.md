@@ -12,14 +12,18 @@ A simple darts game.
 
 ## Installation
 
-- Clone repository ```git clone https://github.com/GuilleGonzzalez/dartsout```
-- Go to directory ```cd dartsout```
-- Install dependencies ```mongoose``` and ```cjson```. In arch:
-  - ```sudo pikaur -S mongoose```
-  - ```sudo pacman -S cjson```
-- Compile ```make```
-- Execute program ```./dartsout```
-- ```localhost:8000``` in explorer
+- Clone repository `git clone https://github.com/GuilleGonzzalez/dartsout`
+- Go to directory `cd dartsout`
+- Install dependencies `mongoose` and `cjson`. In arch:
+  - `sudo pikaur -S mongoose`
+  - `sudo pacman -S cjson`
+- Compile `make`
+- Execute program `./dartsout`
+- `localhost:8000` in explorer
+
+### VS Code tasks
+
+With the `batyan-soft.fast-tasks` VS Code extension, you can execute tasks defined in `.vscode/tasks.json` easily.
 
 ## Games
 
