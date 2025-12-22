@@ -1,0 +1,61 @@
+{
+  "version": "2.0.0",
+  "inputs": [
+    {
+        "id": "num_instances",
+        "type": "promptString",
+        "description": "Number of simulators to launch",
+        "default": "1"
+    }
+  ],
+  "tasks": [
+    {
+      "label": "Launch Simulator",
+      "type": "shell",
+      "command": "python3 ${workspaceFolder}/scripts/launch_sim.py ${input:num_instances}",
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "panel": "shared"
+      }
+    },
+    {
+      "label": "Clean",
+      "type": "shell",
+      "command": "make",
+      "args": ["clean"],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Build",
+      "type": "shell",
+      "command": "make",
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "panel": "shared"
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Run",
+      "type": "shell",
+      "command": "./dartsout.out",
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "problemMatcher": [],
+      "presentation": {
+        "echo": true,
+        "reveal": "always",
+        "panel": "shared"
+      }
+    }
+  ]
+}
