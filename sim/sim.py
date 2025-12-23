@@ -4,7 +4,7 @@ from tkinter import ttk
 from dartboard import Dartboard
 from api import Api
 
-SERVER_URL = "http://localhost:8000"
+DEFAULT_SERVER_URL = "http://localhost:8000"
 DEFAULT_BOARD_ID = 12345
 
 FONT = "Helvetica"
@@ -13,18 +13,18 @@ ZONE_TEXT = {
     1: "SINGLE",
     2: "DOUBLE",
     3: "TRIPLE",
-    25: "OUTER BULL",
-    50: "INNER BULL"
 }
 
 def update_board_id(*args):
     value = board_id_var.get()
-    if not value.isdigit():
+    try:
+        board_id = int(value, 16)
+    except ValueError:
+        print("Invalid dartboard ID. Must be a hexadecimal identifier")
         return
 
-    new_board_id = int(value)
-    print("New BOARD_ID:", new_board_id)
-    api.update_board_id(new_board_id)
+    print(f"New BOARD_ID: {value} ({board_id})")
+    api.update_board_id(board_id)
 
 root = tk.Tk()
 root.title("Dartsout Simulator")
@@ -63,7 +63,7 @@ style.configure(
 )
 
 # API
-api = Api(SERVER_URL, DEFAULT_BOARD_ID)
+api = Api(DEFAULT_SERVER_URL, DEFAULT_BOARD_ID)
 
 # Top bar
 top_frame = tk.Frame(root, bg="#e6e6e6")
@@ -145,7 +145,7 @@ def on_click(event):
     result_label.config(text=f"HIT: {num} {zone_text}")
 
     dartboard.highlight(tag)
-    api.send_throw(num, zone)
+    api.send_dart(num, zone)
 
 canvas.bind("<Configure>", on_resize)
 canvas.bind("<Button-1>", on_click)

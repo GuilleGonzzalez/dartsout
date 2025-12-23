@@ -46,11 +46,11 @@ def new_dart(url, board, number, zone):
 
     zone_int = -1
     if zone == 's':
-        zone_int = 2
-    elif zone == 'd':
         zone_int = 1
+    elif zone == 'd':
+        zone_int = 2
     elif zone == 't':
-        zone_int = 0
+        zone_int = 3
 
     data = {}
     data["board_id"] = board

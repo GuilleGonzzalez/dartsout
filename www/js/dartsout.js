@@ -33,13 +33,13 @@ document.addEventListener('keydown', function(event) {
     nextPlayer();
     break;
   case 't':
-    newDart(0);
+    newDart(3);
     break;
   case 'd':
-    newDart(1);
+    newDart(2);
     break;
   case 's':
-    newDart(2);
+    newDart(1);
     break;
   case 'b':
     back();

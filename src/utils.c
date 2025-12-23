@@ -12,9 +12,9 @@
 const char* utils_zone_to_str(dartboard_zone_t zone)
 {
 	const char* str_zone;
-	if (zone == 0) {
+	if (zone == 3) {
 		str_zone = "triple";
-	} else if (zone == 1) {
+	} else if (zone == 2) {
 		str_zone = "double";
 	} else {
 		str_zone = "single";

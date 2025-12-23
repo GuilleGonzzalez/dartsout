@@ -29,9 +29,9 @@ function getNumStr(num) {
 function getZoneStr(zone_id) {  
   if (zone_id == -1) {
     return "--";
-  } else if (zone_id == 0) {
+  } else if (zone_id == 3) {
     return "Triple";
-  } else if (zone_id == 1) {
+  } else if (zone_id == 2) {
     return "Double";
   } else {
     return "Single";

@@ -31,7 +31,7 @@ PROPORTIONS = {
 
 # Backend zone codes
 ZONE_CODES = {
-    "single_int": 1,
+    "single_int": 0,
     "single_ext": 1,
     "double": 2,
     "triple": 3,
@@ -162,7 +162,7 @@ class Dartboard:
                 cy + rx * math.sin(angle_rad),
                 text=str(NUMBERS[i]),
                 fill="white",
-                font=("Helvetica", int(R * 0.06), "bold"),
+                font=("Helvetica", int(R * 0.04), "bold"),
             )
 
         # Bulls

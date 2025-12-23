@@ -18,12 +18,11 @@ typedef struct dartboard_shot_t {
 	int zone;
 } dartboard_shot_t;
 
-//TODO: single 0,1, double 2, triple 3
 typedef enum {
-	ZONE_TRIPLE,
-	ZONE_DOUBLE,
-	ZONE_SINGLE_INT,
-	ZONE_SINGLE_EXT,
+	ZONE_SINGLE_INT = 0,
+	ZONE_SINGLE_EXT = 1,
+	ZONE_DOUBLE = 2,
+	ZONE_TRIPLE = 3,
 } dartboard_zone_t;
 
 typedef enum {

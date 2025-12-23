@@ -76,7 +76,7 @@ function newPlayerCb() {
     alert("Invalid player");
     return;
   }
-  let dartboard_id = prompt("Dartboard ID:", "0x5621A");
+  let dartboard_id = prompt("Dartboard ID:", "5621A0");
   if (dartboard_id == null || dartboard_id == "") {
     alert("Invalid dartboard");
     return;

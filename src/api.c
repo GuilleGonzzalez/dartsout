@@ -93,7 +93,7 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 			game_new_event(game, &event, &game_rsp);
 			const char* json = json_helper_simple_str("result",
 					game_rsp.ret_str);
-					mg_http_reply(c, game_rsp.ret_code, "", json);
+			mg_http_reply(c, game_rsp.ret_code, "", json);
 			free((char*)json);
 		} else if (mg_http_match_uri(hm, "/new-game")) {
 			LOG_DEBUG("New game");
@@ -134,7 +134,9 @@ static void my_handler(struct mg_connection* c, int ev, void* ev_data,
 		} else if (mg_http_match_uri(hm, "/back")) {
 			LOG_DEBUG("Back");
 			int game_id = get_game_id(hm->query);
-			game_t* game = game_manager_get_by_id(game_id);
+			int board_id;
+			json_helper_next_player(hm->body.ptr, &board_id); // Same as next-player
+			game_t* game = get_game(game_id, board_id);
 			game_event_t event;
 			event.type = GAME_EVENT_BACK;
 			game_new_event(game, &event, &game_rsp);

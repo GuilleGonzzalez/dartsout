@@ -5,9 +5,9 @@ function soundsNewGame() {
 function soundsNewDart(last_dart_valid, last_dart_zone) {
   if (last_dart_valid) {
     switch(last_dart_zone) {
-    case(0):
+    case(3):
       document.getElementById("triple_audio").play();
-    case(1):
+    case(2):
       document.getElementById("double_audio").play();
     default:
       document.getElementById("simple_audio").play();

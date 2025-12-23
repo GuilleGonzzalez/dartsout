@@ -8,13 +8,13 @@ class Api:
     def update_board_id(self, board_id):
         self.board_id = board_id
 
-    def send_throw(self, num, zone):
+    def send_dart(self, num, zone):
         payload = {
             "board_id": self.board_id,
             "num": num,
             "zone": zone
         }
-        print(f"[SEND THROW] payload = {payload}")
+        print(f"[SEND DART] payload = {payload}")
         requests.post(f"{self.server_url}/new-dart", json=payload, timeout=1)
 
     def back(self):
