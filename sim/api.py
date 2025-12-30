@@ -30,3 +30,12 @@ class Api:
         }
         requests.get(f"{self.server_url}/next-player", json=payload, timeout=1)
         print(f"[NEXT PLAYER] payload = {payload}")
+
+    def new_game(self, game_id, players, options):
+        payload = {
+            "game": game_id,
+            "players": players,
+            "options": options
+        }
+        requests.post(f"{self.server_url}/new-game", json=payload, timeout=1)
+        print(f"[NEW GAME] id: {game_id}, options: {options}, players: {players}")
