@@ -195,10 +195,10 @@ class Dartboard:
 
         # Bulls
         if dist <= R * PROPORTIONS["bull_inner"]:
-            return 25, ZONE_CODES["double_bull"], "double_bull"
+            return 0, ZONE_CODES["double_bull"], "double_bull"
 
         if dist <= R * PROPORTIONS["bull_outer"]:
-            return 25, ZONE_CODES["bull"], "bull"
+            return 0, ZONE_CODES["bull"], "bull"
 
         # Angle
         angle = (math.degrees(math.atan2(-dy, dx)) + 360) % 360

@@ -10,6 +10,12 @@
 #include "player.h"
 #include "utils.h"
 
+typedef struct x01_state_t {
+	state_t state;
+	x01_t game;
+} x01_state_t;
+
+
 /* Global variables ***********************************************************/
 
 static const int sector_values[N_SECTORS] = {25, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
@@ -23,6 +29,9 @@ static bool new_dart(game_t* game, dartboard_shot_t* val);
 static const char* check_finish(game_t* game, player_t** winner_player);
 static const char* status(game_t* self);
 static void delete(game_t* game);
+static state_t* save_state(game_t* game);
+static bool restore_state(game_t* game, state_t* state);
+static void delete_state(state_t* state);
 
 static game_cbs_t cbs = {
 	.start_cb = start,
@@ -31,6 +40,8 @@ static game_cbs_t cbs = {
 	.check_finish_cb = check_finish,
 	.status_cb = status,
 	.delete_cb = delete,
+	.save_state_cb = save_state,
+	.restore_state_cb = restore_state,
 };
 
 static int get_score(int options);
@@ -160,6 +171,50 @@ static void delete(game_t* game)
 
 	free(self->players);
 	free(self);
+}
+
+static state_t* save_state(game_t* game)
+{
+	x01_t* self = (x01_t*)game;
+
+	x01_state_t* current_state = malloc(sizeof(x01_state_t));
+	assert(current_state);
+	current_state->state.delete_cb = delete_state;
+	memcpy(&current_state->game, self, sizeof(x01_t));
+	current_state->game.players =
+			malloc(sizeof(x01_player_t) * self->game.n_players);
+	assert(current_state->game.players);
+	memcpy(current_state->game.players, self->players,
+			sizeof(x01_player_t) * self->game.n_players);
+
+	return (state_t*)current_state;
+}
+
+static void delete_state(state_t* state)
+{
+	x01_state_t* state_restore = (x01_state_t*)state;
+	LOG_INFO("Delete state");
+
+	free(state_restore->game.players);
+	free(state_restore);
+}
+
+static bool restore_state(game_t* game, state_t* state)
+{
+	x01_t* self = (x01_t*)game;
+	x01_state_t* self_to_restore = (x01_state_t*)state;
+
+	memcpy(self->players, self_to_restore->game.players,
+			sizeof(x01_player_t) * self->game.n_players);
+	memcpy(self->dart_scores, self_to_restore->game.dart_scores,
+			MAX_DARTS * sizeof(dartboard_shot_t));
+	self->round = self_to_restore->game.round;
+	self->current_player = self_to_restore->game.current_player;
+	self->darts = self_to_restore->game.darts;
+
+	delete_state(state);
+
+	return true;
 }
 
 /* Function definitions *******************************************************/

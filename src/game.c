@@ -223,8 +223,6 @@ void game_delete(game_t* game)
 		return;
 	}
 
-	game->cbs->delete_cb(game);
-
 	for (int i = 0; i < game->n_players; i++) {
 		free((char*)game->players[i].name);
 	}
@@ -236,7 +234,7 @@ void game_delete(game_t* game)
 	}
 	array_free(game->game_states);
 
-	free(game);
+	game->cbs->delete_cb(game);
 
 	LOG_INFO("Game deleted!");
 }
