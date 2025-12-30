@@ -13,6 +13,9 @@ function getSymbol(num) {
 }
 
 function getSymbolSVG(num) {
+  if (num < 1 || num > 3) {
+    return "";
+  }
   return `<img src="../res/${num}.svg" alt="">`;
 }
 

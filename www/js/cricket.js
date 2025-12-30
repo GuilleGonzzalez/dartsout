@@ -147,7 +147,7 @@ function getClosed(enabled, shots) {
   let closedNumbers = [];
   for (let i = 0; i < shots[0].length; i++) { // 7 nums
     let opened = 0;
-    for (let j = 0; j < shots.length; j++) { // 3 players
+    for (let j = 0; j < shots.length; j++) { // 3 shots
       if (shots[j][i] != 3) {
         opened = 1;
       }

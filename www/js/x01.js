@@ -60,21 +60,15 @@ function x01CreateGrid(nPlayers) {
   colLeft.className = "col col-lg-3";
   let colRight = document.createElement("div");
   colRight.className = "col";
-  
+
   let info = createCardInfo();
-  
-  // TEST
-  // let suggested = document.createElement("h1");
-  // suggested.id = "suggested";
-
   let suggested = createSimpleCard("suggested");
-
   let cards = createScoreCards(nPlayers, "20rem", "30px", "100px");
-  
+
   colLeft.appendChild(info);
   colRight.appendChild(suggested);
   colRight.appendChild(cards);
-  
+
   row.appendChild(colLeft);
   row.appendChild(colRight);
   grid.appendChild(row);

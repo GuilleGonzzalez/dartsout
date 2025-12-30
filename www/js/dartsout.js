@@ -61,19 +61,18 @@ function init(ws_url) {
     }
     socket = new WebSocket(ws_url + `?id=${gameId}`);
     socket.onopen = () => socket.send(`${gameId};status`);
+    socket.onmessage = function(event) {
+      console.log("Message received:", event.data);
+      let incomingMessage = event.data;
+      proccessMessage(incomingMessage);
+    };
+    
+    socket.onclose = function(event) {
+      console.log(`Closed ${event.code}`);
+    }
   } else {
     alert(`Invalid pathname (${window.location.pathname})`);
   }
-}
-
-socket.onmessage = function(event) {
-  console.log("Message received:", event.data);
-  let incomingMessage = event.data;
-  proccessMessage(incomingMessage);
-};
-
-socket.onclose = function(event) {
-  console.log(`Closed ${event.code}`);
 }
 
 function proccessMessage(message) {
@@ -84,8 +83,8 @@ function proccessMessage(message) {
   try {
     json = JSON.parse(message);
   } catch {
-    // TODO: puede pasar, no es un err/warn
-    console.warn("Invalid JSON");
+    // Puede pasar, no es un err/warn
+    // console.warn("Invalid JSON: ", message);
     return;
   }
   let msgId = json["msg_id"];
