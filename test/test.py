@@ -3,6 +3,8 @@ import sys
 import time
 import signal
 import atexit
+import threading
+import websocket
 import subprocess
 from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -12,11 +14,22 @@ from sim.api import Api
 DARTSOUT_PATH = os.path.join(PROJECT_ROOT, "dartsout.out")
 
 TEST_SERVER_URL = "http://localhost:8000"
-TEST_BOARD_ID = 12345
+TEST_WEBSOCKET_URL = "ws://localhost:8000/websocket?id=0"
+TEST_BOARD_ID = 0xCAFE
 CRICKET_ID = 0
 X01_ID = 1
 
-dartsout_process = None
+def ws_on_message(ws, message):
+    print("Message:", message)
+
+def ws_on_error(ws, error):
+    print("Error:", error)
+
+def ws_on_close(ws, close_status_code, close_msg):
+    print("Websocket closed")
+
+def ws_on_open(ws):
+    print("Websocket opened")
 
 def launch_dartsout():
     global dartsout_process
@@ -46,6 +59,24 @@ def main():
     time.sleep(1) # Give some time for the server to start
 
     api = Api(TEST_SERVER_URL, TEST_BOARD_ID)
+
+    ws = websocket.WebSocketApp(
+        TEST_WEBSOCKET_URL,
+        on_message=ws_on_message,
+        on_error=ws_on_error,
+        on_close=ws_on_close,
+        on_open=ws_on_open,
+    )
+    ws_thread = threading.Thread(
+        target=ws.run_forever,
+        daemon=True
+    )
+    ws_thread.start()
+
+    time.sleep(1) # Give some time for the websocket to connect
+
+    ws.send("0;status")
+
     players = []
     players.append({"name": "P1", "board_id": TEST_BOARD_ID})
     players.append({"name": "P2", "board_id": TEST_BOARD_ID})
@@ -63,6 +94,7 @@ def main():
     api.next_player()
     api.send_dart(0, 2)
     api.send_dart(0, 1)
+    ws.close()
 
     cleanup()
     print("Done.")
