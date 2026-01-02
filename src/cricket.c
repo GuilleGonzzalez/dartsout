@@ -350,7 +350,7 @@ static void list_remove(int* list, int* len, int val)
 {
 	for (int i = 0; i < *len; i++) {
 		if (list[i] == val) {
-			for (int j = i; j < *len; j++) {
+			for (int j = i; j < *len-1; j++) {
 				list[j] = list[j+1];
 			}
 			(*len)--;
